@@ -1,0 +1,355 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User profile linked to Supabase Auth
+model Profile {
+  id            String    @id @db.Uuid
+  email         String    @unique
+  displayName   String?
+  locale        String    @default("en")
+  timezone      String    @default("UTC")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  eventOwners   EventOwner[]
+  addresses     Address[]
+  reports       Report[]
+
+  @@map("profiles")
+}
+
+// Event (wedding, engagement, etc.)
+model Event {
+  id              String    @id @default(cuid())
+  title           String
+  slug            String    @unique
+  description     String?   @db.Text
+  eventDate       DateTime?
+  eventType       String    @default("wedding") // wedding, engagement, birthday, etc.
+  coverImageUrl   String?
+  locale          String    @default("en")
+  timezone        String    @default("UTC")
+  visibility      String    @default("private") // private, unlisted, public
+  isPublished     Boolean   @default(false)
+  isDisabled      Boolean   @default(false) // for admin abuse controls
+  minProductPrice Int       @default(360) // ILS floor for product visibility in bundles
+  position        Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime? // soft delete support
+
+  // Relations
+  owners          EventOwner[]
+  productLinks    ProductLink[]
+  funds           Fund[]
+  bundles         Bundle[]
+  reservations    Reservation[]
+  clickEvents     ClickEvent[]
+  adminActions    AdminAction[]
+
+  @@index([slug])
+  @@index([isPublished])
+  @@index([isDisabled])
+  @@map("events")
+}
+
+// Many-to-many: Event ownership with roles
+model EventOwner {
+  id        String    @id @default(cuid())
+  eventId   String
+  profileId String    @db.Uuid
+  role      String    @default("owner") // owner, editor, viewer
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  event     Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  profile   Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, profileId])
+  @@index([profileId])
+  @@map("event_owners")
+}
+
+// Product Links (external retailer URLs)
+model ProductLink {
+  id              String    @id @default(cuid())
+  eventId         String
+  title           String
+  description     String?   @db.Text
+  url             String
+  retailerDomain  String    // e.g., "foxhome.co.il"
+  imageUrl        String?
+  estimatedPrice  Int?      // optional price in ILS
+  isVisible       Boolean   @default(true)
+  clickCount      Int       @default(0)
+  position        Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime? // soft delete
+
+  // Relations
+  event           Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  reservations    Reservation[]
+  clickEvents     ClickEvent[]
+
+  @@index([eventId])
+  @@index([retailerDomain])
+  @@map("product_links")
+}
+
+// Cash Funds (wallet-based gifting)
+model Fund {
+  id              String    @id @default(cuid())
+  eventId         String
+  title           String
+  description     String?   @db.Text
+  targetAmount    Int?      // optional target in ILS
+  suggestedAmounts String?  // JSON array: [360, 500, 720, 1000]
+  walletLink      String    // PayBox or other wallet provider link
+  providerType    String    @default("paybox") // paybox, bit, etc.
+  isVisible       Boolean   @default(true)
+  clickCount      Int       @default(0)
+  position        Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime? // soft delete
+
+  // Relations
+  event           Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  clickEvents     ClickEvent[]
+  contributions   FundContribution[]
+
+  @@index([eventId])
+  @@map("funds")
+}
+
+// Fund Contributions
+model FundContribution {
+  id             String   @id @default(cuid())
+  fundId         String
+  reportedAmount Int
+  guestName      String?
+  guestEmail     String?
+  createdAt      DateTime @default(now())
+
+  fund Fund @relation(fields: [fundId], references: [id], onDelete: Cascade)
+
+  @@index([fundId])
+  @@map("fund_contributions")
+}
+
+// Bundles (group funding gifts)
+model Bundle {
+  id              String    @id @default(cuid())
+  eventId         String
+  title           String
+  description     String?   @db.Text
+  targetAmount    Int       // required for bundles, in ILS
+  suggestedAmounts String?  // JSON array: [360, 500, 720, 1000]
+  storeDomain     String    // enforced single-store constraint
+  imageUrl        String?
+  isVisible       Boolean   @default(true)
+  clickCount      Int       @default(0)
+  position        Int       @default(0)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime? // soft delete
+
+  // Relations
+  event           Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  items           BundleItem[]
+  reservations    Reservation[]
+  clickEvents     ClickEvent[]
+  contributions   BundleContribution[]
+
+  @@index([eventId])
+  @@index([storeDomain])
+  @@map("bundles")
+}
+
+// Bundle Contributions
+model BundleContribution {
+  id        String   @id @default(cuid())
+  bundleId  String
+  amount    Int
+  guestName String?
+  message   String?
+  createdAt DateTime @default(now())
+
+  bundle Bundle @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+
+  @@index([bundleId])
+  @@map("bundle_contributions")
+}
+
+// Bundle Items (products within a bundle)
+model BundleItem {
+  id        String    @id @default(cuid())
+  bundleId  String
+  title     String
+  url       String
+  imageUrl  String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  bundle    Bundle    @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+
+  @@index([bundleId])
+  @@map("bundle_items")
+}
+
+// Reservations (guest claims on products/bundles)
+model Reservation {
+  id              String    @id @default(cuid())
+  eventId         String
+  guestName       String
+  guestEmail      String?
+  status          String    @default("RESERVED") // RESERVED, PURCHASED_GUEST_CONFIRMED, RECEIVED_HOST_CONFIRMED, EXPIRED, CANCELLED
+  expiresAt       DateTime?
+  confirmedAt     DateTime?
+  receivedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Product or Bundle or Fund
+  productLinkId   String?
+  bundleId        String?
+
+  // Relations
+  event           Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  productLink     ProductLink? @relation(fields: [productLinkId], references: [id], onDelete: SetNull)
+  bundle          Bundle?   @relation(fields: [bundleId], references: [id], onDelete: SetNull)
+
+  @@unique([productLinkId, status]) // only one active reservation per product
+  @@index([eventId])
+  @@index([guestEmail])
+  @@index([status])
+  @@map("reservations")
+}
+
+// Couple's delivery addresses (encrypted in app)
+model Address {
+  id            String    @id @default(cuid())
+  profileId     String    @db.Uuid
+  recipientName String
+  phone         String?
+  city          String
+  line1         String
+  line2         String?
+  postalCode    String?
+  notes         String?   @db.Text
+  isDefault     Boolean   @default(false)
+  encryptedData  Boolean   @default(true) // flag indicating field encryption
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  profile       Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+  @@map("addresses")
+}
+
+// Track address reveals to guests
+model AddressReveal {
+  id            String    @id @default(cuid())
+  addressId     String
+  guestEmail    String?
+  guestName     String?
+  reservationId String?
+  revealedAt    DateTime  @default(now())
+  createdAt     DateTime  @default(now())
+
+  @@index([addressId])
+  @@map("address_reveals")
+}
+
+// Click event tracking
+model ClickEvent {
+  id            String    @id @default(cuid())
+  eventId       String
+  guestEmail    String?
+  clickedAt     DateTime  @default(now())
+
+  // What was clicked
+  productLinkId String?
+  fundId        String?
+  bundleId      String?
+
+  // For analytics/debugging
+  referrer      String?
+  userAgent     String?   // hashed/sanitized
+
+  // Relations
+  event         Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  productLink   ProductLink? @relation(fields: [productLinkId], references: [id], onDelete: SetNull)
+  fund          Fund?     @relation(fields: [fundId], references: [id], onDelete: SetNull)
+  bundle        Bundle?   @relation(fields: [bundleId], references: [id], onDelete: SetNull)
+
+  @@index([eventId])
+  @@index([productLinkId])
+  @@index([fundId])
+  @@index([bundleId])
+  @@map("click_events")
+}
+
+// Retail domain whitelist
+model RetailerWhitelist {
+  id            String    @id @default(cuid())
+  domain        String    @unique
+  name          String    // friendly name: "FOX HOME"
+  allowedPaths  String?   // optional path restriction for Keter etc.
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("retailer_whitelist")
+}
+
+// Admin actions audit log
+model AdminAction {
+  id            String    @id @default(cuid())
+  eventId       String
+  actionType    String    // disable_event, remove_gift, suspend_user, etc.
+  reason        String?   @db.Text
+  metadata      String?   @db.Text // JSON for additional context
+  adminId       String?
+  createdAt     DateTime  @default(now())
+
+  // Relations
+  event         Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@index([eventId])
+  @@index([actionType])
+  @@map("admin_actions")
+}
+
+// User reports (abuse, malicious content)
+model Report {
+  id            String    @id @default(cuid())
+  reporterEmail String?
+  reporterProfileId String? @db.Uuid
+  reportedEventId String?
+  reportType    String    // malicious_link, spam, abuse, etc.
+  description   String?   @db.Text
+  status        String    @default("PENDING") // PENDING, REVIEWED, RESOLVED, DISMISSED
+  resolvedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  reporterProfile Profile? @relation(fields: [reporterProfileId], references: [id], onDelete: SetNull)
+
+  @@index([reportedEventId])
+  @@index([status])
+  @@map("reports")
+}
