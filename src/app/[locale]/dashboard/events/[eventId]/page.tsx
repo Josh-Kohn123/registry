@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/Button";
@@ -12,8 +12,9 @@ import { User } from "@supabase/supabase-js";
 export default function EventDetailsPage({
   params,
 }: {
-  params: { eventId: string };
+  params: Promise<{ eventId: string }>;
 }) {
+  const { eventId } = use(params);
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("events");
@@ -30,7 +31,7 @@ export default function EventDetailsPage({
         setUser(session.user);
         // Fetch event
         try {
-          const response = await fetch(`/api/events/${params.eventId}`);
+          const response = await fetch(`/api/events/${eventId}`);
           if (response.ok) {
             const eventData = await response.json();
             setEvent(eventData);
@@ -46,14 +47,14 @@ export default function EventDetailsPage({
       }
       setIsLoading(false);
     });
-  }, [router, params.eventId]);
+  }, [router, eventId]);
 
   const handlePublishToggle = async () => {
     if (!event) return;
     try {
       setIsPublishing(true);
       const response = await fetch(
-        `/api/events/${params.eventId}/publish`,
+        `/api/events/${eventId}/publish`,
         {
           method: "POST",
           headers: {
@@ -89,7 +90,7 @@ export default function EventDetailsPage({
     }
 
     try {
-      const response = await fetch(`/api/events/${params.eventId}`, {
+      const response = await fetch(`/api/events/${eventId}`, {
         method: "DELETE",
       });
 

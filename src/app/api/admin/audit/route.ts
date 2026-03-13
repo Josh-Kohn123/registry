@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAllAdminActions, getAdminActionsByEvent } from "@/lib/db";
 
-async function isAdmin(userId?: string): Promise<boolean> {
-  return true;
+function verifyAdminKey(request: NextRequest): boolean {
+  const adminKey = request.headers.get("x-admin-key")
+    || request.nextUrl.searchParams.get("admin_key");
+  return adminKey === process.env.ADMIN_SECRET_KEY;
 }
 
 export async function GET(request: NextRequest) {
   try {
-    const isAdminUser = await isAdmin();
-    if (!isAdminUser) {
+    if (!verifyAdminKey(request)) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 403 }

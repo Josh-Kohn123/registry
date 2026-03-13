@@ -1,34 +1,34 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getEventById } from "@/lib/db";
-import { AddProductForm } from "@/components/products/AddProductForm";
-import { ProductListManager } from "@/components/products/ProductListManager";
+import { ProductsPageClient } from "@/components/products/ProductsPageClient";
 import { getMessages } from "next-intl/server";
 
 export default async function ProductsPage({
   params,
 }: {
-  params: { locale: string; eventId: string };
+  params: Promise<{ locale: string; eventId: string }>;
 }) {
+  const { locale, eventId } = await params;
   const supabase = await createClient();
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session?.user) {
-    redirect(`/${params.locale}/login`);
+  if (!user) {
+    redirect(`/${locale}/login`);
   }
 
-  const event = await getEventById(params.eventId);
+  const event = await getEventById(eventId);
 
   if (!event) {
-    redirect(`/${params.locale}/dashboard/events`);
+    redirect(`/${locale}/dashboard/events`);
   }
 
   // Check if user is owner
-  const isOwner = event.owners.some((owner) => owner.profileId === session.user.id);
+  const isOwner = event.owners.some((owner) => owner.profileId === user.id);
   if (!isOwner) {
-    redirect(`/${params.locale}/dashboard/events`);
+    redirect(`/${locale}/dashboard/events`);
   }
 
   const messages = await getMessages();
@@ -39,7 +39,7 @@ export default async function ProductsPage({
         {/* Header */}
         <div className="mb-8">
           <a
-            href={`/${params.locale}/dashboard/events/${params.eventId}`}
+            href={`/${locale}/dashboard/events/${eventId}`}
             className="text-blue-600 hover:text-blue-700 text-sm font-medium mb-4 inline-block"
           >
             ← {messages.common.back}
@@ -48,31 +48,13 @@ export default async function ProductsPage({
             {messages.gifts.products}
           </h1>
           <p className="text-gray-600 mt-2">
-            Paste product links from approved Israeli retailers. Guests can view and purchase from the retailer site.
+            {locale === "he"
+              ? "הדבק קישורים למוצרים מחנויות מאושרות. אורחים יכולים לצפות ולרכוש מהאתר של החנות."
+              : "Paste product links from approved Israeli retailers. Guests can view and purchase from the retailer site."}
           </p>
         </div>
 
-        {/* Two-column layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Add Product Form */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              Add New Product
-            </h2>
-            <AddProductForm
-              eventId={params.eventId}
-              locale={params.locale}
-            />
-          </div>
-
-          {/* Products List */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <ProductListManager
-              eventId={params.eventId}
-              locale={params.locale}
-            />
-          </div>
-        </div>
+        <ProductsPageClient eventId={eventId} locale={locale} />
       </div>
     </div>
   );

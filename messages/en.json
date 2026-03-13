@@ -12,7 +12,8 @@
     "save": "Save",
     "delete": "Delete",
     "edit": "Edit",
-    "back": "Back"
+    "back": "Back",
+    "dashboard": "Dashboard"
   },
   "auth": {
     "loginTitle": "Sign In to SimchaList",

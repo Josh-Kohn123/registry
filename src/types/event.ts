@@ -4,6 +4,8 @@ export type Visibility = "private" | "unlisted" | "public";
 export interface Event {
   id: string;
   title: string;
+  coupleFirstName?: string;
+  coupleSecondName?: string;
   slug: string;
   description?: string;
   eventDate?: Date;

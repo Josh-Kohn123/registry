@@ -3,14 +3,15 @@ import { reportSchema } from "@/lib/validators";
 import { createReport, getAllReports } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
 
-async function isAdmin(userId?: string): Promise<boolean> {
-  return true;
+function verifyAdminKey(request: NextRequest): boolean {
+  const adminKey = request.headers.get("x-admin-key")
+    || request.nextUrl.searchParams.get("admin_key");
+  return adminKey === process.env.ADMIN_SECRET_KEY;
 }
 
 export async function GET(request: NextRequest) {
   try {
-    const isAdminUser = await isAdmin();
-    if (!isAdminUser) {
+    if (!verifyAdminKey(request)) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 403 }
@@ -32,7 +33,7 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limit public reports
     const ip = request.headers.get("x-forwarded-for") || "unknown";
-    if (!rateLimit(`report_${ip}`, 5, 3600000)) {
+    if (!(await rateLimit(`report_${ip}`, 5, 3600000))) {
       return NextResponse.json(
         { error: "Too many reports from this IP" },
         { status: 429 }

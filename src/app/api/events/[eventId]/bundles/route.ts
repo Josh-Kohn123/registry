@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 import { bundleCreateSchema } from "@/lib/validators";
 import {
   createBundle,
@@ -47,11 +48,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { eventId } = await params;
 
-    // TODO: Add authentication check here
-    // const session = await getSession();
-    // if (!session) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
+    // Check authentication
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     // Verify event exists
     const event = await getEventById(eventId);
@@ -62,10 +64,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // TODO: Verify user owns event
-    // if (!event.owners.some(o => o.profileId === session.user.id)) {
-    //   return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    // }
+    // Verify user owns event
+    if (!event.owners.some(o => o.profileId === user.id)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
 
     const body = await request.json();
 

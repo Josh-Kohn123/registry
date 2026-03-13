@@ -7,11 +7,9 @@ export async function POST(request: NextRequest) {
   try {
     // Check authentication
     const supabase = await createClient();
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -46,7 +44,7 @@ export async function POST(request: NextRequest) {
 
     // Generate unique filename
     const ext = file.name.split(".").pop() || "jpg";
-    const filename = `cover-${session.user.id}-${Date.now()}.${ext}`;
+    const filename = `cover-${user.id}-${Date.now()}.${ext}`;
     const filepath = path.join(uploadsDir, filename);
 
     // Write file to disk

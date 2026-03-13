@@ -111,8 +111,18 @@ export function EventForm({
     }
   };
 
+  const handleNext = () => {
+    // Auto-generate slug when entering step 3 if empty
+    if (step === 2 && !slug && coupleFirstName && coupleSecondName) {
+      handleAutoGenerateSlug();
+    }
+    setStep(step + 1);
+  };
+
   // @ts-expect-error - type inference issue with zod defaults
-  const onSubmitForm = handleSubmit(onSubmit);
+  const onSubmitForm = handleSubmit(onSubmit, (validationErrors) => {
+    console.error("Form validation errors:", validationErrors);
+  });
 
   const StepOne = (
     <div className="space-y-4">
@@ -276,6 +286,18 @@ export function EventForm({
 
   const StepFour = (
     <div className="space-y-4">
+      {Object.keys(errors).length > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-800 font-medium mb-2">
+            {locale === "he" ? "יש לתקן את השגיאות הבאות:" : "Please fix the following errors:"}
+          </p>
+          <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
+            {Object.entries(errors).map(([field, error]) => (
+              <li key={field}>{(error as any)?.message || field}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       <Card>
         <CardHeader>
           <CardTitle>{locale === "he" ? "סקירה" : "Review"}</CardTitle>
@@ -301,7 +323,7 @@ export function EventForm({
             <span className="text-gray-600">
               {locale === "he" ? "קישור קצר:" : "Slug:"}
             </span>
-            <span className="font-medium">{watch("slug")}</span>
+            <span className="font-medium">{watch("slug") || <span className="text-red-500 italic">{locale === "he" ? "חסר" : "missing"}</span>}</span>
           </div>
           {watch("eventDate") && (
             <div className="flex justify-between">
@@ -363,7 +385,7 @@ export function EventForm({
             <Button
               type="button"
               variant="primary"
-              onClick={() => setStep(step + 1)}
+              onClick={handleNext}
             >
               {locale === "he" ? "הבא" : "Next"}
             </Button>

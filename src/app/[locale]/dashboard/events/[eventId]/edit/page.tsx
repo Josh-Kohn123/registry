@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { EventForm } from "@/components/events/EventForm";
@@ -12,8 +12,9 @@ import { EventWithOwners } from "@/types/event";
 export default function EditEventPage({
   params,
 }: {
-  params: { eventId: string };
+  params: Promise<{ eventId: string }>;
 }) {
+  const { eventId } = use(params);
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("events");
@@ -30,7 +31,7 @@ export default function EditEventPage({
         setUser(session.user);
         // Fetch event
         try {
-          const response = await fetch(`/api/events/${params.eventId}`);
+          const response = await fetch(`/api/events/${eventId}`);
           if (response.ok) {
             const eventData = await response.json();
             setEvent(eventData);
@@ -46,13 +47,13 @@ export default function EditEventPage({
       }
       setIsFetching(false);
     });
-  }, [router, params.eventId]);
+  }, [router, eventId]);
 
   const handleSubmit = async (data: EventCreationInput) => {
     try {
       setIsLoading(true);
 
-      const response = await fetch(`/api/events/${params.eventId}`, {
+      const response = await fetch(`/api/events/${eventId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -108,8 +109,8 @@ export default function EditEventPage({
         isLoading={isLoading}
         initialData={{
           title: event.title,
-          coupleFirstName: "",
-          coupleSecondName: "",
+          coupleFirstName: event.coupleFirstName || "",
+          coupleSecondName: event.coupleSecondName || "",
           description: event.description,
           eventDate: event.eventDate
             ? new Date(event.eventDate).toISOString().split("T")[0]

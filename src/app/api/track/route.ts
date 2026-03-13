@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   try {
     // Rate limiting by IP (simple approach)
     const ip = request.headers.get("x-forwarded-for") || "unknown";
-    if (!rateLimit(ip, 100, 60000)) {
+    if (!(await rateLimit(ip, 100, 60000))) {
       return NextResponse.json(
         { error: "Rate limit exceeded" },
         { status: 429 }

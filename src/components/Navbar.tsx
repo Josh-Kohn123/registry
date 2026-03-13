@@ -67,7 +67,7 @@ export function Navbar() {
                 href="/dashboard"
                 className="text-gray-700 hover:text-gray-900 font-medium"
               >
-                {t("common")}
+                {t("dashboard")}
               </Link>
             )}
           </div>

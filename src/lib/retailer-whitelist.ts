@@ -27,7 +27,7 @@ export const RETAILER_WHITELIST = [
 export function extractDomain(urlString: string): string | null {
   try {
     const url = new URL(urlString);
-    return url.hostname.toLowerCase();
+    return url.hostname.toLowerCase().replace(/^www\./, "");
   } catch {
     return null;
   }

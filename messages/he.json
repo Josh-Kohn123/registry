@@ -12,7 +12,8 @@
     "save": "שמור",
     "delete": "מחק",
     "edit": "עריכה",
-    "back": "חזור"
+    "back": "חזור",
+    "dashboard": "לוח בקרה"
   },
   "auth": {
     "loginTitle": "כניסה ל-SimchaList",

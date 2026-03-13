@@ -6,7 +6,10 @@ import { GiftSection } from "@/components/events/GiftSection";
 import { FundCard } from "@/components/funds/FundCard";
 import { PublicEvent } from "@/types/event";
 import { Fund } from "@/types/fund";
+import { ProductLink } from "@/types/product";
+import { getRetailerName } from "@/lib/retailer-whitelist";
 import { useLocale } from "next-intl";
+import Image from "next/image";
 
 interface PublicEventPageProps {
   params: Promise<{ slug: string }>;
@@ -18,6 +21,7 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
   const isRtl = locale === "he";
   const [event, setEvent] = useState<PublicEvent | null>(null);
   const [funds, setFunds] = useState<Fund[]>([]);
+  const [products, setProducts] = useState<ProductLink[]>([]);
   const [declaredTotals, setDeclaredTotals] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -93,6 +97,17 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
           }
         } catch (err) {
           console.error("Error loading funds:", err);
+        }
+
+        // Load products
+        try {
+          const productsResponse = await fetch(`/api/events/${eventData.id}/products`);
+          if (productsResponse.ok) {
+            const productsData = await productsResponse.json();
+            setProducts(productsData.filter((p: ProductLink) => p.isVisible));
+          }
+        } catch (err) {
+          console.error("Error loading products:", err);
         }
       } catch {
         setError(locale === "he" ? "שגיאה בטעינת האירוע" : "Error loading event");
@@ -187,9 +202,50 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
       <GiftSection
         title={locale === "he" ? "מוצרים" : "Products"}
         description={locale === "he" ? "מוצרים בודדים מחנויות שלנו" : "Individual products from our retailers"}
-        isEmpty={true}
+        isEmpty={products.length === 0}
         emptyMessage={locale === "he" ? "עדיין לא הוסיפו מוצרים" : "No products added yet"}
-      />
+      >
+        {products.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {products.map((product) => (
+              <a
+                key={product.id}
+                href={product.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+              >
+                {product.imageUrl && (
+                  <div className="relative h-48 bg-gray-100">
+                    <Image
+                      src={product.imageUrl}
+                      alt={product.title}
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                )}
+                <div className="p-4">
+                  <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2">
+                    {product.title}
+                  </h3>
+                  <p className="text-xs text-gray-500 mb-2">
+                    {getRetailerName(product.retailerDomain)}
+                  </p>
+                  {product.estimatedPrice && (
+                    <p className="text-sm font-medium text-green-700">
+                      ₪{product.estimatedPrice}
+                    </p>
+                  )}
+                  <p className="text-xs text-blue-600 mt-2">
+                    {locale === "he" ? "צפייה באתר הקמעונאי →" : "View on retailer site →"}
+                  </p>
+                </div>
+              </a>
+            ))}
+          </div>
+        )}
+      </GiftSection>
 
       <footer className={`border-t border-gray-200 py-12 px-4 ${isRtl ? "rtl" : "ltr"}`}>
         <div className="max-w-3xl mx-auto text-center text-gray-600 text-sm">

@@ -29,6 +29,8 @@ model Profile {
 model Event {
   id              String    @id @default(cuid())
   title           String
+  coupleFirstName String?
+  coupleSecondName String?
   slug            String    @unique
   description     String?   @db.Text
   eventDate       DateTime?

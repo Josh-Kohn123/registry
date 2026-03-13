@@ -1,44 +1,28 @@
-// Simple in-memory rate limiter (for demo; replace with Redis in production)
-interface RateLimitBucket {
-  count: number;
-  resetAt: number;
-}
+import redis from "@/lib/redis";
 
-const buckets = new Map<string, RateLimitBucket>();
-
-export function rateLimit(
+/**
+ * Redis-backed rate limiter using sliding window counters.
+ * Falls back to allowing the request if Redis is unavailable.
+ */
+export async function rateLimit(
   key: string,
   limit: number = 10,
   windowMs: number = 60000
-): boolean {
-  const now = Date.now();
-  const bucket = buckets.get(key);
+): Promise<boolean> {
+  try {
+    const redisKey = `rl:${key}`;
+    const windowSec = Math.ceil(windowMs / 1000);
 
-  // Create new bucket or check if expired
-  if (!bucket || now >= bucket.resetAt) {
-    buckets.set(key, {
-      count: 1,
-      resetAt: now + windowMs,
-    });
+    const count = await redis.incr(redisKey);
+
+    // Set expiry on first request in this window
+    if (count === 1) {
+      await redis.expire(redisKey, windowSec);
+    }
+
+    return count <= limit;
+  } catch {
+    // If Redis is down, allow the request rather than blocking everyone
     return true;
   }
-
-  // Check limit
-  if (bucket.count >= limit) {
-    return false;
-  }
-
-  // Increment and allow
-  bucket.count++;
-  return true;
 }
-
-// Clean up old buckets periodically
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, bucket] of buckets.entries()) {
-    if (now >= bucket.resetAt) {
-      buckets.delete(key);
-    }
-  }
-}, 60000); // Clean every minute

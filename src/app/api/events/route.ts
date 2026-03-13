@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { eventCreationSchema } from "@/lib/validators";
 import {
@@ -6,17 +7,15 @@ import {
   getUserEvents,
   generateSlug,
   findUniqueSlug,
+  ensureProfile,
 } from "@/lib/db";
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
     const supabase = await createClient();
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -33,25 +32,29 @@ export async function POST(request: NextRequest) {
       slug = await findUniqueSlug(baseSlug);
     }
 
-    // Create event
+    // Ensure user profile exists in DB
+    await ensureProfile(user.id, user.email || "");
+
+    // Create event - convert eventDate string to Date or null
+    const eventDate = validatedData.eventDate
+      ? new Date(validatedData.eventDate)
+      : undefined;
+
     const createData: any = {
       ...validatedData,
       slug,
+      eventDate,
       minProductPrice: 360,
       isPublished: false,
       isDisabled: false,
       owners: [
         {
           id: `owner-${Date.now()}`,
-          profileId: session.user.id,
+          profileId: user.id,
           role: "owner",
         },
       ],
     };
-    // Convert eventDate from string to Date if provided
-    if (validatedData.eventDate) {
-      createData.eventDate = new Date(validatedData.eventDate);
-    }
 
     const event = await createEvent(createData as any);
 
@@ -70,18 +73,14 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    // Check authentication
     const supabase = await createClient();
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get user's events
-    const events = await getUserEvents(session.user.id);
+    const events = await getUserEvents(user.id);
 
     return NextResponse.json(events);
   } catch (error) {
@@ -92,5 +91,3 @@ export async function GET(request: NextRequest) {
     );
   }
 }
-
-import { z } from "zod";

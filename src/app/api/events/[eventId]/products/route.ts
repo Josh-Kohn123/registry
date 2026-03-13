@@ -49,11 +49,9 @@ export async function POST(
 ) {
   try {
     const supabase = await createClient();
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    if (!session?.user) {
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -63,7 +61,7 @@ export async function POST(
     }
 
     // Check if user is owner
-    const isOwner = event.owners.some((owner) => owner.profileId === session.user.id);
+    const isOwner = event.owners.some((owner) => owner.profileId === user.id);
     if (!isOwner) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }

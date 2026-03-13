@@ -1,25 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { prisma } from "@/lib/prisma";
 import {
-  searchEventsSchema,
   disableEventSchema,
 } from "@/lib/validators";
 import {
-  getUserEvents,
   updateEvent,
   createAdminAction,
-  getAllReports,
 } from "@/lib/db";
 
-// Mock admin check - in real app, verify admin role from JWT
-async function isAdmin(userId?: string): Promise<boolean> {
-  // In real app: check if user has admin role
-  return true;
+async function verifyAdmin(request: NextRequest): Promise<boolean> {
+  // Check admin secret key from header
+  const adminKey = request.headers.get("x-admin-key");
+  if (adminKey === process.env.ADMIN_SECRET_KEY) {
+    return true;
+  }
+
+  // Fallback: authenticated user + admin key in query param
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return false;
+
+  const queryKey = request.nextUrl.searchParams.get("admin_key");
+  return queryKey === process.env.ADMIN_SECRET_KEY;
 }
 
 export async function GET(request: NextRequest) {
   try {
-    const isAdminUser = await isAdmin();
-    if (!isAdminUser) {
+    if (!(await verifyAdmin(request))) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 403 }
@@ -36,11 +44,19 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Search by slug or owner email (simplified)
-    const allEvents = await getUserEvents("dummy"); // In real app, get all events
-    const results: typeof allEvents = []; // In mock, return empty; real implementation would search
+    // Search events by slug or title
+    const events = await prisma.event.findMany({
+      where: {
+        OR: [
+          { slug: { contains: query, mode: "insensitive" } },
+          { title: { contains: query, mode: "insensitive" } },
+        ],
+      },
+      include: { owners: true },
+      take: 20,
+    });
 
-    return NextResponse.json({ results });
+    return NextResponse.json({ results: events });
   } catch (error) {
     console.error("Error searching events:", error);
     return NextResponse.json(
@@ -52,8 +68,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const isAdminUser = await isAdmin();
-    if (!isAdminUser) {
+    if (!(await verifyAdmin(request))) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 403 }

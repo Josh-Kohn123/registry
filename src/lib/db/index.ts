@@ -13,6 +13,18 @@ import { AdminAction, Report } from "@/types/admin";
 // Re-export utilities
 export { generateId, generateSlug } from "./utils";
 
+// Ensure a profile exists for the given Supabase user
+export async function ensureProfile(userId: string, email: string) {
+  await prisma.profile.upsert({
+    where: { id: userId },
+    update: {},
+    create: {
+      id: userId,
+      email,
+    },
+  });
+}
+
 // Type mappers
 function mapEventToEventWithOwners(
   event: any,
@@ -21,6 +33,8 @@ function mapEventToEventWithOwners(
   return {
     id: event.id,
     title: event.title,
+    coupleFirstName: event.coupleFirstName,
+    coupleSecondName: event.coupleSecondName,
     slug: event.slug,
     description: event.description,
     eventDate: event.eventDate,
