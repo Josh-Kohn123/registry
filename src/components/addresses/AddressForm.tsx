@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLocale } from "next-intl";
 import { AddressInput } from "@/types/address";
 
 interface AddressFormProps {
@@ -16,6 +17,8 @@ export default function AddressForm({
   onSave,
   onCancel,
 }: AddressFormProps) {
+  const locale = useLocale();
+  const isHe = locale === "he";
   const [formData, setFormData] = useState<AddressInput>(
     initialData || {
       recipientName: "",
@@ -49,25 +52,24 @@ export default function AddressForm({
 
     try {
       await onSave(formData);
-    } catch (err) {
-      setError("Failed to save address");
-      console.error(err);
+    } catch {
+      setError(isHe ? "שגיאה בשמירת הכתובת" : "Failed to save address");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className={`space-y-4 ${isHe ? "rtl" : "ltr"}`}>
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded" role="alert">
           {error}
         </div>
       )}
 
       <div>
         <label className="block text-sm font-medium mb-2">
-          Recipient Name *
+          {isHe ? "שם הנמען *" : "Recipient Name *"}
         </label>
         <input
           type="text"
@@ -80,18 +82,23 @@ export default function AddressForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-2">Phone</label>
+        <label className="block text-sm font-medium mb-2">
+          {isHe ? "טלפון" : "Phone"}
+        </label>
         <input
           type="tel"
           name="phone"
           value={formData.phone || ""}
           onChange={handleChange}
+          dir="ltr"
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-2">City *</label>
+        <label className="block text-sm font-medium mb-2">
+          {isHe ? "עיר *" : "City *"}
+        </label>
         <input
           type="text"
           name="city"
@@ -104,7 +111,7 @@ export default function AddressForm({
 
       <div>
         <label className="block text-sm font-medium mb-2">
-          Street Address *
+          {isHe ? "כתובת רחוב *" : "Street Address *"}
         </label>
         <input
           type="text"
@@ -118,7 +125,7 @@ export default function AddressForm({
 
       <div>
         <label className="block text-sm font-medium mb-2">
-          Apartment/Unit (optional)
+          {isHe ? "דירה/יחידה (אופציונלי)" : "Apartment/Unit (optional)"}
         </label>
         <input
           type="text"
@@ -130,19 +137,22 @@ export default function AddressForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium mb-2">Postal Code</label>
+        <label className="block text-sm font-medium mb-2">
+          {isHe ? "מיקוד" : "Postal Code"}
+        </label>
         <input
           type="text"
           name="postalCode"
           value={formData.postalCode || ""}
           onChange={handleChange}
+          dir="ltr"
           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
       <div>
         <label className="block text-sm font-medium mb-2">
-          Delivery Notes (optional)
+          {isHe ? "הערות משלוח (אופציונלי)" : "Delivery Notes (optional)"}
         </label>
         <textarea
           name="notes"
@@ -160,9 +170,11 @@ export default function AddressForm({
             name="isDefault"
             checked={formData.isDefault || false}
             onChange={handleChange}
-            className="mr-2"
+            className="me-2"
           />
-          <span className="text-sm font-medium">Set as Default</span>
+          <span className="text-sm font-medium">
+            {isHe ? "הגדר כברירת מחדל" : "Set as Default"}
+          </span>
         </label>
       </div>
 
@@ -172,14 +184,16 @@ export default function AddressForm({
           onClick={onCancel}
           className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
         >
-          Cancel
+          {isHe ? "ביטול" : "Cancel"}
         </button>
         <button
           type="submit"
           disabled={isLoading}
           className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
         >
-          {isLoading ? "Saving..." : "Save Address"}
+          {isLoading
+            ? (isHe ? "שומר..." : "Saving...")
+            : (isHe ? "שמור כתובת" : "Save Address")}
         </button>
       </div>
     </form>

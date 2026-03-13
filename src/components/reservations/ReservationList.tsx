@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useLocale } from "next-intl";
 import { Reservation, ReservationStatus as ReservationStatusType } from "@/types/reservation";
 import ReservationStatus from "./ReservationStatus";
 
@@ -17,11 +18,31 @@ const STATUS_OPTIONS: ReservationStatusType[] = [
 ];
 
 export default function ReservationList({ eventId }: ReservationListProps) {
+  const locale = useLocale();
+  const isHe = locale === "he";
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [filteredReservations, setFilteredReservations] = useState<Reservation[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<ReservationStatusType | "ALL">("ALL");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const statusLabels: Record<string, string> = isHe
+    ? {
+        ALL: "הכל",
+        RESERVED: "שמור",
+        PURCHASED_GUEST_CONFIRMED: "נקנה (דווח)",
+        RECEIVED_HOST_CONFIRMED: "התקבל",
+        EXPIRED: "פקע",
+        CANCELLED: "בוטל",
+      }
+    : {
+        ALL: "All",
+        RESERVED: "Reserved",
+        PURCHASED_GUEST_CONFIRMED: "Purchased (Reported)",
+        RECEIVED_HOST_CONFIRMED: "Received",
+        EXPIRED: "Expired",
+        CANCELLED: "Cancelled",
+      };
 
   useEffect(() => {
     const fetchReservations = async () => {
@@ -32,16 +53,15 @@ export default function ReservationList({ eventId }: ReservationListProps) {
         }
         const data: Reservation[] = await response.json();
         setReservations(data);
-      } catch (err) {
-        setError("Failed to load reservations");
-        console.error(err);
+      } catch {
+        setError(isHe ? "שגיאה בטעינת הזמנות" : "Failed to load reservations");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchReservations();
-  }, [eventId]);
+  }, [eventId, isHe]);
 
   useEffect(() => {
     if (selectedStatus === "ALL") {
@@ -72,14 +92,13 @@ export default function ReservationList({ eventId }: ReservationListProps) {
       setReservations(
         reservations.map((r) => (r.id === reservationId ? updated : r))
       );
-    } catch (err) {
-      alert("Failed to mark as received");
-      console.error(err);
+    } catch {
+      alert(isHe ? "שגיאה בעדכון ההזמנה" : "Failed to mark as received");
     }
   };
 
   const handleCancel = async (reservationId: string) => {
-    if (!confirm("Are you sure you want to cancel this reservation?")) {
+    if (!confirm(isHe ? "האם אתה בטוח שברצונך לבטל הזמנה זו?" : "Are you sure you want to cancel this reservation?")) {
       return;
     }
 
@@ -96,14 +115,13 @@ export default function ReservationList({ eventId }: ReservationListProps) {
       }
 
       setReservations(reservations.filter((r) => r.id !== reservationId));
-    } catch (err) {
-      alert("Failed to cancel reservation");
-      console.error(err);
+    } catch {
+      alert(isHe ? "שגיאה בביטול ההזמנה" : "Failed to cancel reservation");
     }
   };
 
   if (isLoading) {
-    return <div className="text-center py-8">Loading reservations...</div>;
+    return <div className="text-center py-8">{isHe ? "טוען הזמנות..." : "Loading reservations..."}</div>;
   }
 
   if (error) {
@@ -113,7 +131,7 @@ export default function ReservationList({ eventId }: ReservationListProps) {
   if (reservations.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
-        No reservations yet
+        {isHe ? "אין הזמנות עדיין" : "No reservations yet"}
       </div>
     );
   }
@@ -121,7 +139,9 @@ export default function ReservationList({ eventId }: ReservationListProps) {
   return (
     <div>
       <div className="mb-6">
-        <label className="block text-sm font-medium mb-2">Filter by Status</label>
+        <label className="block text-sm font-medium mb-2">
+          {isHe ? "סנן לפי סטטוס" : "Filter by Status"}
+        </label>
         <select
           value={selectedStatus}
           onChange={(e) =>
@@ -129,10 +149,10 @@ export default function ReservationList({ eventId }: ReservationListProps) {
           }
           className="px-3 py-2 border border-gray-300 rounded-lg"
         >
-          <option value="ALL">All</option>
+          <option value="ALL">{statusLabels.ALL}</option>
           {STATUS_OPTIONS.map((status) => (
             <option key={status} value={status}>
-              {status}
+              {statusLabels[status]}
             </option>
           ))}
         </select>
@@ -148,7 +168,7 @@ export default function ReservationList({ eventId }: ReservationListProps) {
               <div>
                 <p className="font-semibold">{reservation.guestName}</p>
                 {reservation.guestEmail && (
-                  <p className="text-sm text-gray-600">{reservation.guestEmail}</p>
+                  <p className="text-sm text-gray-600" dir="ltr">{reservation.guestEmail}</p>
                 )}
               </div>
               <ReservationStatus reservation={reservation} />
@@ -157,12 +177,14 @@ export default function ReservationList({ eventId }: ReservationListProps) {
             <div className="mt-3 text-sm text-gray-600">
               {reservation.expiresAt && (
                 <p>
-                  Expires: {new Date(reservation.expiresAt).toLocaleString()}
+                  {isHe ? "פוקע:" : "Expires:"}{" "}
+                  {new Date(reservation.expiresAt).toLocaleString(isHe ? "he-IL" : "en-US")}
                 </p>
               )}
               {reservation.confirmedAt && (
                 <p>
-                  Confirmed: {new Date(reservation.confirmedAt).toLocaleString()}
+                  {isHe ? "אושר:" : "Confirmed:"}{" "}
+                  {new Date(reservation.confirmedAt).toLocaleString(isHe ? "he-IL" : "en-US")}
                 </p>
               )}
             </div>
@@ -172,16 +194,16 @@ export default function ReservationList({ eventId }: ReservationListProps) {
                 onClick={() => handleMarkAsReceived(reservation.id)}
                 className="mt-3 px-3 py-1 text-sm bg-green-100 text-green-700 rounded hover:bg-green-200"
               >
-                Mark as Received
+                {isHe ? "סמן כהתקבל" : "Mark as Received"}
               </button>
             )}
 
             {(reservation.status === "RESERVED" || reservation.status === "PURCHASED_GUEST_CONFIRMED") && (
               <button
                 onClick={() => handleCancel(reservation.id)}
-                className="mt-3 ml-2 px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200"
+                className="mt-3 ms-2 px-3 py-1 text-sm bg-red-100 text-red-700 rounded hover:bg-red-200"
               >
-                Cancel Reservation
+                {isHe ? "בטל הזמנה" : "Cancel Reservation"}
               </button>
             )}
           </div>

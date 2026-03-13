@@ -261,6 +261,54 @@ export default function EventDetailsPage({
           </CardContent>
         </Card>
 
+        {/* Manage Sections */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle>
+              {locale === "he" ? "ניהול מתנות" : "Manage Gifts"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Button
+                variant="outline"
+                className="justify-start"
+                onClick={() => router.push(`/dashboard/events/${event.id}/products`)}
+              >
+                {locale === "he" ? "🛍️ מוצרים" : "🛍️ Products"}
+              </Button>
+              <Button
+                variant="outline"
+                className="justify-start"
+                onClick={() => router.push(`/dashboard/events/${event.id}/funds`)}
+              >
+                {locale === "he" ? "💰 קרנות כספיות" : "💰 Cash Funds"}
+              </Button>
+              <Button
+                variant="outline"
+                className="justify-start"
+                onClick={() => router.push(`/dashboard/events/${event.id}/bundles`)}
+              >
+                {locale === "he" ? "🎁 מתנות קבוצתיות" : "🎁 Group Gifts"}
+              </Button>
+              <Button
+                variant="outline"
+                className="justify-start"
+                onClick={() => router.push(`/dashboard/events/${event.id}/addresses`)}
+              >
+                {locale === "he" ? "📍 כתובות משלוח" : "📍 Delivery Addresses"}
+              </Button>
+              <Button
+                variant="outline"
+                className="justify-start"
+                onClick={() => router.push(`/dashboard/events/${event.id}/reservations`)}
+              >
+                {locale === "he" ? "📋 הזמנות אורחים" : "📋 Guest Reservations"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Actions */}
         <div className="flex gap-4 justify-between">
           <Button

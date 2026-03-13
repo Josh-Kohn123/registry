@@ -101,6 +101,7 @@
     "viewAtStore": "View at Store",
     "externalLink": "Opens in a new window",
     "whitelistedRetailers": "Approved retailers",
+    "productImage": "Image URL",
     "bundleTitle": "Bundle Title",
     "bundleDescription": "Bundle Description",
     "bundleItems": "Items in Bundle",

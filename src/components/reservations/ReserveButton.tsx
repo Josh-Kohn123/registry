@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLocale } from "next-intl";
 import { Reservation } from "@/types/reservation";
 import GuestReservationForm from "./GuestReservationForm";
 import ConfirmPurchaseModal from "./ConfirmPurchaseModal";
@@ -20,6 +21,7 @@ export default function ReserveButton({
   retailerUrl,
   isDisabled = false,
 }: ReserveButtonProps) {
+  const locale = useLocale();
   const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [reservation, setReservation] = useState<Reservation | null>(null);
@@ -95,9 +97,9 @@ export default function ReserveButton({
     <button
       onClick={() => setShowForm(true)}
       disabled={isDisabled}
-      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+      className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 text-sm font-medium"
     >
-      Reserve & Go to Store
+      {locale === "he" ? "שריין וקנה בחנות" : "Reserve & Go to Store"}
     </button>
   );
 }

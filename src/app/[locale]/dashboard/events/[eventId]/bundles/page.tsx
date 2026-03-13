@@ -1,3 +1,5 @@
+"use client";
+
 import { useTranslations } from "next-intl";
 import { CreateBundleForm } from "@/components/bundles/CreateBundleForm";
 import { BundleListManager } from "@/components/bundles/BundleListManager";

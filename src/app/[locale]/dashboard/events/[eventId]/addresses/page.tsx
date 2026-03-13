@@ -1,19 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
+import { useLocale } from "next-intl";
 import { Address, AddressInput } from "@/types/address";
 import AddressForm from "@/components/addresses/AddressForm";
 
 interface AddressesPageProps {
-  params: {
+  params: Promise<{
     locale: string;
     eventId: string;
-  };
+  }>;
 }
 
-export default function AddressesPage({
-  params: { locale, eventId },
-}: AddressesPageProps) {
+export default function AddressesPage({ params }: AddressesPageProps) {
+  const { eventId } = use(params);
+  const locale = useLocale();
+  const isHe = locale === "he";
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -23,54 +25,65 @@ export default function AddressesPage({
   useEffect(() => {
     const fetchAddresses = async () => {
       try {
-        // In a real app, fetch from API
-        setIsLoading(false);
-      } catch (err) {
-        setError("Failed to load addresses");
+        const response = await fetch(`/api/events/${eventId}/addresses`);
+        if (response.ok) {
+          const data = await response.json();
+          setAddresses(data);
+        }
+      } catch {
+        setError(isHe ? "שגיאה בטעינת כתובות" : "Failed to load addresses");
+      } finally {
         setIsLoading(false);
       }
     };
 
     fetchAddresses();
-  }, [eventId]);
+  }, [eventId, isHe]);
 
   const handleSaveAddress = async (data: AddressInput) => {
     try {
-      setShowForm(false);
-      setEditingId(null);
+      const url = editingId
+        ? `/api/events/${eventId}/addresses/${editingId}`
+        : `/api/events/${eventId}/addresses`;
+      const method = editingId ? "PUT" : "POST";
 
-      const newAddress: Address = {
-        ...data,
-        id: Math.random().toString(36).substr(2, 9),
-        profileId: "current-user",
-        encryptedData: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
 
-      if (editingId) {
-        setAddresses(
-          addresses.map((a) => (a.id === editingId ? newAddress : a))
-        );
+      if (response.ok) {
+        const saved = await response.json();
+        if (editingId) {
+          setAddresses(addresses.map((a) => (a.id === editingId ? saved : a)));
+        } else {
+          setAddresses([...addresses, saved]);
+        }
+        setShowForm(false);
+        setEditingId(null);
       } else {
-        setAddresses([...addresses, newAddress]);
+        setError(isHe ? "שגיאה בשמירת הכתובת" : "Failed to save address");
       }
-    } catch (err) {
-      setError("Failed to save address");
-      console.error(err);
+    } catch {
+      setError(isHe ? "שגיאה בשמירת הכתובת" : "Failed to save address");
     }
   };
 
   const handleDeleteAddress = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this address?")) {
+    if (!confirm(isHe ? "האם אתה בטוח שברצונך למחוק כתובת זו?" : "Are you sure you want to delete this address?")) {
       return;
     }
 
     try {
-      setAddresses(addresses.filter((a) => a.id !== id));
-    } catch (err) {
-      setError("Failed to delete address");
-      console.error(err);
+      const response = await fetch(`/api/events/${eventId}/addresses/${id}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        setAddresses(addresses.filter((a) => a.id !== id));
+      }
+    } catch {
+      setError(isHe ? "שגיאה במחיקת הכתובת" : "Failed to delete address");
     }
   };
 
@@ -91,17 +104,19 @@ export default function AddressesPage({
   if (isLoading) {
     return (
       <div className="max-w-4xl mx-auto py-8 px-4 text-center">
-        Loading...
+        {isHe ? "טוען..." : "Loading..."}
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-8">Manage Delivery Addresses</h1>
+    <div className={`max-w-4xl mx-auto py-8 px-4 ${isHe ? "rtl" : "ltr"}`}>
+      <h1 className="text-3xl font-bold mb-8">
+        {isHe ? "ניהול כתובות משלוח" : "Manage Delivery Addresses"}
+      </h1>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4" role="alert">
           {error}
         </div>
       )}
@@ -109,7 +124,9 @@ export default function AddressesPage({
       {showForm ? (
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <h2 className="text-xl font-bold mb-6">
-            {editingId ? "Edit Address" : "Add New Address"}
+            {editingId
+              ? (isHe ? "ערוך כתובת" : "Edit Address")
+              : (isHe ? "הוסף כתובת חדשה" : "Add New Address")}
           </h2>
           <AddressForm
             eventId={eventId}
@@ -129,13 +146,13 @@ export default function AddressesPage({
           }}
           className="mb-8 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          Add New Address
+          {isHe ? "הוסף כתובת חדשה" : "Add New Address"}
         </button>
       )}
 
       {addresses.length === 0 ? (
         <div className="text-center py-12 text-gray-500">
-          No addresses yet. Add one to get started.
+          {isHe ? "אין כתובות עדיין. הוסף אחת כדי להתחיל." : "No addresses yet. Add one to get started."}
         </div>
       ) : (
         <div className="space-y-4">
@@ -151,14 +168,17 @@ export default function AddressesPage({
                   {address.line2 && `, ${address.line2}`}
                 </p>
                 <p className="text-gray-600">
-                  {address.postalCode} {address.city}
+                  <span dir="ltr">{address.postalCode}</span> {address.city}
                 </p>
                 {address.phone && (
-                  <p className="text-gray-600">Phone: {address.phone}</p>
+                  <p className="text-gray-600">
+                    {isHe ? "טלפון:" : "Phone:"}{" "}
+                    <span dir="ltr">{address.phone}</span>
+                  </p>
                 )}
                 {address.isDefault && (
                   <p className="text-blue-600 text-sm font-medium mt-2">
-                    Default Address
+                    {isHe ? "כתובת ברירת מחדל" : "Default Address"}
                   </p>
                 )}
               </div>
@@ -167,13 +187,13 @@ export default function AddressesPage({
                   onClick={() => handleEditAddress(address)}
                   className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
                 >
-                  Edit
+                  {isHe ? "עריכה" : "Edit"}
                 </button>
                 <button
                   onClick={() => handleDeleteAddress(address.id)}
                   className="px-4 py-2 text-sm border border-red-300 text-red-700 rounded-lg hover:bg-red-50"
                 >
-                  Delete
+                  {isHe ? "מחק" : "Delete"}
                 </button>
               </div>
             </div>

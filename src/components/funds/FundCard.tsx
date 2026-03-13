@@ -4,8 +4,7 @@ import { useState } from "react";
 import { Fund } from "@/types/fund";
 import { AmountChips } from "./AmountChips";
 import { formatCurrency } from "@/lib/utils";
-import { useTranslations } from "next-intl";
-import { trackOutboundClick } from "@/lib/tracking";
+import { useTranslations, useLocale } from "next-intl";
 
 interface FundCardProps {
   fund: Fund;
@@ -14,12 +13,6 @@ interface FundCardProps {
   eventId?: string;
 }
 
-const WALLET_PROVIDER_LABELS: Record<string, string> = {
-  PAYBOX: "Send via PayBox",
-  BIT: "Send via Bit",
-  OTHER: "Send Gift",
-};
-
 export function FundCard({
   fund,
   declaredTotal,
@@ -27,10 +20,14 @@ export function FundCard({
   eventId,
 }: FundCardProps) {
   const t = useTranslations("gifts");
+  const locale = useLocale();
   const [selectedAmount, setSelectedAmount] = useState<number | undefined>();
   const [guestName, setGuestName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showContributeForm, setShowContributeForm] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
+
+  const isMobile = typeof navigator !== "undefined" && /Mobi|Android/i.test(navigator.userAgent);
 
   const progressPercent = fund.targetAmount
     ? Math.min((declaredTotal / fund.targetAmount) * 100, 100)
@@ -50,11 +47,23 @@ export function FundCard({
     }
   };
 
-  const handleWalletClick = async () => {
+  const handleWalletClick = () => {
+    // Non-blocking fire-and-forget tracking (F10)
     if (eventId) {
-      await trackOutboundClick(eventId, "fund", fund.id, fund.walletLink);
+      fetch("/api/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ giftId: fund.id, eventType: "fund_click" }),
+        keepalive: true,
+      }).catch(() => {});
     }
-    window.open(fund.walletLink, "_blank");
+
+    // F04: Bit on desktop shows QR modal, otherwise open link directly
+    if (fund.walletProvider === "BIT" && !isMobile) {
+      setShowQRModal(true);
+    } else {
+      window.open(fund.walletLink, "_blank", "noopener,noreferrer");
+    }
   };
 
   const getProviderLabel = (): string => {
@@ -78,15 +87,12 @@ export function FundCard({
         )}
       </div>
 
-      {/* Progress Bar */}
+      {/* Progress Bar (only if target is set, per F04) */}
       {fund.targetAmount && (
         <div className="mb-4">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-sm text-gray-600">
-              {t("totalDeclared")}: {formatCurrency(declaredTotal)}
-            </span>
-            <span className="text-sm text-gray-600">
-              {formatCurrency(fund.targetAmount)}
+            <span className="text-sm text-gray-600" dir="ltr">
+              {formatCurrency(declaredTotal)} / {formatCurrency(fund.targetAmount)}
             </span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
@@ -98,7 +104,7 @@ export function FundCard({
         </div>
       )}
 
-      {/* Amount Chips */}
+      {/* Amount Chips (F04: 360/500/720/1000 default) */}
       <div className="mb-4">
         <p className="text-sm font-medium text-gray-700 mb-2">
           {t("suggestedAmounts")}
@@ -110,7 +116,7 @@ export function FundCard({
         />
       </div>
 
-      {/* Contribution Form */}
+      {/* "I sent it" Contribution Form */}
       {showContributeForm && (
         <div className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
           <div className="mb-3">
@@ -166,9 +172,9 @@ export function FundCard({
         </button>
         <button
           onClick={() => setShowContributeForm(!showContributeForm)}
-          className="flex-1 px-4 py-3 bg-gray-200 text-gray-900 rounded-lg font-medium hover:bg-gray-300 transition-colors"
+          className="flex-1 px-4 py-3 bg-gray-100 text-gray-800 rounded-lg font-medium hover:bg-gray-200 transition-colors border border-gray-300"
         >
-          {t("confirmContribution")}
+          {locale === "he" ? "שלחתי ✓" : "I sent it ✓"}
         </button>
       </div>
 
@@ -176,6 +182,36 @@ export function FundCard({
       <p className="text-xs text-gray-500 text-center mt-3">
         {t("sendingDirectly")}
       </p>
+
+      {/* QR Modal for Bit on Desktop (F04) */}
+      {showQRModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowQRModal(false)}>
+          <div className="bg-white rounded-lg p-6 max-w-sm mx-4" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-gray-900 mb-4 text-center">
+              {locale === "he" ? "שלח דרך Bit" : "Send via Bit"}
+            </h3>
+            <div className="flex justify-center mb-4">
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(fund.walletLink)}`}
+                alt="QR Code"
+                width={200}
+                height={200}
+              />
+            </div>
+            <p className="text-sm text-gray-600 text-center mb-4">
+              {locale === "he"
+                ? "סרוק עם מצלמת הטלפון כדי לפתוח את Bit ולהשלים את ההעברה"
+                : "Scan with your phone camera to open Bit and complete the transfer"}
+            </p>
+            <button
+              onClick={() => setShowQRModal(false)}
+              className="w-full px-4 py-2 bg-gray-200 text-gray-900 rounded-lg font-medium hover:bg-gray-300"
+            >
+              {locale === "he" ? "סגור" : "Close"}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -4,12 +4,14 @@ import { useEffect, useState, use } from "react";
 import { PublicEventHeader } from "@/components/events/PublicEventHeader";
 import { GiftSection } from "@/components/events/GiftSection";
 import { FundCard } from "@/components/funds/FundCard";
+import { BundleCard } from "@/components/bundles/BundleCard";
+import { ProductCard } from "@/components/products/ProductCard";
 import { PublicEvent } from "@/types/event";
 import { Fund } from "@/types/fund";
+import { Bundle } from "@/types/bundle";
 import { ProductLink } from "@/types/product";
-import { getRetailerName } from "@/lib/retailer-whitelist";
 import { useLocale } from "next-intl";
-import Image from "next/image";
+import ReserveButton from "@/components/reservations/ReserveButton";
 
 interface PublicEventPageProps {
   params: Promise<{ slug: string }>;
@@ -21,6 +23,7 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
   const isRtl = locale === "he";
   const [event, setEvent] = useState<PublicEvent | null>(null);
   const [funds, setFunds] = useState<Fund[]>([]);
+  const [bundles, setBundles] = useState<Bundle[]>([]);
   const [products, setProducts] = useState<ProductLink[]>([]);
   const [declaredTotals, setDeclaredTotals] = useState<Record<string, number>>({});
   const [isLoading, setIsLoading] = useState(true);
@@ -30,7 +33,6 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
   useEffect(() => {
     const loadEvent = async () => {
       try {
-        // Fetch event by slug via API
         const res = await fetch(`/api/events/by-slug/${slug}`);
 
         if (!res.ok) {
@@ -69,45 +71,48 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
         setEventId(eventData.id);
         setEvent(publicEvent);
 
-        // Load funds
-        try {
-          const fundsResponse = await fetch(`/api/events/${eventData.id}/funds`);
-          if (fundsResponse.ok) {
-            const fundsData = await fundsResponse.json();
-            setFunds(fundsData);
+        // Load funds, bundles, and products in parallel
+        const [fundsRes, bundlesRes, productsRes] = await Promise.allSettled([
+          fetch(`/api/events/${eventData.id}/funds`),
+          fetch(`/api/events/${eventData.id}/bundles`),
+          fetch(`/api/events/${eventData.id}/products`),
+        ]);
 
-            const totals: Record<string, number> = {};
-            for (const fund of fundsData) {
-              try {
-                const contribResponse = await fetch(
-                  `/api/events/${eventData.id}/funds/${fund.id}/contributions`
+        // Process funds
+        if (fundsRes.status === "fulfilled" && fundsRes.value.ok) {
+          const fundsData = await fundsRes.value.json();
+          setFunds(fundsData);
+
+          const totals: Record<string, number> = {};
+          for (const fund of fundsData) {
+            try {
+              const contribResponse = await fetch(
+                `/api/events/${eventData.id}/funds/${fund.id}/contributions`
+              );
+              if (contribResponse.ok) {
+                const contributions = await contribResponse.json();
+                totals[fund.id] = contributions.reduce(
+                  (sum: number, c: { reportedAmount: number }) => sum + c.reportedAmount,
+                  0
                 );
-                if (contribResponse.ok) {
-                  const contributions = await contribResponse.json();
-                  totals[fund.id] = contributions.reduce(
-                    (sum: number, c: any) => sum + c.reportedAmount,
-                    0
-                  );
-                }
-              } catch {
-                totals[fund.id] = 0;
               }
+            } catch {
+              totals[fund.id] = 0;
             }
-            setDeclaredTotals(totals);
           }
-        } catch (err) {
-          console.error("Error loading funds:", err);
+          setDeclaredTotals(totals);
         }
 
-        // Load products
-        try {
-          const productsResponse = await fetch(`/api/events/${eventData.id}/products`);
-          if (productsResponse.ok) {
-            const productsData = await productsResponse.json();
-            setProducts(productsData.filter((p: ProductLink) => p.isVisible));
-          }
-        } catch (err) {
-          console.error("Error loading products:", err);
+        // Process bundles
+        if (bundlesRes.status === "fulfilled" && bundlesRes.value.ok) {
+          const bundlesData = await bundlesRes.value.json();
+          setBundles(bundlesData.filter((b: Bundle) => b.isVisible));
+        }
+
+        // Process products
+        if (productsRes.status === "fulfilled" && productsRes.value.ok) {
+          const productsData = await productsRes.value.json();
+          setProducts(productsData.filter((p: ProductLink) => p.isVisible));
         }
       } catch {
         setError(locale === "he" ? "שגיאה בטעינת האירוע" : "Error loading event");
@@ -150,7 +155,7 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
     <div className={`min-h-screen bg-white ${isRtl ? "rtl" : "ltr"}`}>
       <PublicEventHeader event={event} />
 
-      {/* Funds Section (Cash-first) */}
+      {/* Section 1: Funds (Cash-first per F00/F02) */}
       <GiftSection
         title={locale === "he" ? "מתנות כספיות" : "Cash Gifts"}
         description={locale === "he" ? "עזרו לנו עם מתנה כספית" : "Help with a cash gift"}
@@ -164,6 +169,7 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
                 key={fund.id}
                 fund={fund}
                 declaredTotal={declaredTotals[fund.id] || 0}
+                eventId={eventId || undefined}
                 onContribute={
                   eventId
                     ? async (amount, guestName) => {
@@ -190,15 +196,28 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
         )}
       </GiftSection>
 
-      {/* Bundles Section */}
+      {/* Section 2: Bundles (Group Gifts per F02/F05) */}
       <GiftSection
         title={locale === "he" ? "מתנות קבוצתיות" : "Group Gifts"}
         description={locale === "he" ? "מתנות קבוצתיות - קנו ביחד" : "Group gifts - buy together"}
-        isEmpty={true}
+        isEmpty={bundles.length === 0}
         emptyMessage={locale === "he" ? "עדיין לא הוסיפו מתנות קבוצתיות" : "No bundles added yet"}
-      />
+      >
+        {bundles.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {bundles.map((bundle) => (
+              <BundleCard
+                key={bundle.id}
+                bundle={bundle}
+                currentContributions={bundle.currentAmount || 0}
+                eventId={eventId || undefined}
+              />
+            ))}
+          </div>
+        )}
+      </GiftSection>
 
-      {/* Products Section */}
+      {/* Section 3: Product Links (per F02/F03) */}
       <GiftSection
         title={locale === "he" ? "מוצרים" : "Products"}
         description={locale === "he" ? "מוצרים בודדים מחנויות שלנו" : "Individual products from our retailers"}
@@ -208,51 +227,34 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
         {products.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {products.map((product) => (
-              <a
-                key={product.id}
-                href={product.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
-              >
-                {product.imageUrl && (
-                  <div className="relative h-48 bg-gray-100">
-                    <Image
-                      src={product.imageUrl}
-                      alt={product.title}
-                      fill
-                      className="object-contain"
+              <div key={product.id} className="flex flex-col">
+                <ProductCard
+                  product={product}
+                  locale={locale}
+                  eventId={eventId || undefined}
+                />
+                {eventId && (
+                  <div className="mt-2">
+                    <ReserveButton
+                      eventId={eventId}
+                      productLinkId={product.id}
+                      retailerUrl={product.url}
                     />
                   </div>
                 )}
-                <div className="p-4">
-                  <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2">
-                    {product.title}
-                  </h3>
-                  <p className="text-xs text-gray-500 mb-2">
-                    {getRetailerName(product.retailerDomain)}
-                  </p>
-                  {product.estimatedPrice && (
-                    <p className="text-sm font-medium text-green-700">
-                      ₪{product.estimatedPrice}
-                    </p>
-                  )}
-                  <p className="text-xs text-blue-600 mt-2">
-                    {locale === "he" ? "צפייה באתר הקמעונאי →" : "View on retailer site →"}
-                  </p>
-                </div>
-              </a>
+              </div>
             ))}
           </div>
         )}
       </GiftSection>
 
+      {/* Footer Disclaimer (F02 required) */}
       <footer className={`border-t border-gray-200 py-12 px-4 ${isRtl ? "rtl" : "ltr"}`}>
         <div className="max-w-3xl mx-auto text-center text-gray-600 text-sm">
           <p>
             {locale === "he"
-              ? "זה פותח קישורים חיצוניים לאתרי קמעונות. SimchaList לא מטפל בתשלומים ולא משלח מוצרים."
-              : "This event links to external retailer websites. SimchaList does not process payments or ship products."}
+              ? "לחיצה על מתנות תעביר אותך לאתרי קמעונאות חיצוניים. SimchaList לא מוכר, לא משלח ולא מעבד תשלומים."
+              : "Clicking gifts takes you to external retailer websites. This registry platform does not sell or ship products."}
           </p>
         </div>
       </footer>
