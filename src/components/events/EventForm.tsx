@@ -280,6 +280,19 @@ export function EventForm({
           <option value="unlisted">{t("visibilityUnlisted")}</option>
           <option value="public">{t("visibilityPublic")}</option>
         </select>
+        <p className="text-xs text-gray-500 mt-1">
+          {watch("visibility") === "private"
+            ? locale === "he"
+              ? "רק בעלי האירוע יכולים לראות את הדף"
+              : "Only event owners can see this page"
+            : watch("visibility") === "unlisted"
+            ? locale === "he"
+              ? "רק מי שיש לו את הקישור יכול לגשת"
+              : "Only people with the direct link can access"
+            : locale === "he"
+            ? "כל אחד יכול לראות את הדף"
+            : "Anyone can see this page"}
+        </p>
       </div>
     </div>
   );

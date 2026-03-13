@@ -173,6 +173,19 @@ export default function EventDetailsPage({
                   {locale === "he" ? "נראות" : "Visibility"}
                 </p>
                 <p className="font-medium">{visibilityLabel}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {event.visibility === "private"
+                    ? locale === "he"
+                      ? "רק בעלי האירוע יכולים לראות את הדף. אורחים לא יכולים לגשת אליו."
+                      : "Only event owners can see this page. Guests cannot access it."
+                    : event.visibility === "unlisted"
+                    ? locale === "he"
+                      ? "רק מי שיש לו את הקישור יכול לראות את הדף. לא מופיע בחיפוש."
+                      : "Only people with the direct link can view the page. Not listed in search."
+                    : locale === "he"
+                    ? "כל אחד יכול לראות את הדף. מופיע בחיפוש."
+                    : "Anyone can see this page. Visible in search."}
+                </p>
               </div>
               {event.eventDate && (
                 <div>
@@ -245,19 +258,64 @@ export default function EventDetailsPage({
               </Button>
             </div>
 
-            {event.isPublished && (
-              <div className="pt-4 border-t border-gray-200">
-                <p className="text-sm text-gray-600 mb-2">
-                  {locale === "he" ? "קישור לעמוד הציבורי:" : "Public page URL:"}
-                </p>
+            <div className="pt-4 border-t border-gray-200">
+              <p className="text-xs text-gray-500 mb-3">
+                {event.isPublished
+                  ? locale === "he"
+                    ? "כשהאירוע מפורסם, אורחים יכולים לצפות ברשימת המתנות ולשלוח מתנות. הסרת הפרסום תסתיר את העמוד מאורחים."
+                    : "When published, guests can view your gift registry and send gifts. Unpublishing hides the page from guests."
+                  : locale === "he"
+                  ? "כשהאירוע בטיוטה, אף אורח לא יכול לראות את העמוד. פרסם כדי לאפשר לאורחים גישה."
+                  : "While in draft, no guest can see your page. Publish to allow guests to access it."}
+              </p>
+              <p className="text-sm text-gray-600 mb-2">
+                {locale === "he" ? "קישור לעמוד הציבורי:" : "Public page URL:"}
+              </p>
+              <div className="flex gap-2">
                 <input
                   type="text"
                   value={publicUrl}
                   readOnly
-                  className="w-full rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 text-sm"
+                  className="flex-1 rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 text-sm"
+                  dir="ltr"
                 />
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(publicUrl);
+                    alert(locale === "he" ? "הקישור הועתק!" : "Link copied!");
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 whitespace-nowrap"
+                >
+                  {locale === "he" ? "העתק קישור" : "Copy Link"}
+                </button>
               </div>
-            )}
+              <div className="flex gap-2 mt-3">
+                <a
+                  href={publicUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+                >
+                  {locale === "he" ? "פתח עמוד ציבורי" : "Open Public Page"}
+                </a>
+                <button
+                  onClick={() => {
+                    if (navigator.share) {
+                      navigator.share({
+                        title: event.title,
+                        url: publicUrl,
+                      });
+                    } else {
+                      navigator.clipboard.writeText(publicUrl);
+                      alert(locale === "he" ? "הקישור הועתק!" : "Link copied!");
+                    }
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+                >
+                  {locale === "he" ? "שתף עם חברים" : "Share with Friends"}
+                </button>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -304,6 +362,13 @@ export default function EventDetailsPage({
                 onClick={() => router.push(`/dashboard/events/${event.id}/reservations`)}
               >
                 {locale === "he" ? "📋 הזמנות אורחים" : "📋 Guest Reservations"}
+              </Button>
+              <Button
+                variant="primary"
+                className="justify-start sm:col-span-2"
+                onClick={() => router.push(`/dashboard/events/${event.id}/gifts`)}
+              >
+                {locale === "he" ? "🎯 מעקב מתנות - מי נתן מה" : "🎯 Gift Tracker - Who Gave What"}
               </Button>
             </div>
           </CardContent>

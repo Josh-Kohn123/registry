@@ -1,16 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { addressCreateSchema } from "@/lib/validators";
-import { getEventById, createAddress } from "@/lib/db";
+import { getEventById, createAddress, getAddressesByProfile } from "@/lib/db";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ eventId: string }>  }
 ) {
   try {
-    // In production, verify owner authentication
-    // For now, addresses are not returned to public; only owner can fetch them
-    // This route should return empty array if not authenticated as owner
-    return NextResponse.json([], { status: 200 });
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const eventId = (await params).eventId;
+    const event = await getEventById(eventId);
+    if (!event) {
+      return NextResponse.json({ error: "Event not found" }, { status: 404 });
+    }
+
+    // Only owners can fetch addresses
+    const isOwner = event.owners.some((owner) => owner.profileId === user.id);
+    if (!isOwner) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const addresses = await getAddressesByProfile(user.id);
+    return NextResponse.json(addresses, { status: 200 });
   } catch (error) {
     console.error("Failed to get addresses:", error);
     return NextResponse.json(

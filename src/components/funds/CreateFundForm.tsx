@@ -20,6 +20,7 @@ export function CreateFundForm({
   isLoading = false,
 }: CreateFundFormProps) {
   const t = useTranslations("gifts");
+  const tc = useTranslations("common");
 
   const [title, setTitle] = useState(initialData?.title || "");
   const [description, setDescription] = useState(initialData?.description || "");
@@ -127,7 +128,7 @@ export function CreateFundForm({
         {/* Target Amount */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            {t("targetAmount")} ({t("common.cancel")})
+            {t("targetAmount")}
           </label>
           <input
             type="number"
@@ -162,7 +163,7 @@ export function CreateFundForm({
           disabled={isLoading}
           className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
         >
-          {isLoading ? t("common.loading") : initialData ? t("edit") : t("addFund")}
+          {isLoading ? tc("loading") : initialData ? t("editFund") : t("addFund")}
         </button>
       </div>
     </form>

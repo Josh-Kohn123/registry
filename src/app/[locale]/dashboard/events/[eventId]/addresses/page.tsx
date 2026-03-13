@@ -111,9 +111,17 @@ export default function AddressesPage({ params }: AddressesPageProps) {
 
   return (
     <div className={`max-w-4xl mx-auto py-8 px-4 ${isHe ? "rtl" : "ltr"}`}>
-      <h1 className="text-3xl font-bold mb-8">
-        {isHe ? "ניהול כתובות משלוח" : "Manage Delivery Addresses"}
-      </h1>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold">
+          {isHe ? "ניהול כתובות משלוח" : "Manage Delivery Addresses"}
+        </h1>
+        <a
+          href={`/${locale}/dashboard/events/${eventId}`}
+          className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+        >
+          {isHe ? "חזור" : "Back"}
+        </a>
+      </div>
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4" role="alert">

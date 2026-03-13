@@ -20,11 +20,15 @@ export default function GuestReservationForm({
   const isHe = locale === "he";
   const [guestName, setGuestName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
+  const [guestPhone, setGuestPhone] = useState("");
+
+  const hasContact = guestEmail.trim() || guestPhone.trim();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!guestName.trim()) return;
-    onReserve(guestName, guestEmail || undefined);
+    if (!guestName.trim() || !hasContact) return;
+    const contactInfo = guestEmail.trim() || guestPhone.trim();
+    onReserve(guestName, contactInfo || undefined);
   };
 
   return (
@@ -55,9 +59,9 @@ export default function GuestReservationForm({
             />
           </div>
 
-          <div className="mb-6">
+          <div className="mb-4">
             <label className="block text-sm font-medium mb-2">
-              {isHe ? "אימייל (אופציונלי)" : "Email (optional)"}
+              {isHe ? "אימייל *" : "Email *"}
             </label>
             <input
               type="email"
@@ -67,6 +71,25 @@ export default function GuestReservationForm({
               dir="ltr"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+          </div>
+
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-2">
+              {isHe ? "טלפון" : "Phone"}
+            </label>
+            <input
+              type="tel"
+              value={guestPhone}
+              onChange={(e) => setGuestPhone(e.target.value)}
+              placeholder={isHe ? "050-1234567" : "050-1234567"}
+              dir="ltr"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              {isHe
+                ? "נדרש אימייל או טלפון כדי שהזוג יוכלו ליצור קשר"
+                : "Email or phone required so the couple can reach you"}
+            </p>
           </div>
 
           <div className="flex gap-3">
@@ -79,7 +102,7 @@ export default function GuestReservationForm({
             </button>
             <button
               type="submit"
-              disabled={!guestName.trim() || isLoading}
+              disabled={!guestName.trim() || !hasContact || isLoading}
               className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
             >
               {isLoading

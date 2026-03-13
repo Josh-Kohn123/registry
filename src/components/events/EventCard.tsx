@@ -93,10 +93,39 @@ export function EventCard({ event, onEdit }: EventCardProps) {
           </p>
         </div>
 
+        {/* Quick gift management links */}
+        <div className="flex gap-1 flex-wrap mb-4">
+          <Link href={`/dashboard/events/${event.id}/products`}>
+            <span className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 cursor-pointer">
+              {locale === "he" ? "🛍️ מוצרים" : "🛍️ Products"}
+            </span>
+          </Link>
+          <Link href={`/dashboard/events/${event.id}/funds`}>
+            <span className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 cursor-pointer">
+              {locale === "he" ? "💰 קרנות" : "💰 Funds"}
+            </span>
+          </Link>
+          <Link href={`/dashboard/events/${event.id}/bundles`}>
+            <span className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 cursor-pointer">
+              {locale === "he" ? "🎁 קבוצתיות" : "🎁 Bundles"}
+            </span>
+          </Link>
+          <Link href={`/dashboard/events/${event.id}/reservations`}>
+            <span className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 cursor-pointer">
+              {locale === "he" ? "📋 הזמנות" : "📋 Reservations"}
+            </span>
+          </Link>
+          <Link href={`/dashboard/events/${event.id}/gifts`}>
+            <span className="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 cursor-pointer">
+              {locale === "he" ? "🎯 מעקב" : "🎯 Tracker"}
+            </span>
+          </Link>
+        </div>
+
         <div className="flex gap-2 justify-between">
-          <Link href={`/dashboard/events/${event.id}/edit`}>
+          <Link href={`/dashboard/events/${event.id}`}>
             <Button variant="secondary" size="sm">
-              {locale === "he" ? "עריכה" : "Edit"}
+              {locale === "he" ? "ניהול" : "Manage"}
             </Button>
           </Link>
           <Link href={`/events/${event.slug}`}>

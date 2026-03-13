@@ -20,6 +20,7 @@ export function FundListManager({
   isLoading = false,
 }: FundListManagerProps) {
   const t = useTranslations("gifts");
+  const tc = useTranslations("common");
 
   if (funds.length === 0) {
     return (
@@ -54,14 +55,14 @@ export function FundListManager({
                   onClick={() => onEdit(fund)}
                   className="text-xs px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
                 >
-                  {t("edit")}
+                  {tc("edit")}
                 </button>
                 <button
                   onClick={() => onDelete(fund.id)}
                   disabled={isLoading}
                   className="text-xs px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 disabled:opacity-50"
                 >
-                  {t("delete")}
+                  {tc("delete")}
                 </button>
               </div>
             </div>

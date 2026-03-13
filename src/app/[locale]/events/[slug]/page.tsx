@@ -172,13 +172,13 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
                 eventId={eventId || undefined}
                 onContribute={
                   eventId
-                    ? async (amount, guestName) => {
+                    ? async (amount, guestName, guestContact) => {
                         const response = await fetch(
                           `/api/events/${eventId}/funds/${fund.id}/contribute`,
                           {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ reportedAmount: amount, guestName }),
+                            body: JSON.stringify({ reportedAmount: amount, guestName, guestEmail: guestContact }),
                           }
                         );
                         if (response.ok) {

@@ -18,9 +18,17 @@ export default function ReservationsPage({ params }: ReservationsPageProps) {
 
   return (
     <div className={`max-w-4xl mx-auto py-8 px-4 ${isHe ? "rtl" : "ltr"}`}>
-      <h1 className="text-3xl font-bold mb-8">
-        {isHe ? "כל ההזמנות" : "All Reservations"}
-      </h1>
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold">
+          {isHe ? "כל ההזמנות" : "All Reservations"}
+        </h1>
+        <a
+          href={`/${locale}/dashboard/events/${eventId}`}
+          className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+        >
+          {isHe ? "חזור" : "Back"}
+        </a>
+      </div>
 
       <div className="bg-white rounded-lg shadow p-6">
         <ReservationList eventId={eventId} />

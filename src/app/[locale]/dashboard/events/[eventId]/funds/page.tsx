@@ -2,13 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Fund } from "@/types/fund";
 import { CreateFundForm } from "@/components/funds/CreateFundForm";
 import { FundListManager } from "@/components/funds/FundListManager";
 
 export default function FundsDashboardPage() {
   const t = useTranslations("gifts");
+  const locale = useLocale();
+  const isHe = locale === "he";
   const params = useParams();
   const eventId = params.eventId as string;
 
@@ -132,15 +134,25 @@ export default function FundsDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className={`min-h-screen bg-gray-50 py-8 ${isHe ? "rtl" : "ltr"}`}>
       <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {t("manageFunds")}
-          </h1>
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="text-3xl font-bold text-gray-900">
+              {t("manageFunds")}
+            </h1>
+            <a
+              href={`/${locale}/dashboard/events/${eventId}`}
+              className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+            >
+              {isHe ? "חזור" : "Back"}
+            </a>
+          </div>
           <p className="text-gray-600">
-            Create and manage cash gift funds for your event.
+            {isHe
+              ? "צור ונהל קרנות מתנות כספיות לאירוע שלך."
+              : "Create and manage cash gift funds for your event."}
           </p>
         </div>
 

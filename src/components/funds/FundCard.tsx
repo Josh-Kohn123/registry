@@ -9,7 +9,7 @@ import { useTranslations, useLocale } from "next-intl";
 interface FundCardProps {
   fund: Fund;
   declaredTotal: number;
-  onContribute?: (amount: number, guestName?: string) => Promise<void>;
+  onContribute?: (amount: number, guestName?: string, guestContact?: string) => Promise<void>;
   eventId?: string;
 }
 
@@ -20,12 +20,15 @@ export function FundCard({
   eventId,
 }: FundCardProps) {
   const t = useTranslations("gifts");
+  const tc = useTranslations("common");
   const locale = useLocale();
   const [selectedAmount, setSelectedAmount] = useState<number | undefined>();
   const [guestName, setGuestName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showContributeForm, setShowContributeForm] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
+  const [showThankYou, setShowThankYou] = useState(false);
+  const [guestContact, setGuestContact] = useState("");
 
   const isMobile = typeof navigator !== "undefined" && /Mobi|Android/i.test(navigator.userAgent);
 
@@ -38,10 +41,13 @@ export function FundCard({
 
     setIsLoading(true);
     try {
-      await onContribute(selectedAmount, guestName || undefined);
+      await onContribute(selectedAmount, guestName || undefined, guestContact || undefined);
       setSelectedAmount(undefined);
       setGuestName("");
+      setGuestContact("");
       setShowContributeForm(false);
+      setShowThankYou(true);
+      setTimeout(() => setShowThankYou(false), 4000);
     } finally {
       setIsLoading(false);
     }
@@ -144,19 +150,38 @@ export function FundCard({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
             />
           </div>
+          <div className="mb-3">
+            <label className="text-sm font-medium text-gray-700 block mb-1">
+              {locale === "he" ? "אימייל או טלפון *" : "Email or Phone *"}
+            </label>
+            <input
+              type="text"
+              placeholder={locale === "he" ? "אימייל או מספר טלפון" : "Email or phone number"}
+              value={guestContact}
+              onChange={(e) => setGuestContact(e.target.value)}
+              required
+              dir="ltr"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              {locale === "he"
+                ? "כדי שהזוג יוכל ליצור קשר ולאשר קבלה"
+                : "So the couple can contact you and confirm receipt"}
+            </p>
+          </div>
           <div className="flex gap-2">
             <button
               onClick={handleContribute}
-              disabled={!selectedAmount || isLoading}
+              disabled={!selectedAmount || !guestContact.trim() || isLoading}
               className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50"
             >
-              {isLoading ? t("loading") : t("confirmContribution")}
+              {isLoading ? tc("loading") : t("confirmContribution")}
             </button>
             <button
               onClick={() => setShowContributeForm(false)}
               className="flex-1 px-4 py-2 bg-gray-200 text-gray-900 rounded-lg text-sm font-medium hover:bg-gray-300"
             >
-              {t("cancel")}
+              {tc("cancel")}
             </button>
           </div>
         </div>
@@ -182,6 +207,29 @@ export function FundCard({
       <p className="text-xs text-gray-500 text-center mt-3">
         {t("sendingDirectly")}
       </p>
+
+      {/* Thank You Popup */}
+      {showThankYou && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowThankYou(false)}>
+          <div className={`bg-white rounded-lg p-8 max-w-sm mx-4 text-center ${locale === "he" ? "rtl" : "ltr"}`} onClick={(e) => e.stopPropagation()}>
+            <div className="text-5xl mb-4">🎉</div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">
+              {locale === "he" ? "תודה רבה!" : "Thank You!"}
+            </h3>
+            <p className="text-gray-600 mb-4">
+              {locale === "he"
+                ? "ההצהרה שלך נרשמה בהצלחה. הזוג יקבל התראה."
+                : "Your declaration has been recorded. The couple will be notified."}
+            </p>
+            <button
+              onClick={() => setShowThankYou(false)}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700"
+            >
+              {locale === "he" ? "סגור" : "Close"}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* QR Modal for Bit on Desktop (F04) */}
       {showQRModal && (
