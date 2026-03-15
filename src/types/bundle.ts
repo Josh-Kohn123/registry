@@ -4,11 +4,12 @@ export interface BundleItem {
   title: string;
   url: string;
   imageUrl?: string;
+  estimatedPrice?: number;
+  previousPrice?: number;
+  lastPriceFetch?: Date;
   createdAt: Date;
   updatedAt: Date;
-  // Additional display fields (not stored, computed from URL/metadata)
   description?: string;
-  estimatedPrice?: number;
 }
 
 export interface BundleContribution {
@@ -25,7 +26,7 @@ export interface Bundle {
   description?: string;
   targetAmount: number;
   suggestedAmounts?: number[];
-  currentAmount?: number; // calculated from contributions
+  currentAmount?: number;
   imageUrl?: string;
   storeDomain: string;
   items: BundleItem[];

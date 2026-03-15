@@ -11,6 +11,7 @@ interface ReserveButtonProps {
   productLinkId?: string;
   bundleId?: string;
   retailerUrl?: string;
+  bundleItemUrls?: string[]; // For bundles: open all item URLs
   isDisabled?: boolean;
 }
 
@@ -19,6 +20,7 @@ export default function ReserveButton({
   productLinkId,
   bundleId,
   retailerUrl,
+  bundleItemUrls,
   isDisabled = false,
 }: ReserveButtonProps) {
   const locale = useLocale();
@@ -57,8 +59,13 @@ export default function ReserveButton({
       setReservation(data);
       setShowForm(false);
 
-      // Open retailer link in new tab
-      if (retailerUrl) {
+      // For bundles: open all item URLs so guest can add each to cart
+      if (bundleItemUrls && bundleItemUrls.length > 0) {
+        for (const url of bundleItemUrls) {
+          window.open(url, "_blank");
+        }
+      } else if (retailerUrl) {
+        // For individual products: open the single product URL
         window.open(retailerUrl, "_blank");
       }
     } catch (err) {

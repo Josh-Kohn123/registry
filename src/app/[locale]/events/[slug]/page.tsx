@@ -151,6 +151,8 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
 
   if (!event) return null;
 
+  const hasGifts = bundles.length > 0 || products.length > 0;
+
   return (
     <div className={`min-h-screen bg-white ${isRtl ? "rtl" : "ltr"}`}>
       <PublicEventHeader event={event} />
@@ -196,36 +198,35 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
         )}
       </GiftSection>
 
-      {/* Section 2: Bundles (Group Gifts per F02/F05) */}
-      <GiftSection
-        title={locale === "he" ? "מתנות קבוצתיות" : "Group Gifts"}
-        description={locale === "he" ? "מתנות קבוצתיות - קנו ביחד" : "Group gifts - buy together"}
-        isEmpty={bundles.length === 0}
-        emptyMessage={locale === "he" ? "עדיין לא הוסיפו מתנות קבוצתיות" : "No bundles added yet"}
-      >
-        {bundles.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {bundles.map((bundle) => (
-              <BundleCard
-                key={bundle.id}
-                bundle={bundle}
-                currentContributions={bundle.currentAmount || 0}
-                eventId={eventId || undefined}
-              />
-            ))}
-          </div>
-        )}
-      </GiftSection>
-
-      {/* Section 3: Product Links (per F02/F03) */}
+      {/* Section 2: Gifts (Bundles + Products together, bundles first) */}
       <GiftSection
         title={locale === "he" ? "מוצרים" : "Products"}
-        description={locale === "he" ? "מוצרים בודדים מחנויות שלנו" : "Individual products from our retailers"}
-        isEmpty={products.length === 0}
+        description={locale === "he" ? "מוצרים מחנויות שלנו" : "Products from our retailers"}
+        isEmpty={!hasGifts}
         emptyMessage={locale === "he" ? "עדיין לא הוסיפו מוצרים" : "No products added yet"}
       >
-        {products.length > 0 && (
+        {hasGifts && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* Bundles first */}
+            {bundles.map((bundle) => (
+              <div key={`bundle-${bundle.id}`} className="flex flex-col">
+                <BundleCard
+                  bundle={bundle}
+                  eventId={eventId || undefined}
+                />
+                {eventId && (
+                  <div className="mt-2">
+                    <ReserveButton
+                      eventId={eventId}
+                      bundleId={bundle.id}
+                      bundleItemUrls={bundle.items.map((item) => item.url)}
+                    />
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {/* Then products */}
             {products.map((product) => (
               <div key={product.id} className="flex flex-col">
                 <ProductCard

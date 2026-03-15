@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useLocale } from "next-intl";
 import { Reservation } from "@/types/reservation";
 
@@ -18,6 +19,12 @@ export default function ConfirmPurchaseModal({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [confirmed, setConfirmed] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
   const handleConfirm = async () => {
     setIsLoading(true);
@@ -43,7 +50,7 @@ export default function ConfirmPurchaseModal({
       setConfirmed(true);
       setTimeout(() => {
         onConfirmed();
-      }, 2000);
+      }, 3000);
     } catch (err) {
       setError(isHe ? "אירעה שגיאה. נסה שוב." : "An error occurred. Please try again.");
       console.error(err);
@@ -52,26 +59,23 @@ export default function ConfirmPurchaseModal({
     }
   };
 
-  if (confirmed) {
-    return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className={`bg-white rounded-lg p-6 w-full max-w-md mx-4 text-center ${isHe ? "rtl" : "ltr"}`}>
-          <div className="text-4xl mb-4">✓</div>
-          <h2 className="text-xl font-bold mb-2">
-            {isHe ? "תודה!" : "Thank You!"}
-          </h2>
-          <p className="text-gray-600">
-            {isHe
-              ? "הרכישה שלך נרשמה (דווח על ידי אורח). הזוג יקבל התראה."
-              : "Your purchase has been recorded (reported by guest). The couple will be notified."}
-          </p>
-        </div>
+  const modalContent = confirmed ? (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
+      <div className={`bg-white rounded-lg p-8 w-full max-w-md mx-4 text-center ${isHe ? "rtl" : "ltr"}`}>
+        <div className="text-6xl mb-4">🎉</div>
+        <h2 className="text-2xl font-bold mb-3 text-green-700">
+          {isHe ? "תודה רבה!" : "Thank You!"}
+        </h2>
+        <p className="text-gray-600 text-lg">
+          {isHe
+            ? "הרכישה שלך נרשמה בהצלחה! הזוג יקבל התראה."
+            : "Your purchase has been recorded! The couple will be notified."}
+        </p>
+        <div className="mt-4 text-4xl">✓</div>
       </div>
-    );
-  }
-
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    </div>
+  ) : (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
       <div className={`bg-white rounded-lg p-6 w-full max-w-md mx-4 ${isHe ? "rtl" : "ltr"}`}>
         <h2 className="text-xl font-bold mb-4">
           {isHe ? "אישור רכישה" : "Confirm Purchase"}
@@ -109,4 +113,8 @@ export default function ConfirmPurchaseModal({
       </div>
     </div>
   );
+
+  // Use portal to render at document body level, ensuring the modal is never clipped
+  if (!mounted) return null;
+  return createPortal(modalContent, document.body);
 }

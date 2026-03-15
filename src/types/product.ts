@@ -7,6 +7,8 @@ export interface ProductLink {
   retailerDomain: string;
   imageUrl?: string;
   estimatedPrice?: number;
+  previousPrice?: number;
+  lastPriceFetch?: Date;
   isVisible: boolean;
   clickCount: number;
   position?: number; // for ordering

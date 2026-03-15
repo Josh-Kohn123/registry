@@ -74,9 +74,19 @@ export async function POST(
       );
     }
 
-    // Create address
+    // Enforce max 1 address per profile
+    const existingAddresses = await getAddressesByProfile(ownerProfileId);
+    if (existingAddresses.length >= 1) {
+      return NextResponse.json(
+        { error: "Only one delivery address is allowed. Please edit or delete the existing address first." },
+        { status: 400 }
+      );
+    }
+
+    // Create address (always default since only 1 allowed)
     const address = await createAddress(ownerProfileId, {
       ...result.data,
+      isDefault: true,
       profileId: ownerProfileId,
       encryptedData: true,
     });

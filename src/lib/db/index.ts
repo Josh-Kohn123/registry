@@ -67,6 +67,8 @@ function mapProductLinkFromPrisma(product: any): ProductLink {
     retailerDomain: product.retailerDomain,
     imageUrl: product.imageUrl,
     estimatedPrice: product.estimatedPrice,
+    previousPrice: product.previousPrice,
+    lastPriceFetch: product.lastPriceFetch,
     isVisible: product.isVisible,
     position: product.position || 0,
     clickCount: product.clickCount,
@@ -143,6 +145,9 @@ function mapBundleItemFromPrisma(item: any): BundleItem {
     title: item.title,
     url: item.url,
     imageUrl: item.imageUrl,
+    estimatedPrice: item.estimatedPrice,
+    previousPrice: item.previousPrice,
+    lastPriceFetch: item.lastPriceFetch,
     createdAt: item.createdAt,
     updatedAt: item.updatedAt,
   };

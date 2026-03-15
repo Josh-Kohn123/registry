@@ -3,81 +3,74 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Bundle } from "@/types/bundle";
-import { BundleContributeForm } from "./BundleContributeForm";
-import { trackOutboundClick } from "@/lib/tracking";
 
 interface BundleCardProps {
   bundle: Bundle;
-  currentContributions?: number;
   eventId?: string;
 }
 
-export function BundleCard({ bundle, currentContributions = 0, eventId }: BundleCardProps) {
+const DEFAULT_BUNDLE_IMAGE = "/globe.svg";
+
+export function BundleCard({ bundle, eventId }: BundleCardProps) {
   const t = useTranslations();
-  const [showContributeForm, setShowContributeForm] = useState(false);
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [expanded, setExpanded] = useState(false);
 
-  const handleContributeClick = async () => {
-    if (eventId) {
-      await trackOutboundClick(eventId, "bundle", bundle.id);
-    }
-    setShowContributeForm(true);
-  };
-
-  const progressPercentage = Math.min(
-    (currentContributions / bundle.targetAmount) * 100,
-    100
+  // Calculate total price from items
+  const totalPrice = bundle.items.reduce(
+    (sum, item) => sum + (item.estimatedPrice || item.previousPrice || 0),
+    0
   );
 
-  const targetReached = currentContributions >= bundle.targetAmount;
-
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+    <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col">
       {/* Image */}
-      {bundle.imageUrl && (
-        <div className="w-full h-48 bg-gray-200 overflow-hidden">
-          <img
-            src={bundle.imageUrl}
-            alt={bundle.title}
-            className="w-full h-full object-cover"
-          />
-        </div>
-      )}
+      <div className="w-full h-48 bg-gray-200 overflow-hidden">
+        <img
+          src={bundle.imageUrl || DEFAULT_BUNDLE_IMAGE}
+          alt={bundle.title}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            e.currentTarget.src = DEFAULT_BUNDLE_IMAGE;
+          }}
+        />
+      </div>
 
-      <div className="p-4">
+      <div className="p-4 flex flex-col flex-1">
         {/* Title and Description */}
-        <h3 className="text-lg font-semibold mb-2">{bundle.title}</h3>
+        <div className="flex items-start justify-between mb-2">
+          <h3 className="text-lg font-semibold">{bundle.title}</h3>
+          <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded whitespace-nowrap ms-2">
+            {t("gifts.bundleItems") || "Bundle"}
+          </span>
+        </div>
         {bundle.description && (
           <p className="text-gray-600 text-sm mb-3">{bundle.description}</p>
         )}
 
-        {/* Progress Bar */}
-        <div className="mb-3">
-          <div className="flex justify-between items-center mb-2">
-            <span className="text-sm font-medium">
-              {t("gifts.targetProgress", {
-                current: currentContributions.toLocaleString("he-IL"),
-                target: bundle.targetAmount.toLocaleString("he-IL"),
-              })}
+        {/* Price */}
+        {totalPrice > 0 && (
+          <div className="mb-3">
+            <span className="text-lg font-bold text-green-700" dir="ltr">
+              ₪{totalPrice.toLocaleString("he-IL")}
             </span>
-            {targetReached && (
-              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                {t("gifts.targetReached")}
-              </span>
-            )}
+            <span className="text-xs text-gray-500 ms-2">
+              ({bundle.items.length} {bundle.items.length === 1 ? "item" : "items"})
+            </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div
-              className="bg-green-500 h-2 rounded-full transition-all duration-300"
-              style={{ width: `${progressPercentage}%` }}
-            />
-          </div>
-        </div>
+        )}
 
-        {/* Items List */}
-        {bundle.items && bundle.items.length > 0 && (
+        {/* Items Toggle */}
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          className="text-sm text-blue-600 hover:text-blue-800 mb-3 text-start"
+        >
+          {expanded ? "▾ Hide items" : "▸ View items in bundle"}
+        </button>
+
+        {/* Items List (expandable) */}
+        {expanded && bundle.items && bundle.items.length > 0 && (
           <div className="mb-4 p-3 bg-gray-50 rounded">
-            <p className="text-sm font-medium mb-2">{t("gifts.bundleItems")}:</p>
             <ul className="space-y-2">
               {bundle.items.map((item) => (
                 <li key={item.id} className="text-sm text-gray-700">
@@ -91,12 +84,9 @@ export function BundleCard({ bundle, currentContributions = 0, eventId }: Bundle
                     )}
                     <div className="flex-1">
                       <p className="font-medium">{item.title}</p>
-                      {item.description && (
-                        <p className="text-xs text-gray-500">{item.description}</p>
-                      )}
-                      {item.estimatedPrice && (
-                        <p className="text-xs text-gray-600">
-                          ₪{item.estimatedPrice.toLocaleString("he-IL")}
+                      {(item.estimatedPrice || item.previousPrice) && (
+                        <p className="text-xs text-green-700 font-medium">
+                          ₪{(item.estimatedPrice || item.previousPrice)?.toLocaleString("he-IL")}
                         </p>
                       )}
                     </div>
@@ -108,29 +98,9 @@ export function BundleCard({ bundle, currentContributions = 0, eventId }: Bundle
         )}
 
         {/* Store Domain */}
-        <div className="text-xs text-gray-500 mb-4">
+        <div className="text-xs text-gray-500 mb-4 mt-auto">
           {t("gifts.retailer")}: {bundle.storeDomain}
         </div>
-
-        {/* Action Button */}
-        {!showContributeForm ? (
-          <button
-            onClick={handleContributeClick}
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-          >
-            {t("gifts.contributeToBundle")}
-          </button>
-        ) : (
-          <div className="mt-4">
-            <BundleContributeForm
-              bundleId={bundle.id}
-              onClose={() => {
-                setShowContributeForm(false);
-                setRefreshTrigger(prev => prev + 1);
-              }}
-            />
-          </div>
-        )}
       </div>
     </div>
   );

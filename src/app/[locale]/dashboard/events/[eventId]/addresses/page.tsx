@@ -146,7 +146,7 @@ export default function AddressesPage({ params }: AddressesPageProps) {
             }}
           />
         </div>
-      ) : (
+      ) : addresses.length === 0 ? (
         <button
           onClick={() => {
             setShowForm(true);
@@ -156,6 +156,10 @@ export default function AddressesPage({ params }: AddressesPageProps) {
         >
           {isHe ? "הוסף כתובת חדשה" : "Add New Address"}
         </button>
+      ) : (
+        <p className="mb-8 text-sm text-gray-500">
+          {isHe ? "ניתן לשמור כתובת משלוח אחת בלבד. ערוך או מחק את הקיימת כדי להוסיף חדשה." : "Only one delivery address is allowed. Edit or delete the existing one to add a new address."}
+        </p>
       )}
 
       {addresses.length === 0 ? (

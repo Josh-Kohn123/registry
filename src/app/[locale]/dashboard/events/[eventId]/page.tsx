@@ -298,22 +298,6 @@ export default function EventDetailsPage({
                 >
                   {locale === "he" ? "פתח עמוד ציבורי" : "Open Public Page"}
                 </a>
-                <button
-                  onClick={() => {
-                    if (navigator.share) {
-                      navigator.share({
-                        title: event.title,
-                        url: publicUrl,
-                      });
-                    } else {
-                      navigator.clipboard.writeText(publicUrl);
-                      alert(locale === "he" ? "הקישור הועתק!" : "Link copied!");
-                    }
-                  }}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
-                >
-                  {locale === "he" ? "שתף עם חברים" : "Share with Friends"}
-                </button>
               </div>
             </div>
           </CardContent>

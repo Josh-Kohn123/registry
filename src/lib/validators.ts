@@ -125,16 +125,16 @@ export const bundleItemSchema = z.object({
   description: z.string().max(500).optional(),
   estimatedPrice: z.number().positive().optional(),
   url: z.string().url("Invalid URL"),
-  imageUrl: z.string().url().optional(),
+  imageUrl: z.string().url().optional().or(z.literal("")).or(z.undefined()),
 });
 
 export const bundleCreateSchema = z.object({
   title: z.string().min(1, "Bundle title is required").max(200),
   description: z.string().max(1000).optional(),
-  targetAmount: z.number().positive("Target amount must be positive"),
+  targetAmount: z.number().optional().default(0),
   suggestedAmounts: z.array(z.number().positive()).optional(),
   storeDomain: z.string().min(1, "Store domain is required"),
-  imageUrl: z.string().url().optional(),
+  imageUrl: z.string().url().optional().or(z.literal("")),
   items: z.array(bundleItemSchema).min(1, "At least one item is required"),
 });
 

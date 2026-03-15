@@ -7,8 +7,8 @@ import { EventWithOwners } from "@/types/event";
 import { MetricsCards } from "@/components/dashboard/MetricsCards";
 import { GiftOverviewTable } from "@/components/dashboard/GiftOverviewTable";
 import { ExportButton } from "@/components/dashboard/ExportButton";
-import { ShareEventLink } from "@/components/dashboard/ShareEventLink";
 import { AnalyticsPanel } from "@/components/dashboard/AnalyticsPanel";
+import { WhitelistRequestForm } from "@/components/dashboard/WhitelistRequestForm";
 
 interface DashboardEventPageProps {
   params: {
@@ -126,14 +126,10 @@ export default function DashboardEventPage({ params }: DashboardEventPageProps) 
             </div>
           </div>
 
-          <ShareEventLink
-            eventSlug={event.slug}
-            eventTitle={event.title}
-            locale={locale}
-          />
+          <WhitelistRequestForm />
         </div>
 
-        {/* Export Button */}
+        {/* Export */}
         <div className="mb-8">
           <ExportButton eventId={params.eventId} eventSlug={event.slug} />
         </div>

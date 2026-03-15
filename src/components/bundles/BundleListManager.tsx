@@ -89,14 +89,18 @@ export function BundleListManager({ onBundleSelect }: BundleListManagerProps) {
               )}
               <div className="text-sm text-gray-500 space-y-1">
                 <p>
-                  {t("gifts.targetAmount")}: ₪{bundle.targetAmount.toLocaleString("he-IL")}
-                </p>
-                <p>
                   {t("gifts.bundleItems")}: {bundle.items?.length || 0}
                 </p>
-                <p>
-                  {t("gifts.retailer")}: {bundle.storeDomain}
-                </p>
+                {bundle.items && bundle.items.length > 0 && (
+                  <p>
+                    {t("gifts.retailer")}: {bundle.storeDomain}
+                  </p>
+                )}
+                {bundle.items && bundle.items.some(i => i.estimatedPrice) && (
+                  <p className="font-medium text-green-700">
+                    ₪{bundle.items.reduce((sum, i) => sum + (i.estimatedPrice || 0), 0).toLocaleString("he-IL")}
+                  </p>
+                )}
               </div>
             </div>
 

@@ -66,12 +66,12 @@ export function ProductCard({ product, locale = "en", eventId }: ProductCardProp
           {product.title}
         </h3>
 
-        {/* Retailer domain + estimated price (F03 card spec) */}
+        {/* Retailer domain + price */}
         <div className="flex items-center justify-between mb-3">
           <span className="text-xs text-gray-500">{retailerName}</span>
-          {product.estimatedPrice && (
-            <span className="text-sm font-medium text-gray-700" dir="ltr">
-              ~₪{product.estimatedPrice.toLocaleString("he-IL")}
+          {(product.estimatedPrice || product.previousPrice) && (
+            <span className="text-sm font-bold text-green-700" dir="ltr">
+              ₪{(product.estimatedPrice || product.previousPrice)?.toLocaleString("he-IL")}
             </span>
           )}
         </div>

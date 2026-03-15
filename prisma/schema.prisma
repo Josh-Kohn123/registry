@@ -89,7 +89,9 @@ model ProductLink {
   url             String
   retailerDomain  String    // e.g., "foxhome.co.il"
   imageUrl        String?
-  estimatedPrice  Int?      // optional price in ILS
+  estimatedPrice  Int?      // current price in ILS (auto-fetched)
+  previousPrice   Int?      // yesterday's price (shown while refresh loads)
+  lastPriceFetch  DateTime? // when price was last fetched
   isVisible       Boolean   @default(true)
   clickCount      Int       @default(0)
   position        Int       @default(0)
@@ -194,13 +196,16 @@ model BundleContribution {
 
 // Bundle Items (products within a bundle)
 model BundleItem {
-  id        String    @id @default(cuid())
-  bundleId  String
-  title     String
-  url       String
-  imageUrl  String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id              String    @id @default(cuid())
+  bundleId        String
+  title           String
+  url             String
+  imageUrl        String?
+  estimatedPrice  Int?      // auto-fetched price in ILS
+  previousPrice   Int?      // yesterday's price
+  lastPriceFetch  DateTime? // when price was last fetched
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   // Relations
   bundle    Bundle    @relation(fields: [bundleId], references: [id], onDelete: Cascade)
