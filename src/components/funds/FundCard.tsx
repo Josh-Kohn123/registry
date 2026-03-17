@@ -199,7 +199,7 @@ export function FundCard({
           onClick={() => setShowContributeForm(!showContributeForm)}
           className="flex-1 px-4 py-3 bg-gray-100 text-gray-800 rounded-lg font-medium hover:bg-gray-200 transition-colors border border-gray-300"
         >
-          {locale === "he" ? "שלחתי ✓" : "I sent it ✓"}
+          {locale === "he" ? "אשר מתנה ✓" : "Confirm Gift ✓"}
         </button>
       </div>
 

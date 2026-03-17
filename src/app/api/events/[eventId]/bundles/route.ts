@@ -82,6 +82,25 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     const data = validationResult.data;
 
+    // Validate all items have the same base URL domain
+    if (data.items && data.items.length > 0) {
+      const getDomain = (url: string) => {
+        try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return null; }
+      };
+      const domains = data.items.map((item) => getDomain(item.url)).filter(Boolean);
+      const uniqueDomains = [...new Set(domains)];
+      if (uniqueDomains.length > 1) {
+        return NextResponse.json(
+          { error: "All bundle items must come from the same store. Found: " + uniqueDomains.join(", ") },
+          { status: 400 }
+        );
+      }
+      // Auto-set storeDomain from items if not provided or override
+      if (uniqueDomains.length === 1 && uniqueDomains[0]) {
+        data.storeDomain = uniqueDomains[0];
+      }
+    }
+
     // Get current position (next position = max position + 1)
     const existingBundles = await getBundlesByEvent(eventId);
     const nextPosition = existingBundles.length > 0

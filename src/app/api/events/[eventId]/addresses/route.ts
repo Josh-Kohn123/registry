@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { addressCreateSchema } from "@/lib/validators";
 import { getEventById, createAddress, getAddressesByProfile } from "@/lib/db";
 import { createClient } from "@/lib/supabase/server";
+import prisma from "@/lib/prisma";
 
 export async function GET(
   request: NextRequest,
@@ -74,19 +75,24 @@ export async function POST(
       );
     }
 
-    // Enforce max 1 address per profile
+    // If this is the first address or marked as default, enforce single default
     const existingAddresses = await getAddressesByProfile(ownerProfileId);
-    if (existingAddresses.length >= 1) {
-      return NextResponse.json(
-        { error: "Only one delivery address is allowed. Please edit or delete the existing address first." },
-        { status: 400 }
-      );
+    const isDefault = result.data.isDefault ?? (existingAddresses.length === 0);
+    if (isDefault) {
+      // Unset default on all other addresses
+      for (const addr of existingAddresses) {
+        if (addr.isDefault) {
+          await prisma.address.update({
+            where: { id: addr.id },
+            data: { isDefault: false },
+          });
+        }
+      }
     }
 
-    // Create address (always default since only 1 allowed)
     const address = await createAddress(ownerProfileId, {
       ...result.data,
-      isDefault: true,
+      isDefault,
       profileId: ownerProfileId,
       encryptedData: true,
     });

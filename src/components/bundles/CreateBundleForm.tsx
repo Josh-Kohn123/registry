@@ -23,10 +23,12 @@ export function CreateBundleForm({ onSuccess }: CreateBundleFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const locale = (params.locale as string) || "en";
+  const isHe = locale === "he";
+
   // Bundle-level fields
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [storeDomain, setStoreDomain] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -43,6 +45,22 @@ export function CreateBundleForm({ onSuccess }: CreateBundleFormProps) {
   });
 
   const [showItemForm, setShowItemForm] = useState(false);
+
+  // Helper: extract base domain from URL
+  const getBaseDomain = (url: string): string | null => {
+    try {
+      const parsed = new URL(url);
+      return parsed.hostname.replace(/^www\./, "");
+    } catch {
+      return null;
+    }
+  };
+
+  // Derive store domain from items and check consistency
+  const itemDomains = items.map((item) => getBaseDomain(item.url)).filter(Boolean) as string[];
+  const uniqueDomains = [...new Set(itemDomains)];
+  const derivedStoreDomain = uniqueDomains.length === 1 ? uniqueDomains[0] : null;
+  const hasDomainMismatch = uniqueDomains.length > 1;
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -105,11 +123,27 @@ export function CreateBundleForm({ onSuccess }: CreateBundleFormProps) {
     setError(null);
 
     try {
-      if (!title || !storeDomain || items.length === 0) {
-        setError("Bundle title, store domain, and at least one item are required");
+      if (!title || items.length === 0) {
+        setError(isHe ? "נדרש שם מתנה ולפחות פריט אחד" : "Bundle title and at least one item are required");
         setIsLoading(false);
         return;
       }
+
+      if (hasDomainMismatch) {
+        setError(isHe
+          ? "כל המוצרים חייבים להיות מאותה חנות. עדכן/שנה קישורים שלא תואמים."
+          : "All products must be from the same store. Please update links that don't match.");
+        setIsLoading(false);
+        return;
+      }
+
+      if (!derivedStoreDomain) {
+        setError(isHe ? "לא ניתן לזהות דומיין חנות מהקישורים" : "Could not detect store domain from item URLs");
+        setIsLoading(false);
+        return;
+      }
+
+      const storeDomain = derivedStoreDomain;
 
       // Upload image if present
       let imageUrl: string | undefined;
@@ -157,7 +191,6 @@ export function CreateBundleForm({ onSuccess }: CreateBundleFormProps) {
       // Reset form
       setTitle("");
       setDescription("");
-      setStoreDomain("");
       setImageFile(null);
       setImagePreview(null);
       setItems([]);
@@ -199,18 +232,26 @@ export function CreateBundleForm({ onSuccess }: CreateBundleFormProps) {
         />
       </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-1">
-          {t("gifts.storeDomain")}
-        </label>
-        <input
-          type="text"
-          value={storeDomain}
-          onChange={(e) => setStoreDomain(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="e.g., foxhome.co.il"
-          required
-        />
+      {/* Same-store notice */}
+      <div className={`p-3 rounded-md text-sm ${hasDomainMismatch ? "bg-red-50 border border-red-200 text-red-700" : "bg-blue-50 border border-blue-200 text-blue-700"}`}>
+        {hasDomainMismatch ? (
+          <>
+            <p className="font-medium">{isHe ? "קישורים מחנויות שונות!" : "Links from different stores!"}</p>
+            <p className="mt-1">
+              {isHe
+                ? "כל המוצרים במתנה חייבים להיות מאותה חנות. עדכן את הקישורים כך שכולם יהיו מאותו אתר."
+                : "All bundled products must come from the same store. Update your links so they all point to the same site."}
+            </p>
+            <p className="mt-1 font-medium">{isHe ? "דומיינים שנמצאו:" : "Domains found:"} {uniqueDomains.join(", ")}</p>
+          </>
+        ) : (
+          <>
+            <p>{isHe ? "כל המוצרים במתנה חייבים להיות מאותה חנות." : "All bundled products must come from the same store."}</p>
+            {derivedStoreDomain && (
+              <p className="mt-1 font-medium">{isHe ? "חנות:" : "Store:"} {derivedStoreDomain}</p>
+            )}
+          </>
+        )}
       </div>
 
       <div>

@@ -4,6 +4,7 @@ import {
   getEventById,
   createReservation,
   getReservationsByEvent,
+  getReservationsWithItemsByEvent,
   getActiveReservationByProduct,
   getActiveReservationByBundle,
 } from "@/lib/db";
@@ -15,10 +16,13 @@ export async function GET(
   { params }: { params: Promise<{ eventId: string }>  }
 ) {
   try {
-    // In production, verify owner authentication
     const eventId = (await params).eventId;
+    const url = new URL(request.url);
+    const includeItems = url.searchParams.get("includeItems") === "true";
 
-    const reservations = await getReservationsByEvent(eventId);
+    const reservations = includeItems
+      ? await getReservationsWithItemsByEvent(eventId)
+      : await getReservationsByEvent(eventId);
 
     return NextResponse.json(reservations, { status: 200 });
   } catch (error) {
@@ -47,7 +51,11 @@ export async function POST(
       );
     }
 
-    const { guestName, guestEmail, productLinkId, bundleId } = result.data;
+    const { guestName, guestEmail, guestPhone, productLinkId, bundleId } = result.data;
+    // Combine email and phone for storage (DB only has guestEmail column)
+    const contactInfo = guestPhone
+      ? `${guestEmail || ""} | ${guestPhone}`.trim()
+      : guestEmail;
 
     // Verify event exists
     const event = await getEventById(eventId);
@@ -87,7 +95,7 @@ export async function POST(
     const reservation = await createReservation(eventId, {
       eventId,
       guestName,
-      guestEmail: guestEmail || undefined,
+      guestEmail: contactInfo || undefined,
       status: "RESERVED",
       expiresAt,
       productLinkId,

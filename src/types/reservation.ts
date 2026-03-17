@@ -15,6 +15,7 @@ export interface Reservation {
   expiresAt?: Date;
   confirmedAt?: Date;
   receivedAt?: Date;
+  chosenAddressId?: string;
   productLinkId?: string;
   bundleId?: string;
   createdAt: Date;

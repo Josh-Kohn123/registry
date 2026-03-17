@@ -227,6 +227,8 @@ model Reservation {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
+  chosenAddressId String?   // guest's chosen delivery address
+
   // Product or Bundle or Fund
   productLinkId   String?
   bundleId        String?

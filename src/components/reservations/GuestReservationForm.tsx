@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useLocale } from "next-intl";
 
 interface GuestReservationFormProps {
-  onReserve: (guestName: string, guestEmail?: string) => void;
+  onReserve: (guestName: string, guestEmail?: string, guestPhone?: string) => void;
   onCancel: () => void;
   isLoading: boolean;
   error?: string | null;
@@ -22,13 +22,10 @@ export default function GuestReservationForm({
   const [guestEmail, setGuestEmail] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
 
-  const hasContact = guestEmail.trim() || guestPhone.trim();
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!guestName.trim() || !hasContact) return;
-    const contactInfo = guestEmail.trim() || guestPhone.trim();
-    onReserve(guestName, contactInfo || undefined);
+    if (!guestName.trim() || !guestEmail.trim()) return;
+    onReserve(guestName.trim(), guestEmail.trim(), guestPhone.trim() || undefined);
   };
 
   return (
@@ -69,13 +66,19 @@ export default function GuestReservationForm({
               onChange={(e) => setGuestEmail(e.target.value)}
               placeholder="your@email.com"
               dir="ltr"
+              required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            <p className="text-xs text-blue-600 mt-1 font-medium">
+              {isHe
+                ? "כתובת המשלוח תישלח לאימייל זה לאחר השריון"
+                : "The delivery address will be sent to this email after reservation"}
+            </p>
           </div>
 
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2">
-              {isHe ? "טלפון" : "Phone"}
+              {isHe ? "טלפון (אופציונלי)" : "Phone (optional)"}
             </label>
             <input
               type="tel"
@@ -85,11 +88,6 @@ export default function GuestReservationForm({
               dir="ltr"
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <p className="text-xs text-gray-500 mt-1">
-              {isHe
-                ? "נדרש אימייל או טלפון כדי שהזוג יוכלו ליצור קשר"
-                : "Email or phone required so the couple can reach you"}
-            </p>
           </div>
 
           <div className="flex gap-3">
@@ -102,7 +100,7 @@ export default function GuestReservationForm({
             </button>
             <button
               type="submit"
-              disabled={!guestName.trim() || !hasContact || isLoading}
+              disabled={!guestName.trim() || !guestEmail.trim() || isLoading}
               className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
             >
               {isLoading

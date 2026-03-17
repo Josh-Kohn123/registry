@@ -5,6 +5,13 @@ import { useLocale } from "next-intl";
 import { Reservation } from "@/types/reservation";
 import { FundContribution } from "@/types/fund";
 
+interface AddressInfo {
+  id: string;
+  recipientName: string;
+  city: string;
+  line1: string;
+}
+
 interface GiftEntry {
   id: string;
   type: "product" | "fund" | "bundle";
@@ -15,6 +22,7 @@ interface GiftEntry {
   status: string;
   date: string;
   reservationId?: string;
+  chosenAddressId?: string;
 }
 
 interface GiftsPageProps {
@@ -29,6 +37,7 @@ export default function GiftTrackingPage({ params }: GiftsPageProps) {
   const locale = useLocale();
   const isHe = locale === "he";
   const [gifts, setGifts] = useState<GiftEntry[]>([]);
+  const [addresses, setAddresses] = useState<AddressInfo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "product" | "fund" | "bundle">("all");
 
@@ -37,23 +46,25 @@ export default function GiftTrackingPage({ params }: GiftsPageProps) {
       try {
         const allGifts: GiftEntry[] = [];
 
-        // Fetch reservations (products + bundles)
-        const reservationsRes = await fetch(`/api/events/${eventId}/reservations`);
+        // Fetch reservations with product/bundle names
+        const reservationsRes = await fetch(`/api/events/${eventId}/reservations?includeItems=true`);
         if (reservationsRes.ok) {
-          const reservations: Reservation[] = await reservationsRes.json();
+          const reservations = await reservationsRes.json();
           for (const r of reservations) {
             if (r.status === "CANCELLED" || r.status === "EXPIRED") continue;
+            const itemTitle = r.product?.title
+              || r.bundle?.title
+              || (r.productLinkId ? (isHe ? "מוצר שמור" : "Reserved product") : (isHe ? "מתנה קבוצתית" : "Group gift"));
             allGifts.push({
               id: r.id,
               type: r.bundleId ? "bundle" : "product",
               guestName: r.guestName,
               guestContact: r.guestEmail || "",
-              itemTitle: r.productLinkId
-                ? (isHe ? "מוצר שמור" : "Reserved product")
-                : (isHe ? "מתנה קבוצתית" : "Group gift"),
+              itemTitle,
               status: r.status,
               date: r.createdAt ? new Date(r.createdAt).toLocaleDateString(isHe ? "he-IL" : "en-US") : "",
               reservationId: r.id,
+              chosenAddressId: r.chosenAddressId || undefined,
             });
           }
         }
@@ -86,6 +97,22 @@ export default function GiftTrackingPage({ params }: GiftsPageProps) {
               // skip fund if contributions endpoint fails
             }
           }
+        }
+
+        // Fetch addresses so we can display chosen address
+        try {
+          const addressRes = await fetch(`/api/events/${eventId}/addresses`);
+          if (addressRes.ok) {
+            const addressData = await addressRes.json();
+            setAddresses(addressData.map((a: { id: string; recipientName: string; city: string; line1: string }) => ({
+              id: a.id,
+              recipientName: a.recipientName,
+              city: a.city,
+              line1: a.line1,
+            })));
+          }
+        } catch {
+          // addresses not critical
         }
 
         // Sort by date (newest first)
@@ -250,6 +277,14 @@ export default function GiftTrackingPage({ params }: GiftsPageProps) {
                       {isHe ? `₪${gift.amount}` : `${gift.amount} ILS`}
                     </p>
                   )}
+                  {gift.chosenAddressId && (() => {
+                    const addr = addresses.find((a) => a.id === gift.chosenAddressId);
+                    return addr ? (
+                      <p className="text-sm text-indigo-600 mt-1">
+                        {isHe ? "כתובת משלוח:" : "Ship to:"} {addr.line1}, {addr.city}
+                      </p>
+                    ) : null;
+                  })()}
                   <p className="text-xs text-gray-400 mt-1">{gift.date}</p>
                 </div>
 

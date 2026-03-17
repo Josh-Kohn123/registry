@@ -54,7 +54,7 @@
   "gifts": {
     "products": "Products",
     "funds": "Cash Gifts",
-    "bundles": "Group Gifts",
+    "bundles": "Bundle Gifts",
     "fundTitle": "Fund Title",
     "fundDescription": "Description",
     "targetAmount": "Target Amount (ILS)",

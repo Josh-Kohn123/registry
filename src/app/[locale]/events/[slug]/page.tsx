@@ -12,6 +12,7 @@ import { Bundle } from "@/types/bundle";
 import { ProductLink } from "@/types/product";
 import { useLocale } from "next-intl";
 import ReserveButton from "@/components/reservations/ReserveButton";
+import { Reservation } from "@/types/reservation";
 
 interface PublicEventPageProps {
   params: Promise<{ slug: string }>;
@@ -26,6 +27,7 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
   const [bundles, setBundles] = useState<Bundle[]>([]);
   const [products, setProducts] = useState<ProductLink[]>([]);
   const [declaredTotals, setDeclaredTotals] = useState<Record<string, number>>({});
+  const [reservations, setReservations] = useState<Reservation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [eventId, setEventId] = useState<string | null>(null);
@@ -71,11 +73,12 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
         setEventId(eventData.id);
         setEvent(publicEvent);
 
-        // Load funds, bundles, and products in parallel
-        const [fundsRes, bundlesRes, productsRes] = await Promise.allSettled([
+        // Load funds, bundles, products, and reservations in parallel
+        const [fundsRes, bundlesRes, productsRes, reservationsRes] = await Promise.allSettled([
           fetch(`/api/events/${eventData.id}/funds`),
           fetch(`/api/events/${eventData.id}/bundles`),
           fetch(`/api/events/${eventData.id}/products`),
+          fetch(`/api/events/${eventData.id}/reservations`),
         ]);
 
         // Process funds
@@ -114,6 +117,12 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
           const productsData = await productsRes.value.json();
           setProducts(productsData.filter((p: ProductLink) => p.isVisible));
         }
+
+        // Process reservations
+        if (reservationsRes.status === "fulfilled" && reservationsRes.value.ok) {
+          const reservationsData = await reservationsRes.value.json();
+          setReservations(reservationsData);
+        }
       } catch {
         setError(locale === "he" ? "שגיאה בטעינת האירוע" : "Error loading event");
       } finally {
@@ -150,6 +159,29 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
   }
 
   if (!event) return null;
+
+  // Get reservation status for a product or bundle
+  const getItemReservationStatus = (productLinkId?: string, bundleId?: string): "AVAILABLE" | "RESERVED" | "PURCHASED_GUEST_CONFIRMED" | "RECEIVED_HOST_CONFIRMED" => {
+    const active = reservations.find((r) => {
+      if (productLinkId && r.productLinkId === productLinkId) return true;
+      if (bundleId && r.bundleId === bundleId) return true;
+      return false;
+    });
+    if (!active) return "AVAILABLE";
+    if (active.status === "RESERVED") return "RESERVED";
+    if (active.status === "PURCHASED_GUEST_CONFIRMED" || active.status === "RECEIVED_HOST_CONFIRMED") return "PURCHASED_GUEST_CONFIRMED";
+    return "AVAILABLE";
+  };
+
+  // Get the active reservation object for a product or bundle
+  const getActiveReservation = (productLinkId?: string, bundleId?: string): Reservation | null => {
+    return reservations.find((r) => {
+      if (r.status !== "RESERVED") return false;
+      if (productLinkId && r.productLinkId === productLinkId) return true;
+      if (bundleId && r.bundleId === bundleId) return true;
+      return false;
+    }) || null;
+  };
 
   const hasGifts = bundles.length > 0 || products.length > 0;
 
@@ -208,43 +240,83 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
         {hasGifts && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Bundles first */}
-            {bundles.map((bundle) => (
-              <div key={`bundle-${bundle.id}`} className="flex flex-col">
-                <BundleCard
-                  bundle={bundle}
-                  eventId={eventId || undefined}
-                />
-                {eventId && (
-                  <div className="mt-2">
-                    <ReserveButton
-                      eventId={eventId}
-                      bundleId={bundle.id}
-                      bundleItemUrls={bundle.items.map((item) => item.url)}
-                    />
-                  </div>
-                )}
-              </div>
-            ))}
+            {bundles.map((bundle) => {
+              const status = getItemReservationStatus(undefined, bundle.id);
+              const isReserved = status === "RESERVED";
+              const isPurchased = status === "PURCHASED_GUEST_CONFIRMED";
+              return (
+                <div key={`bundle-${bundle.id}`} className={`flex flex-col relative rounded-lg overflow-hidden ${isReserved ? "opacity-60 grayscale" : ""} ${isPurchased ? "ring-2 ring-green-500" : ""}`}>
+                  {isReserved && (
+                    <div className="absolute inset-0 bg-gray-400/30 z-10 flex items-center justify-center">
+                      <span className="bg-gray-700 text-white px-4 py-2 rounded-lg text-lg font-bold">
+                        {locale === "he" ? "שמור" : "Reserved"}
+                      </span>
+                    </div>
+                  )}
+                  {isPurchased && (
+                    <div className="absolute inset-0 bg-green-500/20 z-10 flex items-center justify-center">
+                      <span className="bg-green-600 text-white px-4 py-2 rounded-lg text-lg font-bold">
+                        {locale === "he" ? "נרכש" : "Purchased"}
+                      </span>
+                    </div>
+                  )}
+                  <BundleCard
+                    bundle={bundle}
+                    eventId={eventId || undefined}
+                  />
+                  {eventId && !isPurchased && (
+                    <div className="mt-2 relative z-20">
+                      <ReserveButton
+                        eventId={eventId}
+                        bundleId={bundle.id}
+                        bundleItemUrls={bundle.items.map((item) => item.url)}
+                        existingReservation={isReserved ? getActiveReservation(undefined, bundle.id) : null}
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
 
             {/* Then products */}
-            {products.map((product) => (
-              <div key={product.id} className="flex flex-col">
-                <ProductCard
-                  product={product}
-                  locale={locale}
-                  eventId={eventId || undefined}
-                />
-                {eventId && (
-                  <div className="mt-2">
-                    <ReserveButton
-                      eventId={eventId}
-                      productLinkId={product.id}
-                      retailerUrl={product.url}
-                    />
-                  </div>
-                )}
-              </div>
-            ))}
+            {products.map((product) => {
+              const status = getItemReservationStatus(product.id);
+              const isReserved = status === "RESERVED";
+              const isPurchased = status === "PURCHASED_GUEST_CONFIRMED";
+              return (
+                <div key={product.id} className={`flex flex-col relative rounded-lg overflow-hidden ${isReserved ? "opacity-60 grayscale" : ""} ${isPurchased ? "ring-2 ring-green-500" : ""}`}>
+                  {isReserved && (
+                    <div className="absolute inset-0 bg-gray-400/30 z-10 flex items-center justify-center">
+                      <span className="bg-gray-700 text-white px-4 py-2 rounded-lg text-lg font-bold">
+                        {locale === "he" ? "שמור" : "Reserved"}
+                      </span>
+                    </div>
+                  )}
+                  {isPurchased && (
+                    <div className="absolute inset-0 bg-green-500/20 z-10 flex items-center justify-center">
+                      <span className="bg-green-600 text-white px-4 py-2 rounded-lg text-lg font-bold">
+                        {locale === "he" ? "נרכש" : "Purchased"}
+                      </span>
+                    </div>
+                  )}
+                  <ProductCard
+                    product={product}
+                    locale={locale}
+                    eventId={eventId || undefined}
+                  />
+                  {eventId && !isPurchased && (
+                    <div className="mt-2 relative z-20">
+                      <ReserveButton
+                        eventId={eventId}
+                        productLinkId={product.id}
+                        retailerUrl={product.url}
+                        existingReservation={isReserved ? getActiveReservation(product.id) : null}
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </GiftSection>

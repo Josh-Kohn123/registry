@@ -163,6 +163,20 @@ export default function AddressForm({
         />
       </div>
 
+      <div className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          name="isDefault"
+          id="isDefault"
+          checked={formData.isDefault || false}
+          onChange={handleChange}
+          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+        />
+        <label htmlFor="isDefault" className="text-sm font-medium">
+          {isHe ? "הגדר כברירת מחדל" : "Set as default address"}
+        </label>
+      </div>
+
       <div className="flex gap-3 pt-4">
         <button
           type="button"

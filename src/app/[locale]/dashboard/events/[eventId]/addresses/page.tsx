@@ -41,6 +41,19 @@ export default function AddressesPage({ params }: AddressesPageProps) {
   }, [eventId, isHe]);
 
   const handleSaveAddress = async (data: AddressInput) => {
+    // Block setting multiple defaults — warn the user
+    if (data.isDefault) {
+      const existingDefault = addresses.find((a) => a.isDefault && a.id !== editingId);
+      if (existingDefault) {
+        const confirmMsg = isHe
+          ? `כבר יש כתובת ברירת מחדל ("${existingDefault.recipientName}"). האם להחליף אותה?`
+          : `There is already a default address ("${existingDefault.recipientName}"). Replace it as default?`;
+        if (!confirm(confirmMsg)) {
+          return;
+        }
+      }
+    }
+
     try {
       const url = editingId
         ? `/api/events/${eventId}/addresses/${editingId}`
@@ -55,7 +68,15 @@ export default function AddressesPage({ params }: AddressesPageProps) {
 
       if (response.ok) {
         const saved = await response.json();
-        if (editingId) {
+        if (data.isDefault) {
+          // Update local state: unset default on all others
+          setAddresses((prev) =>
+            prev.map((a) => {
+              if (a.id === (editingId || saved.id)) return saved;
+              return { ...a, isDefault: false };
+            }).concat(editingId ? [] : [saved])
+          );
+        } else if (editingId) {
           setAddresses(addresses.map((a) => (a.id === editingId ? saved : a)));
         } else {
           setAddresses([...addresses, saved]);
@@ -63,7 +84,8 @@ export default function AddressesPage({ params }: AddressesPageProps) {
         setShowForm(false);
         setEditingId(null);
       } else {
-        setError(isHe ? "שגיאה בשמירת הכתובת" : "Failed to save address");
+        const errorData = await response.json().catch(() => null);
+        setError(errorData?.error || (isHe ? "שגיאה בשמירת הכתובת" : "Failed to save address"));
       }
     } catch {
       setError(isHe ? "שגיאה בשמירת הכתובת" : "Failed to save address");
@@ -129,6 +151,12 @@ export default function AddressesPage({ params }: AddressesPageProps) {
         </div>
       )}
 
+      <p className="mb-4 text-sm text-gray-500">
+        {isHe
+          ? "ניתן להוסיף מספר כתובות משלוח. כתובת ברירת מחדל אחת בלבד."
+          : "You can add multiple delivery addresses. Only one can be the default."}
+      </p>
+
       {showForm ? (
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <h2 className="text-xl font-bold mb-6">
@@ -146,7 +174,7 @@ export default function AddressesPage({ params }: AddressesPageProps) {
             }}
           />
         </div>
-      ) : addresses.length === 0 ? (
+      ) : (
         <button
           onClick={() => {
             setShowForm(true);
@@ -156,10 +184,6 @@ export default function AddressesPage({ params }: AddressesPageProps) {
         >
           {isHe ? "הוסף כתובת חדשה" : "Add New Address"}
         </button>
-      ) : (
-        <p className="mb-8 text-sm text-gray-500">
-          {isHe ? "ניתן לשמור כתובת משלוח אחת בלבד. ערוך או מחק את הקיימת כדי להוסיף חדשה." : "Only one delivery address is allowed. Edit or delete the existing one to add a new address."}
-        </p>
       )}
 
       {addresses.length === 0 ? (

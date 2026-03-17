@@ -13,6 +13,7 @@ interface ReserveButtonProps {
   retailerUrl?: string;
   bundleItemUrls?: string[]; // For bundles: open all item URLs
   isDisabled?: boolean;
+  existingReservation?: Reservation | null; // For returning guests with active reservation
 }
 
 export default function ReserveButton({
@@ -22,14 +23,16 @@ export default function ReserveButton({
   retailerUrl,
   bundleItemUrls,
   isDisabled = false,
+  existingReservation = null,
 }: ReserveButtonProps) {
   const locale = useLocale();
   const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [reservation, setReservation] = useState<Reservation | null>(null);
+  const [reservation, setReservation] = useState<Reservation | null>(existingReservation);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleReserve = async (guestName: string, guestEmail?: string) => {
+  const handleReserve = async (guestName: string, guestEmail?: string, guestPhone?: string) => {
     setIsLoading(true);
     setError(null);
 
@@ -42,6 +45,7 @@ export default function ReserveButton({
           body: JSON.stringify({
             guestName,
             guestEmail,
+            guestPhone,
             productLinkId,
             bundleId,
           }),
@@ -59,10 +63,17 @@ export default function ReserveButton({
       setReservation(data);
       setShowForm(false);
 
-      // For bundles: open all item URLs so guest can add each to cart
+      // For bundles: open all item URLs sequentially so guest can add each to cart
       if (bundleItemUrls && bundleItemUrls.length > 0) {
-        for (const url of bundleItemUrls) {
-          window.open(url, "_blank");
+        // Open each product page with a small delay to avoid popup blockers
+        for (let i = 0; i < bundleItemUrls.length; i++) {
+          if (i === 0) {
+            window.open(bundleItemUrls[i], "_blank");
+          } else {
+            setTimeout(() => {
+              window.open(bundleItemUrls[i], "_blank");
+            }, i * 800);
+          }
         }
       } else if (retailerUrl) {
         // For individual products: open the single product URL
@@ -78,12 +89,14 @@ export default function ReserveButton({
 
   const handleConfirmPurchase = () => {
     setReservation(null);
+    setShowConfirmModal(false);
   };
 
-  if (reservation) {
+  // Show confirm modal when it was just reserved OR when returning guest clicks "Confirm Purchase"
+  if ((reservation && !existingReservation) || showConfirmModal) {
     return (
       <ConfirmPurchaseModal
-        reservation={reservation}
+        reservation={reservation!}
         onConfirmed={handleConfirmPurchase}
       />
     );
@@ -97,6 +110,18 @@ export default function ReserveButton({
         isLoading={isLoading}
         error={error}
       />
+    );
+  }
+
+  // Returning guest with existing reservation — show "Confirm Purchase" button
+  if (existingReservation && reservation) {
+    return (
+      <button
+        onClick={() => setShowConfirmModal(true)}
+        className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
+      >
+        {locale === "he" ? "אשר מתנה" : "Confirm Purchase"}
+      </button>
     );
   }
 

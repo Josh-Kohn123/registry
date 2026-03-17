@@ -163,6 +163,7 @@ function mapReservationFromPrisma(reservation: any): Reservation {
     expiresAt: reservation.expiresAt,
     confirmedAt: reservation.confirmedAt,
     receivedAt: reservation.receivedAt,
+    chosenAddressId: reservation.chosenAddressId,
     productLinkId: reservation.productLinkId,
     bundleId: reservation.bundleId,
     createdAt: reservation.createdAt,
@@ -734,6 +735,33 @@ export async function getReservationsByEvent(eventId: string): Promise<Reservati
   });
 
   return reservations.map(mapReservationFromPrisma);
+}
+
+export async function getReservationsWithItemsByEvent(eventId: string) {
+  const reservations = await prisma.reservation.findMany({
+    where: { eventId },
+    include: {
+      productLink: { select: { id: true, title: true, imageUrl: true, estimatedPrice: true, url: true } },
+      bundle: { select: { id: true, title: true, imageUrl: true, targetAmount: true } },
+    },
+  });
+
+  return reservations.map((r) => ({
+    ...mapReservationFromPrisma(r),
+    product: r.productLink ? {
+      id: r.productLink.id,
+      title: r.productLink.title,
+      imageUrl: r.productLink.imageUrl ?? undefined,
+      estimatedPrice: r.productLink.estimatedPrice ?? undefined,
+      url: r.productLink.url,
+    } : undefined,
+    bundle: r.bundle ? {
+      id: r.bundle.id,
+      title: r.bundle.title,
+      imageUrl: r.bundle.imageUrl ?? undefined,
+      targetAmount: r.bundle.targetAmount,
+    } : undefined,
+  }));
 }
 
 export async function getReservationsByProduct(

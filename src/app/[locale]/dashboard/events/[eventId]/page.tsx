@@ -331,7 +331,7 @@ export default function EventDetailsPage({
                 className="justify-start"
                 onClick={() => router.push(`/dashboard/events/${event.id}/bundles`)}
               >
-                {locale === "he" ? "🎁 מתנות קבוצתיות" : "🎁 Group Gifts"}
+                {locale === "he" ? "🎁 מתנות חבילה" : "🎁 Bundle Gifts"}
               </Button>
               <Button
                 variant="outline"
@@ -345,7 +345,7 @@ export default function EventDetailsPage({
                 className="justify-start"
                 onClick={() => router.push(`/dashboard/events/${event.id}/reservations`)}
               >
-                {locale === "he" ? "📋 הזמנות אורחים" : "📋 Guest Reservations"}
+                {locale === "he" ? "📋 סקור מתנות שמורות" : "📋 Review Reserved Gifts"}
               </Button>
               <Button
                 variant="primary"

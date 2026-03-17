@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useLocale } from "next-intl";
-import { Reservation, ReservationStatus as ReservationStatusType } from "@/types/reservation";
+import { ReservationWithItem, ReservationStatus as ReservationStatusType } from "@/types/reservation";
 import ReservationStatus from "./ReservationStatus";
 
 interface ReservationListProps {
@@ -20,8 +20,8 @@ const STATUS_OPTIONS: ReservationStatusType[] = [
 export default function ReservationList({ eventId }: ReservationListProps) {
   const locale = useLocale();
   const isHe = locale === "he";
-  const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [filteredReservations, setFilteredReservations] = useState<Reservation[]>([]);
+  const [reservations, setReservations] = useState<ReservationWithItem[]>([]);
+  const [filteredReservations, setFilteredReservations] = useState<ReservationWithItem[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<ReservationStatusType | "ALL">("ALL");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,11 +47,11 @@ export default function ReservationList({ eventId }: ReservationListProps) {
   useEffect(() => {
     const fetchReservations = async () => {
       try {
-        const response = await fetch(`/api/events/${eventId}/reservations`);
+        const response = await fetch(`/api/events/${eventId}/reservations?includeItems=true`);
         if (!response.ok) {
           throw new Error("Failed to fetch reservations");
         }
-        const data: Reservation[] = await response.json();
+        const data: ReservationWithItem[] = await response.json();
         setReservations(data);
       } catch {
         setError(isHe ? "שגיאה בטעינת הזמנות" : "Failed to load reservations");
@@ -88,7 +88,7 @@ export default function ReservationList({ eventId }: ReservationListProps) {
         throw new Error("Failed to update reservation");
       }
 
-      const updated: Reservation = await response.json();
+      const updated: ReservationWithItem = await response.json();
       setReservations(
         reservations.map((r) => (r.id === reservationId ? updated : r))
       );
@@ -164,6 +164,34 @@ export default function ReservationList({ eventId }: ReservationListProps) {
             key={reservation.id}
             className="border border-gray-200 rounded-lg p-4"
           >
+            {/* Product/Bundle Info */}
+            {(reservation.product || reservation.bundle) && (
+              <div className="flex items-center gap-3 mb-3 pb-3 border-b border-gray-100">
+                {(reservation.product?.imageUrl || reservation.bundle?.imageUrl) && (
+                  <img
+                    src={reservation.product?.imageUrl || reservation.bundle?.imageUrl}
+                    alt={reservation.product?.title || reservation.bundle?.title || ""}
+                    className="w-14 h-14 object-cover rounded-lg border border-gray-200"
+                  />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-gray-900 truncate">
+                    {reservation.product?.title || reservation.bundle?.title}
+                  </p>
+                  {reservation.product?.estimatedPrice && (
+                    <p className="text-sm text-gray-500">
+                      ₪{reservation.product.estimatedPrice.toLocaleString()}
+                    </p>
+                  )}
+                  {reservation.bundle && (
+                    <p className="text-xs text-blue-600 font-medium">
+                      {isHe ? "חבילה" : "Bundle"}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
             <div className="flex justify-between items-start">
               <div>
                 <p className="font-semibold">{reservation.guestName}</p>
