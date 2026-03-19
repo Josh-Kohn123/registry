@@ -21,18 +21,18 @@ export function GiftSection({
   const isRtl = locale === "he";
 
   return (
-    <section className={`py-12 px-4 ${isRtl ? "rtl" : "ltr"}`}>
+    <section className={`py-14 px-4 ${isRtl ? "rtl" : "ltr"}`}>
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">{title}</h2>
+          <h2 className="font-display text-3xl font-semibold text-ink mb-2">{title}</h2>
           {description && (
-            <p className="text-gray-600">{description}</p>
+            <p className="text-pebble">{description}</p>
           )}
         </div>
 
         {isEmpty ? (
-          <div className="rounded-lg border-2 border-dashed border-gray-300 p-8 text-center">
-            <p className="text-gray-600">
+          <div className="rounded-2xl border-2 border-dashed border-warm-border p-10 text-center bg-warm-white">
+            <p className="text-pebble text-sm">
               {emptyMessage ||
                 (locale === "he"
                   ? "עדיין אין פריטים בקטגוריה זו"

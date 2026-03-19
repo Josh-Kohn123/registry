@@ -25,7 +25,6 @@ export default function DashboardPage() {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user);
-        // Fetch user's events
         try {
           const response = await fetch("/api/events");
           if (response.ok) {
@@ -44,27 +43,34 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-lg text-gray-600">{t("welcome")}</div>
+      <div className="flex items-center justify-center min-h-screen bg-cream">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 rounded-full border-2 border-brand border-t-transparent animate-spin" />
+          <p className="text-pebble text-sm">{t("welcome")}</p>
+        </div>
       </div>
     );
   }
 
   const isRtl = locale === "he";
   const publishedCount = events.filter((e) => e.isPublished).length;
+  const draftCount = events.length - publishedCount;
 
   return (
-    <div className={`min-h-screen bg-gray-50 py-12 px-4 ${isRtl ? "rtl" : "ltr"}`}>
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex items-start justify-between flex-wrap gap-4">
+    <div className={`min-h-screen bg-cream py-10 px-4 ${isRtl ? "rtl" : "ltr"}`}>
+      <div className="max-w-6xl mx-auto">
+
+        {/* ── Header ── */}
+        <div className="mb-10 flex items-start justify-between flex-wrap gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            <p className="eyebrow mb-2">
+              {locale === "he" ? "דשבורד" : "Dashboard"}
+            </p>
+            <h1 className="font-display text-4xl font-semibold text-ink mb-1.5">
               {t("welcome")}
             </h1>
-            <p className="text-gray-600">
-              {locale === "he"
-                ? `זהו דשבורדך, ${user?.email}`
-                : `This is your dashboard, ${user?.email}`}
+            <p className="text-pebble text-sm">
+              {user?.email}
             </p>
           </div>
           <Button
@@ -76,55 +82,47 @@ export default function DashboardPage() {
           </Button>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-gray-900">
-                  {events.length}
-                </div>
-                <p className="text-gray-600 mt-2">{et("myEvents")}</p>
-              </div>
-            </CardContent>
-          </Card>
+        {/* ── Stats Cards ── */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+          <div className="card p-5 text-center">
+            <div className="font-display text-4xl font-semibold text-ink mb-1">
+              {events.length}
+            </div>
+            <p className="text-pebble text-xs uppercase tracking-wide font-medium">
+              {et("myEvents")}
+            </p>
+          </div>
 
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-green-600">
-                  {publishedCount}
-                </div>
-                <p className="text-gray-600 mt-2">
-                  {locale === "he" ? "פורסמו" : "Published"}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="card p-5 text-center">
+            <div className="font-display text-4xl font-semibold text-brand mb-1">
+              {publishedCount}
+            </div>
+            <p className="text-pebble text-xs uppercase tracking-wide font-medium">
+              {locale === "he" ? "פורסמו" : "Published"}
+            </p>
+          </div>
 
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-gray-900">0</div>
-                <p className="text-gray-600 mt-2">{t("guests")}</p>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="card p-5 text-center">
+            <div className="font-display text-4xl font-semibold text-ink-mid mb-1">
+              {draftCount}
+            </div>
+            <p className="text-pebble text-xs uppercase tracking-wide font-medium">
+              {locale === "he" ? "טיוטות" : "Drafts"}
+            </p>
+          </div>
 
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-gray-900">0</div>
-                <p className="text-gray-600 mt-2">{t("gifts")}</p>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="card p-5 text-center">
+            <div className="font-display text-4xl font-semibold text-gold mb-1">0</div>
+            <p className="text-pebble text-xs uppercase tracking-wide font-medium">
+              {t("gifts")}
+            </p>
+          </div>
         </div>
 
-        {/* Events Section */}
+        {/* ── Events Section ── */}
         <Card>
-          <CardHeader className="flex items-center justify-between">
-            <CardTitle>{et("myEvents")}</CardTitle>
+          <CardHeader className="flex items-center justify-between flex-wrap gap-3">
+            <CardTitle className="font-display">{et("myEvents")}</CardTitle>
             <Button
               variant="primary"
               size="sm"
@@ -133,20 +131,26 @@ export default function DashboardPage() {
               {et("createEvent")}
             </Button>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-6">
             {events.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-gray-600 mb-4">
+              <div className="text-center py-16">
+                <div className="w-16 h-16 rounded-full bg-brand-xlight flex items-center justify-center mx-auto mb-5">
+                  <span className="text-2xl">🎉</span>
+                </div>
+                <h3 className="font-display text-xl font-semibold text-ink mb-2">
+                  {locale === "he" ? "ברוכים הבאים!" : "Welcome!"}
+                </h3>
+                <p className="text-pebble text-sm mb-6 max-w-xs mx-auto">
                   {locale === "he"
-                    ? "עדיין אין אירועים. צור את האירוע הראשון שלך!"
-                    : "No events yet. Create your first event!"}
+                    ? "צור את האירוע הראשון שלך כדי להתחיל לבנות את רשימת המתנות"
+                    : "Create your first event to start building your gift registry"}
                 </p>
                 <Button onClick={() => router.push("/dashboard/events/new")}>
                   {et("createEvent")}
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {events.slice(0, 4).map((event) => (
                   <EventCard key={event.id} event={event} />
                 ))}
@@ -156,7 +160,7 @@ export default function DashboardPage() {
         </Card>
 
         {events.length > 4 && (
-          <div className="mt-6 text-center">
+          <div className="mt-5 text-center">
             <Button
               variant="outline"
               onClick={() => router.push("/dashboard/events")}

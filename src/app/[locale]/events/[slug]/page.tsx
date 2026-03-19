@@ -54,9 +54,7 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
 
         if (!eventData.isPublished) {
           setError(
-            locale === "he"
-              ? "האירוע עדיין לא פורסם"
-              : "Event not published yet"
+            locale === "he" ? "האירוע עדיין לא פורסם" : "Event not published yet"
           );
           return;
         }
@@ -162,9 +160,10 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
 
   if (isLoading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${isRtl ? "rtl" : "ltr"}`}>
-        <div className="text-lg text-gray-600">
-          {locale === "he" ? "טוען..." : "Loading..."}
+      <div className={`min-h-screen bg-cream flex items-center justify-center ${isRtl ? "rtl" : "ltr"}`}>
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 rounded-full border-2 border-brand border-t-transparent animate-spin" />
+          <p className="text-pebble text-sm">{locale === "he" ? "טוען..." : "Loading..."}</p>
         </div>
       </div>
     );
@@ -172,13 +171,14 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
 
   if (error) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${isRtl ? "rtl" : "ltr"}`}>
+      <div className={`min-h-screen bg-cream flex items-center justify-center ${isRtl ? "rtl" : "ltr"}`}>
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">{error}</h1>
-          <p className="text-gray-600">
-            {locale === "he"
-              ? "נסו שוב מאוחר יותר"
-              : "Please try again later"}
+          <div className="w-16 h-16 rounded-full bg-brand-xlight flex items-center justify-center mx-auto mb-5">
+            <span className="text-2xl">🔍</span>
+          </div>
+          <h1 className="font-display text-2xl font-semibold text-ink mb-2">{error}</h1>
+          <p className="text-pebble text-sm">
+            {locale === "he" ? "נסו שוב מאוחר יותר" : "Please try again later"}
           </p>
         </div>
       </div>
@@ -224,17 +224,17 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
     const isReserved = status === "RESERVED";
     const isPurchased = status === "PURCHASED_GUEST_CONFIRMED";
     return (
-      <div key={product.id} className={`flex flex-col relative rounded-lg overflow-hidden ${isReserved ? "opacity-60 grayscale" : ""} ${isPurchased ? "ring-2 ring-green-500" : ""}`}>
+      <div key={product.id} className={`flex flex-col relative rounded-2xl overflow-hidden ${isReserved ? "opacity-60 grayscale" : ""} ${isPurchased ? "ring-2 ring-green-400" : ""}`}>
         {isReserved && (
-          <div className="absolute inset-0 bg-gray-400/30 z-10 flex items-center justify-center">
-            <span className="bg-gray-700 text-white px-4 py-2 rounded-lg text-lg font-bold">
+          <div className="absolute inset-0 bg-ink/20 z-10 flex items-center justify-center rounded-2xl">
+            <span className="bg-ink text-warm-white px-4 py-2 rounded-xl text-sm font-semibold shadow-md">
               {locale === "he" ? "שמור" : "Reserved"}
             </span>
           </div>
         )}
         {isPurchased && (
-          <div className="absolute inset-0 bg-green-500/20 z-10 flex items-center justify-center">
-            <span className="bg-green-600 text-white px-4 py-2 rounded-lg text-lg font-bold">
+          <div className="absolute inset-0 bg-green-500/15 z-10 flex items-center justify-center rounded-2xl">
+            <span className="bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-md">
               {locale === "he" ? "נרכש" : "Purchased"}
             </span>
           </div>
@@ -260,17 +260,17 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
     const isReserved = status === "RESERVED";
     const isPurchased = status === "PURCHASED_GUEST_CONFIRMED";
     return (
-      <div key={`bundle-${bundle.id}`} className={`flex flex-col relative rounded-lg overflow-hidden ${isReserved ? "opacity-60 grayscale" : ""} ${isPurchased ? "ring-2 ring-green-500" : ""}`}>
+      <div key={`bundle-${bundle.id}`} className={`flex flex-col relative rounded-2xl overflow-hidden ${isReserved ? "opacity-60 grayscale" : ""} ${isPurchased ? "ring-2 ring-green-400" : ""}`}>
         {isReserved && (
-          <div className="absolute inset-0 bg-gray-400/30 z-10 flex items-center justify-center">
-            <span className="bg-gray-700 text-white px-4 py-2 rounded-lg text-lg font-bold">
+          <div className="absolute inset-0 bg-ink/20 z-10 flex items-center justify-center rounded-2xl">
+            <span className="bg-ink text-warm-white px-4 py-2 rounded-xl text-sm font-semibold shadow-md">
               {locale === "he" ? "שמור" : "Reserved"}
             </span>
           </div>
         )}
         {isPurchased && (
-          <div className="absolute inset-0 bg-green-500/20 z-10 flex items-center justify-center">
-            <span className="bg-green-600 text-white px-4 py-2 rounded-lg text-lg font-bold">
+          <div className="absolute inset-0 bg-green-500/15 z-10 flex items-center justify-center rounded-2xl">
+            <span className="bg-green-600 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-md">
               {locale === "he" ? "נרכש" : "Purchased"}
             </span>
           </div>
@@ -291,7 +291,7 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
   };
 
   return (
-    <div className={`min-h-screen bg-white ${isRtl ? "rtl" : "ltr"}`}>
+    <div className={`min-h-screen bg-cream ${isRtl ? "rtl" : "ltr"}`}>
       <PublicEventHeader event={event} />
 
       {/* Section 1: Funds (Cash-first per F00/F02) */}
@@ -335,6 +335,11 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
         )}
       </GiftSection>
 
+      {/* Subtle divider between sections */}
+      <div className="max-w-3xl mx-auto px-4">
+        <div className="divider" />
+      </div>
+
       {/* Section 2: Gifts — grouped by category */}
       <GiftSection
         title={locale === "he" ? "מוצרים" : "Products"}
@@ -359,7 +364,7 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
             />
 
             {!hasDisplayGifts && filtersInitialized ? (
-              <p className="text-center text-gray-500 py-8">
+              <p className="text-center text-pebble text-sm py-10">
                 {locale === "he" ? "אין מוצרים התואמים את הסינון" : "No products match your filters"}
               </p>
             ) : (
@@ -367,7 +372,7 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
                 {/* Bundles appear first in their own unlabelled group */}
                 {displayBundles.length > 0 && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
+                    <h3 className="font-display text-lg font-semibold text-ink mb-4 pb-2 border-b border-warm-border">
                       {locale === "he" ? "חבילות מתנה" : "Gift Sets"}
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -379,7 +384,7 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
                 {/* Products grouped by category */}
                 {activeCategoryOrder.map((cat) => (
                   <div key={cat}>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
+                    <h3 className="font-display text-lg font-semibold text-ink mb-4 pb-2 border-b border-warm-border">
                       {categoryHeadings[cat] || cat}
                     </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -393,10 +398,11 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
         )}
       </GiftSection>
 
-      {/* Footer Disclaimer (F02 required) */}
-      <footer className={`border-t border-gray-200 py-12 px-4 ${isRtl ? "rtl" : "ltr"}`}>
-        <div className="max-w-3xl mx-auto text-center text-gray-600 text-sm">
-          <p>
+      {/* Footer Disclaimer */}
+      <footer className={`border-t border-warm-border py-10 px-4 bg-warm-white ${isRtl ? "rtl" : "ltr"}`}>
+        <div className="max-w-3xl mx-auto text-center">
+          <p className="font-display text-base font-medium text-ink mb-1">SimchaList</p>
+          <p className="text-pebble text-xs leading-relaxed">
             {locale === "he"
               ? "לחיצה על מתנות תעביר אותך לאתרי קמעונאות חיצוניים. SimchaList לא מוכר, לא משלח ולא מעבד תשלומים."
               : "Clicking gifts takes you to external retailer websites. This registry platform does not sell or ship products."}

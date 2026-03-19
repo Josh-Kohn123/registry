@@ -20,11 +20,11 @@ export function ProductsPageClient({ eventId, locale }: ProductsPageClientProps)
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-1">
+        <div className="card p-6">
+          <h2 className="font-display text-xl font-semibold text-ink mb-1">
             {locale === "he" ? "הוסף מוצר באמצעות קישור" : "Add a Product by Link"}
           </h2>
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-pebble mb-4">
             {locale === "he"
               ? "העתיקו קישור לדף מוצר מחנות מאושרת ולחצו על 'הוסף'"
               : "Paste a link to any product page from an approved retailer, then click Add"}
@@ -35,7 +35,7 @@ export function ProductsPageClient({ eventId, locale }: ProductsPageClientProps)
             onProductAdded={handleProductAdded}
           />
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
+        <div className="card p-6">
           <ProductListManager
             key={refreshKey}
             eventId={eventId}
