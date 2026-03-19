@@ -18,8 +18,9 @@ export function ProductsPageClient({ eventId, locale }: ProductsPageClientProps)
   }, []);
 
   return (
-    <div className="space-y-8">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="flex flex-col lg:flex-row gap-6 items-start">
+      {/* Left column — sticky add-product form */}
+      <div className="w-full lg:w-[380px] lg:flex-shrink-0 lg:sticky lg:top-6 space-y-4">
         <div className="card p-6">
           <h2 className="font-display text-xl font-semibold text-ink mb-1">
             {locale === "he" ? "הוסף מוצר באמצעות קישור" : "Add a Product by Link"}
@@ -35,6 +36,13 @@ export function ProductsPageClient({ eventId, locale }: ProductsPageClientProps)
             onProductAdded={handleProductAdded}
           />
         </div>
+
+        {/* Request a Store form — below the add form on the left */}
+        <WhitelistRequestForm />
+      </div>
+
+      {/* Right column — product list, gets all remaining space */}
+      <div className="flex-1 min-w-0">
         <div className="card p-6">
           <ProductListManager
             key={refreshKey}
@@ -42,11 +50,6 @@ export function ProductsPageClient({ eventId, locale }: ProductsPageClientProps)
             locale={locale}
           />
         </div>
-      </div>
-
-      {/* Request a Store form */}
-      <div className="max-w-md">
-        <WhitelistRequestForm />
       </div>
     </div>
   );

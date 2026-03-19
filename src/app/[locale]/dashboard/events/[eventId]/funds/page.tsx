@@ -134,22 +134,22 @@ export default function FundsDashboardPage() {
   };
 
   return (
-    <div className={`min-h-screen bg-gray-50 py-8 ${isHe ? "rtl" : "ltr"}`}>
-      <div className="max-w-4xl mx-auto px-4">
+    <div className={`min-h-screen bg-cream py-10 ${isHe ? "rtl" : "ltr"}`}>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-2">
-            <h1 className="text-3xl font-bold text-gray-900">
-              {t("manageFunds")}
-            </h1>
-            <a
-              href={`/${locale}/dashboard/events/${eventId}`}
-              className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              {isHe ? "חזור" : "Back"}
-            </a>
-          </div>
-          <p className="text-gray-600">
+          <a
+            href={`/${locale}/dashboard/events/${eventId}`}
+            className="text-pebble hover:text-ink text-sm flex items-center gap-1.5 mb-6 w-fit transition-colors"
+          >
+            <span aria-hidden>←</span>
+            {isHe ? "חזור" : "Back"}
+          </a>
+          <p className="eyebrow mb-2">{isHe ? "ניהול" : "Registry"}</p>
+          <h1 className="font-display text-3xl font-semibold text-ink mb-2">
+            {t("manageFunds")}
+          </h1>
+          <p className="text-pebble text-sm">
             {isHe
               ? "צור ונהל קרנות מתנות כספיות לאירוע שלך."
               : "Create and manage cash gift funds for your event."}
@@ -158,16 +158,16 @@ export default function FundsDashboardPage() {
 
         {/* Error Message */}
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
             {error}
           </div>
         )}
 
         {/* Create/Edit Form */}
         {isCreating || editingFund ? (
-          <div className="mb-8">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-900">
+          <div className="card p-6 mb-8">
+            <div className="flex justify-between items-center mb-5">
+              <h2 className="font-display text-xl font-semibold text-ink">
                 {editingFund ? t("editFund") : t("createNewFund")}
               </h2>
               <button
@@ -175,7 +175,7 @@ export default function FundsDashboardPage() {
                   setIsCreating(false);
                   setEditingFund(null);
                 }}
-                className="text-gray-600 hover:text-gray-900"
+                className="text-pebble hover:text-ink transition-colors text-lg"
               >
                 ✕
               </button>
@@ -190,7 +190,7 @@ export default function FundsDashboardPage() {
         ) : (
           <button
             onClick={() => setIsCreating(true)}
-            className="mb-8 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            className="mb-8 px-6 py-3 bg-brand text-white rounded-xl font-medium hover:bg-brand-dark transition-colors text-sm"
           >
             {t("addFund")}
           </button>

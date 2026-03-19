@@ -125,117 +125,122 @@ export default function AddressesPage({ params }: AddressesPageProps) {
 
   if (isLoading) {
     return (
-      <div className="max-w-4xl mx-auto py-8 px-4 text-center">
-        {isHe ? "טוען..." : "Loading..."}
+      <div className={`min-h-screen bg-cream flex items-center justify-center ${isHe ? "rtl" : "ltr"}`}>
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 rounded-full border-2 border-brand border-t-transparent animate-spin" />
+          <p className="text-pebble text-sm">{isHe ? "טוען..." : "Loading..."}</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={`max-w-4xl mx-auto py-8 px-4 ${isHe ? "rtl" : "ltr"}`}>
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">
-          {isHe ? "ניהול כתובות משלוח" : "Manage Delivery Addresses"}
-        </h1>
+    <div className={`min-h-screen bg-cream py-10 ${isHe ? "rtl" : "ltr"}`}>
+      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+        {/* Back */}
         <a
           href={`/${locale}/dashboard/events/${eventId}`}
-          className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+          className="text-pebble hover:text-ink text-sm flex items-center gap-1.5 mb-8 w-fit transition-colors"
         >
+          <span aria-hidden>←</span>
           {isHe ? "חזור" : "Back"}
         </a>
+
+        <div className="mb-8">
+          <p className="eyebrow mb-2">{isHe ? "ניהול" : "Registry"}</p>
+          <h1 className="font-display text-3xl font-semibold text-ink mb-2">
+            {isHe ? "ניהול כתובות משלוח" : "Manage Delivery Addresses"}
+          </h1>
+          <p className="text-pebble text-sm">
+            {isHe
+              ? "ניתן להוסיף מספר כתובות משלוח. כתובת ברירת מחדל אחת בלבד."
+              : "You can add multiple delivery addresses. Only one can be the default."}
+          </p>
+        </div>
+
+        {error && (
+          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm" role="alert">
+            {error}
+          </div>
+        )}
+
+        {showForm ? (
+          <div className="card p-6 mb-8">
+            <h2 className="font-display text-xl font-semibold text-ink mb-5">
+              {editingId
+                ? (isHe ? "ערוך כתובת" : "Edit Address")
+                : (isHe ? "הוסף כתובת חדשה" : "Add New Address")}
+            </h2>
+            <AddressForm
+              eventId={eventId}
+              initialData={editingAddress}
+              onSave={handleSaveAddress}
+              onCancel={() => {
+                setShowForm(false);
+                setEditingId(null);
+              }}
+            />
+          </div>
+        ) : (
+          <button
+            onClick={() => { setShowForm(true); setEditingId(null); }}
+            className="mb-8 px-6 py-3 bg-brand text-white rounded-xl text-sm font-medium hover:bg-brand-dark transition-colors"
+          >
+            {isHe ? "+ הוסף כתובת חדשה" : "+ Add New Address"}
+          </button>
+        )}
+
+        {addresses.length === 0 ? (
+          <div className="card p-12 text-center">
+            <p className="text-pebble text-sm">
+              {isHe ? "אין כתובות עדיין. הוסף אחת כדי להתחיל." : "No addresses yet. Add one to get started."}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {addresses.map((address) => (
+              <div
+                key={address.id}
+                className="card p-5 flex justify-between items-start gap-4"
+              >
+                <div>
+                  <h3 className="font-semibold text-ink">{address.recipientName}</h3>
+                  <p className="text-pebble text-sm mt-0.5">
+                    {address.line1}{address.line2 && `, ${address.line2}`}
+                  </p>
+                  <p className="text-pebble text-sm">
+                    <span dir="ltr">{address.postalCode}</span> {address.city}
+                  </p>
+                  {address.phone && (
+                    <p className="text-pebble text-sm">
+                      <span dir="ltr">{address.phone}</span>
+                    </p>
+                  )}
+                  {address.isDefault && (
+                    <span className="inline-block mt-2 text-xs font-medium text-brand bg-brand-xlight px-2 py-0.5 rounded-full border border-brand-light">
+                      {isHe ? "ברירת מחדל" : "Default"}
+                    </span>
+                  )}
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <button
+                    onClick={() => handleEditAddress(address)}
+                    className="px-3 py-1.5 text-xs font-medium border border-warm-border rounded-lg hover:bg-cream text-ink-mid transition-colors"
+                  >
+                    {isHe ? "עריכה" : "Edit"}
+                  </button>
+                  <button
+                    onClick={() => handleDeleteAddress(address.id)}
+                    className="px-3 py-1.5 text-xs font-medium border border-red-100 text-red-500 rounded-lg hover:bg-red-50 transition-colors"
+                  >
+                    {isHe ? "מחק" : "Delete"}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4" role="alert">
-          {error}
-        </div>
-      )}
-
-      <p className="mb-4 text-sm text-gray-500">
-        {isHe
-          ? "ניתן להוסיף מספר כתובות משלוח. כתובת ברירת מחדל אחת בלבד."
-          : "You can add multiple delivery addresses. Only one can be the default."}
-      </p>
-
-      {showForm ? (
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h2 className="text-xl font-bold mb-6">
-            {editingId
-              ? (isHe ? "ערוך כתובת" : "Edit Address")
-              : (isHe ? "הוסף כתובת חדשה" : "Add New Address")}
-          </h2>
-          <AddressForm
-            eventId={eventId}
-            initialData={editingAddress}
-            onSave={handleSaveAddress}
-            onCancel={() => {
-              setShowForm(false);
-              setEditingId(null);
-            }}
-          />
-        </div>
-      ) : (
-        <button
-          onClick={() => {
-            setShowForm(true);
-            setEditingId(null);
-          }}
-          className="mb-8 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          {isHe ? "הוסף כתובת חדשה" : "Add New Address"}
-        </button>
-      )}
-
-      {addresses.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
-          {isHe ? "אין כתובות עדיין. הוסף אחת כדי להתחיל." : "No addresses yet. Add one to get started."}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {addresses.map((address) => (
-            <div
-              key={address.id}
-              className="bg-white rounded-lg shadow p-6 flex justify-between items-start"
-            >
-              <div>
-                <h3 className="font-semibold text-lg">{address.recipientName}</h3>
-                <p className="text-gray-600">
-                  {address.line1}
-                  {address.line2 && `, ${address.line2}`}
-                </p>
-                <p className="text-gray-600">
-                  <span dir="ltr">{address.postalCode}</span> {address.city}
-                </p>
-                {address.phone && (
-                  <p className="text-gray-600">
-                    {isHe ? "טלפון:" : "Phone:"}{" "}
-                    <span dir="ltr">{address.phone}</span>
-                  </p>
-                )}
-                {address.isDefault && (
-                  <p className="text-blue-600 text-sm font-medium mt-2">
-                    {isHe ? "כתובת ברירת מחדל" : "Default Address"}
-                  </p>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleEditAddress(address)}
-                  className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
-                >
-                  {isHe ? "עריכה" : "Edit"}
-                </button>
-                <button
-                  onClick={() => handleDeleteAddress(address.id)}
-                  className="px-4 py-2 text-sm border border-red-300 text-red-700 rounded-lg hover:bg-red-50"
-                >
-                  {isHe ? "מחק" : "Delete"}
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

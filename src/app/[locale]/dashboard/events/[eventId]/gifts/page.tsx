@@ -172,21 +172,6 @@ export default function GiftTrackingPage({ params }: GiftsPageProps) {
     return labels[status] || status;
   };
 
-  const statusColor = (status: string) => {
-    switch (status) {
-      case "RECEIVED_HOST_CONFIRMED":
-        return "bg-green-100 text-green-800";
-      case "PURCHASED_GUEST_CONFIRMED":
-        return "bg-yellow-100 text-yellow-800";
-      case "RESERVED":
-        return "bg-blue-100 text-blue-800";
-      case "DECLARED":
-        return "bg-purple-100 text-purple-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
   const typeLabel = (type: string) => {
     const labels: Record<string, string> = isHe
       ? { product: "מוצר", fund: "כספי", bundle: "קבוצתי" }
@@ -194,120 +179,133 @@ export default function GiftTrackingPage({ params }: GiftsPageProps) {
     return labels[type] || type;
   };
 
+  const statusColor = (status: string) => {
+    switch (status) {
+      case "RECEIVED_HOST_CONFIRMED": return "bg-green-50 text-green-700 border-green-200";
+      case "PURCHASED_GUEST_CONFIRMED": return "bg-amber-50 text-amber-700 border-amber-200";
+      case "RESERVED": return "bg-brand-xlight text-brand border-brand-light";
+      case "DECLARED": return "bg-purple-50 text-purple-700 border-purple-200";
+      default: return "bg-cream text-pebble border-warm-border";
+    }
+  };
+
   if (isLoading) {
     return (
-      <div className={`max-w-5xl mx-auto py-8 px-4 text-center ${isHe ? "rtl" : "ltr"}`}>
-        {isHe ? "טוען..." : "Loading..."}
+      <div className={`min-h-screen bg-cream flex items-center justify-center ${isHe ? "rtl" : "ltr"}`}>
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 rounded-full border-2 border-brand border-t-transparent animate-spin" />
+          <p className="text-pebble text-sm">{isHe ? "טוען..." : "Loading..."}</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={`max-w-5xl mx-auto py-8 px-4 ${isHe ? "rtl" : "ltr"}`}>
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">
-            {isHe ? "מעקב מתנות" : "Gift Tracker"}
-          </h1>
-          <p className="text-gray-600 mt-1">
-            {isHe
-              ? `${gifts.length} מתנות סה"כ`
-              : `${gifts.length} total gifts`}
-          </p>
-        </div>
+    <div className={`min-h-screen bg-cream py-10 ${isHe ? "rtl" : "ltr"}`}>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Back */}
         <a
           href={`/${locale}/dashboard/events/${eventId}`}
-          className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+          className="text-pebble hover:text-ink text-sm flex items-center gap-1.5 mb-8 w-fit transition-colors"
         >
+          <span aria-hidden>←</span>
           {isHe ? "חזור" : "Back"}
         </a>
-      </div>
 
-      {/* Filter */}
-      <div className="mb-6 flex gap-2 flex-wrap">
-        {(["all", "product", "fund", "bundle"] as const).map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-              filter === f
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
-          >
-            {f === "all"
-              ? isHe ? "הכל" : "All"
-              : typeLabel(f)}
-          </button>
-        ))}
-      </div>
-
-      {filteredGifts.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">
-          {isHe ? "אין מתנות עדיין" : "No gifts yet"}
+        <div className="mb-8">
+          <p className="eyebrow mb-2">{isHe ? "ניהול" : "Registry"}</p>
+          <h1 className="font-display text-3xl font-semibold text-ink mb-1">
+            {isHe ? "מעקב מתנות" : "Gift Tracker"}
+          </h1>
+          <p className="text-pebble text-sm">
+            {isHe ? `${gifts.length} מתנות סה"כ` : `${gifts.length} total gifts`}
+          </p>
         </div>
-      ) : (
-        <div className="space-y-3">
-          {filteredGifts.map((gift) => (
-            <div
-              key={gift.id}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
-            >
-              <div className="flex justify-between items-start">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="font-semibold text-gray-900">
-                      {gift.guestName}
-                    </span>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColor(gift.status)}`}>
-                      {statusLabel(gift.status)}
-                    </span>
-                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                      {typeLabel(gift.type)}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-600">{gift.itemTitle}</p>
-                  {gift.guestContact && (
-                    <p className="text-sm text-gray-500 mt-1" dir="ltr">
-                      {gift.guestContact}
-                    </p>
-                  )}
-                  {gift.amount && (
-                    <p className="text-sm font-medium text-gray-700 mt-1">
-                      {isHe ? `₪${gift.amount}` : `${gift.amount} ILS`}
-                    </p>
-                  )}
-                  {gift.chosenAddressId && (() => {
-                    const addr = addresses.find((a) => a.id === gift.chosenAddressId);
-                    return addr ? (
-                      <p className="text-sm text-indigo-600 mt-1">
-                        {isHe ? "כתובת משלוח:" : "Ship to:"} {addr.line1}, {addr.city}
-                      </p>
-                    ) : null;
-                  })()}
-                  <p className="text-xs text-gray-400 mt-1">{gift.date}</p>
-                </div>
 
-                <div className="flex gap-2">
-                  {gift.status === "PURCHASED_GUEST_CONFIRMED" && gift.reservationId && (
-                    <button
-                      onClick={() => handleMarkAsReceived(gift.reservationId!)}
-                      className="px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700"
-                    >
-                      {isHe ? "אשר קבלה" : "Confirm Received"}
-                    </button>
-                  )}
-                  {gift.status === "RECEIVED_HOST_CONFIRMED" && (
-                    <span className="text-green-600 text-sm font-medium">
-                      {isHe ? "התקבל ✓" : "Received ✓"}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
+        {/* Filter pills */}
+        <div className="mb-6 flex gap-2 flex-wrap">
+          {(["all", "product", "fund", "bundle"] as const).map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors border ${
+                filter === f
+                  ? "bg-ink text-warm-white border-ink"
+                  : "bg-warm-white text-pebble border-warm-border hover:bg-cream"
+              }`}
+            >
+              {f === "all" ? (isHe ? "הכל" : "All") : typeLabel(f)}
+            </button>
           ))}
         </div>
-      )}
+
+        {filteredGifts.length === 0 ? (
+          <div className="card p-12 text-center">
+            <p className="text-pebble text-sm">
+              {isHe ? "אין מתנות עדיין" : "No gifts yet"}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {filteredGifts.map((gift) => (
+              <div
+                key={gift.id}
+                className="card p-4"
+              >
+                <div className="flex justify-between items-start gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                      <span className="font-semibold text-ink text-sm">
+                        {gift.guestName}
+                      </span>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${statusColor(gift.status)}`}>
+                        {statusLabel(gift.status)}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-cream text-pebble border border-warm-border">
+                        {typeLabel(gift.type)}
+                      </span>
+                    </div>
+                    <p className="text-sm text-ink-mid truncate">{gift.itemTitle}</p>
+                    {gift.guestContact && (
+                      <p className="text-xs text-pebble mt-0.5" dir="ltr">{gift.guestContact}</p>
+                    )}
+                    {gift.amount && (
+                      <p className="text-sm font-semibold text-ink mt-0.5" dir="ltr">
+                        ₪{gift.amount.toLocaleString("he-IL")}
+                      </p>
+                    )}
+                    {gift.chosenAddressId && (() => {
+                      const addr = addresses.find((a) => a.id === gift.chosenAddressId);
+                      return addr ? (
+                        <p className="text-xs text-brand mt-0.5">
+                          {isHe ? "כתובת משלוח:" : "Ship to:"} {addr.line1}, {addr.city}
+                        </p>
+                      ) : null;
+                    })()}
+                    <p className="text-xs text-mist mt-1">{gift.date}</p>
+                  </div>
+
+                  <div className="flex gap-2 shrink-0">
+                    {gift.status === "PURCHASED_GUEST_CONFIRMED" && gift.reservationId && (
+                      <button
+                        onClick={() => handleMarkAsReceived(gift.reservationId!)}
+                        className="px-3 py-1.5 text-xs font-medium bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                      >
+                        {isHe ? "אשר קבלה" : "Confirm Received"}
+                      </button>
+                    )}
+                    {gift.status === "RECEIVED_HOST_CONFIRMED" && (
+                      <span className="text-green-600 text-xs font-medium">
+                        {isHe ? "התקבל ✓" : "Received ✓"}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

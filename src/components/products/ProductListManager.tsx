@@ -44,7 +44,7 @@ export function ProductListManager({
 
   const labels = {
     en: {
-      title: "Manage Products",
+      title: "Your Products",
       noProducts: "No products added yet",
       loadingProducts: "Loading products...",
       edit: "Edit",
@@ -56,11 +56,13 @@ export function ProductListManager({
       noCategory: "No category",
       moveUp: "↑",
       moveDown: "↓",
-      deleteConfirm: "Are you sure?",
+      deleteConfirm: "Are you sure you want to remove this product?",
       retailer: "Retailer",
+      visible: "Visible",
+      hidden: "Hidden",
     },
     he: {
-      title: "ניהול מוצרים",
+      title: "המוצרים שלך",
       noProducts: "עדיין לא התוסף מוצרים",
       loadingProducts: "טוען מוצרים...",
       edit: "ערוך",
@@ -72,8 +74,10 @@ export function ProductListManager({
       noCategory: "ללא קטגוריה",
       moveUp: "↑",
       moveDown: "↓",
-      deleteConfirm: "בטוח?",
-      retailer: "סוחר",
+      deleteConfirm: "האם למחוק מוצר זה?",
+      retailer: "חנות",
+      visible: "גלוי",
+      hidden: "מוסתר",
     },
   };
 
@@ -93,12 +97,9 @@ export function ProductListManager({
   const loadProducts = async () => {
     setIsLoading(true);
     setError(null);
-
     try {
       const response = await fetch(`/api/events/${eventId}/products`);
-      if (!response.ok) {
-        throw new Error("Failed to load products");
-      }
+      if (!response.ok) throw new Error("Failed to load products");
       const data = await response.json();
       setProducts(data || []);
     } catch (err) {
@@ -115,19 +116,13 @@ export function ProductListManager({
 
   const handleDelete = async (productId: string) => {
     if (!confirm(text.deleteConfirm)) return;
-
     setIsDeleting(productId);
-
     try {
       const response = await fetch(
         `/api/events/${eventId}/products/${productId}`,
         { method: "DELETE" }
       );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete product");
-      }
-
+      if (!response.ok) throw new Error("Failed to delete product");
       setProducts(products.filter((p) => p.id !== productId));
       onProductsChanged?.();
     } catch (err) {
@@ -150,7 +145,6 @@ export function ProductListManager({
   const handleEditSave = async (productId: string) => {
     setIsSavingEdit(true);
     setError(null);
-
     try {
       const response = await fetch(
         `/api/events/${eventId}/products/${productId}`,
@@ -160,11 +154,7 @@ export function ProductListManager({
           body: JSON.stringify(editValues),
         }
       );
-
-      if (!response.ok) {
-        throw new Error("Failed to update product");
-      }
-
+      if (!response.ok) throw new Error("Failed to update product");
       const updated = await response.json();
       setProducts(products.map((p) => (p.id === productId ? updated : p)));
       setEditingId(null);
@@ -180,37 +170,51 @@ export function ProductListManager({
   const handleMoveUp = (index: number) => {
     if (index === 0) return;
     const newProducts = [...products];
-    [newProducts[index - 1], newProducts[index]] = [
-      newProducts[index],
-      newProducts[index - 1],
-    ];
+    [newProducts[index - 1], newProducts[index]] = [newProducts[index], newProducts[index - 1]];
     setProducts(newProducts);
   };
 
   const handleMoveDown = (index: number) => {
     if (index === products.length - 1) return;
     const newProducts = [...products];
-    [newProducts[index], newProducts[index + 1]] = [
-      newProducts[index + 1],
-      newProducts[index],
-    ];
+    [newProducts[index], newProducts[index + 1]] = [newProducts[index + 1], newProducts[index]];
     setProducts(newProducts);
   };
 
   if (isLoading) {
-    return <div className="text-gray-500">{text.loadingProducts}</div>;
+    return (
+      <div className="flex items-center gap-2 text-pebble text-sm py-4">
+        <div className="w-4 h-4 rounded-full border-2 border-brand border-t-transparent animate-spin" />
+        {text.loadingProducts}
+      </div>
+    );
   }
 
   if (products.length === 0) {
-    return <div className="text-gray-500">{text.noProducts}</div>;
+    return (
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-display text-lg font-semibold text-ink">{text.title}</h3>
+          <span className="text-xs text-pebble bg-cream px-2 py-0.5 rounded-full border border-warm-border">0</span>
+        </div>
+        <div className="rounded-2xl border-2 border-dashed border-warm-border p-8 text-center">
+          <p className="text-pebble text-sm">{text.noProducts}</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-3">
-      <h3 className="text-lg font-semibold text-gray-900">{text.title}</h3>
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-display text-lg font-semibold text-ink">{text.title}</h3>
+        <span className="text-xs text-pebble bg-cream px-2.5 py-0.5 rounded-full border border-warm-border">
+          {products.length}
+        </span>
+      </div>
 
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded text-sm text-red-700">
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
           {error}
         </div>
       )}
@@ -219,27 +223,25 @@ export function ProductListManager({
         {products.map((product, index) => (
           <div
             key={product.id}
-            className="border border-gray-200 rounded-lg p-4 bg-white"
+            className="border border-warm-border rounded-xl bg-warm-white overflow-hidden"
           >
             {editingId === product.id ? (
-              // Edit Mode
-              <div className="space-y-3">
+              // ── Edit Mode ──
+              <div className="p-4 space-y-3">
                 <div>
-                  <label className="text-sm font-medium text-gray-700">
+                  <label className="text-xs font-medium text-pebble uppercase tracking-wide">
                     {text.productTitle}
                   </label>
                   <input
                     type="text"
                     value={editValues.title || ""}
-                    onChange={(e) =>
-                      setEditValues({ ...editValues, title: e.target.value })
-                    }
-                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded"
+                    onChange={(e) => setEditValues({ ...editValues, title: e.target.value })}
+                    className="w-full mt-1 px-3 py-2 text-sm border border-warm-border rounded-xl bg-cream text-ink focus:outline-none focus:border-brand/50"
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-700">
+                  <label className="text-xs font-medium text-pebble uppercase tracking-wide">
                     {text.category}
                   </label>
                   <select
@@ -250,7 +252,7 @@ export function ProductListManager({
                         category: (e.target.value as ProductCategory) || undefined,
                       })
                     }
-                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded bg-white"
+                    className="w-full mt-1 px-3 py-2 text-sm border border-warm-border rounded-xl bg-cream text-ink focus:outline-none focus:border-brand/50"
                   >
                     <option value="">{text.noCategory}</option>
                     {PRODUCT_CATEGORIES.map((cat) => (
@@ -261,90 +263,103 @@ export function ProductListManager({
                   </select>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 pt-1">
                   <button
                     onClick={() => handleEditSave(product.id)}
                     disabled={isSavingEdit}
-                    className="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 text-sm"
+                    className="px-4 py-2 bg-brand text-white rounded-xl hover:bg-brand-dark disabled:opacity-50 text-sm font-medium transition-colors"
                   >
-                    {text.save}
+                    {isSavingEdit ? "..." : text.save}
                   </button>
                   <button
                     onClick={() => setEditingId(null)}
-                    className="px-3 py-2 border border-gray-300 rounded hover:bg-gray-50 text-sm"
+                    className="px-4 py-2 border border-warm-border rounded-xl hover:bg-cream text-sm text-ink-mid transition-colors"
                   >
                     {text.cancel}
                   </button>
                 </div>
               </div>
             ) : (
-              // View Mode
-              <div className="flex gap-4">
-                {product.imageUrl && (
-                  <div className="relative w-16 h-16 bg-gray-100 rounded flex-shrink-0">
+              // ── View Mode ──
+              <div className="flex items-center gap-3 p-3">
+                {/* Thumbnail */}
+                <div className="relative w-14 h-14 bg-cream rounded-lg flex-shrink-0 overflow-hidden border border-warm-border">
+                  {product.imageUrl ? (
                     <Image
                       src={product.imageUrl}
                       alt={product.title}
                       fill
-                      className="object-cover rounded"
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                      }}
+                      className="object-cover"
+                      onError={(e) => { e.currentTarget.style.display = "none"; }}
                     />
-                  </div>
-                )}
-
-                <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900 mb-1">
-                    {decodeTitle(product.title)}
-                  </h4>
-                  <p className="text-xs text-gray-600 mb-1">
-                    {text.retailer}: {getRetailerName(product.retailerDomain)}
-                  </p>
-                  {product.category && (
-                    <p className="text-xs text-blue-600">
-                      {categoryLabels[product.category as ProductCategory] || product.category}
-                    </p>
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-xl opacity-30">🎁</div>
                   )}
                 </div>
 
-                <div className="flex gap-2 items-center">
-                  {/* Move buttons */}
-                  <div className="flex flex-col gap-1">
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-ink text-sm leading-snug line-clamp-2">
+                    {decodeTitle(product.title)}
+                  </p>
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <span className="text-xs text-pebble">{getRetailerName(product.retailerDomain)}</span>
+                    {product.category && (
+                      <>
+                        <span className="text-mist text-xs">·</span>
+                        <span className="text-xs text-brand">
+                          {categoryLabels[product.category as ProductCategory] || product.category}
+                        </span>
+                      </>
+                    )}
+                    {product.estimatedPrice && (
+                      <>
+                        <span className="text-mist text-xs">·</span>
+                        <span className="text-xs font-medium text-ink-mid" dir="ltr">
+                          ₪{product.estimatedPrice.toLocaleString("he-IL")}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  {/* Reorder buttons */}
+                  <div className="flex flex-col gap-0.5">
                     <button
                       onClick={() => handleMoveUp(index)}
                       disabled={index === 0}
-                      className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 disabled:opacity-50 rounded"
-                      title={`Move ${product.title} up`}
+                      className="w-6 h-6 flex items-center justify-center text-xs text-pebble hover:text-ink hover:bg-cream rounded disabled:opacity-30 transition-colors"
+                      title="Move up"
                     >
                       {text.moveUp}
                     </button>
                     <button
                       onClick={() => handleMoveDown(index)}
                       disabled={index === products.length - 1}
-                      className="px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 disabled:opacity-50 rounded"
-                      title={`Move ${product.title} down`}
+                      className="w-6 h-6 flex items-center justify-center text-xs text-pebble hover:text-ink hover:bg-cream rounded disabled:opacity-30 transition-colors"
+                      title="Move down"
                     >
                       {text.moveDown}
                     </button>
                   </div>
 
-                  {/* Edit/Delete buttons */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleEditStart(product)}
-                      className="px-3 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50"
-                    >
-                      {text.edit}
-                    </button>
-                    <button
-                      onClick={() => handleDelete(product.id)}
-                      disabled={isDeleting === product.id}
-                      className="px-3 py-2 text-sm text-red-600 border border-red-200 rounded hover:bg-red-50 disabled:opacity-50"
-                    >
-                      {text.delete}
-                    </button>
-                  </div>
+                  <div className="w-px h-8 bg-warm-border" />
+
+                  <button
+                    onClick={() => handleEditStart(product)}
+                    className="px-3 py-1.5 text-xs font-medium border border-warm-border rounded-lg hover:bg-cream text-ink-mid transition-colors"
+                  >
+                    {text.edit}
+                  </button>
+                  <button
+                    onClick={() => handleDelete(product.id)}
+                    disabled={isDeleting === product.id}
+                    className="px-3 py-1.5 text-xs font-medium text-red-500 border border-red-100 rounded-lg hover:bg-red-50 disabled:opacity-50 transition-colors"
+                  >
+                    {isDeleting === product.id ? "..." : text.delete}
+                  </button>
                 </div>
               </div>
             )}

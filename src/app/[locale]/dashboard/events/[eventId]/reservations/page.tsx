@@ -17,21 +17,27 @@ export default function ReservationsPage({ params }: ReservationsPageProps) {
   const isHe = locale === "he";
 
   return (
-    <div className={`max-w-4xl mx-auto py-8 px-4 ${isHe ? "rtl" : "ltr"}`}>
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold">
-          {isHe ? "כל ההזמנות" : "All Reservations"}
-        </h1>
+    <div className={`min-h-screen bg-cream py-10 ${isHe ? "rtl" : "ltr"}`}>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Back */}
         <a
           href={`/${locale}/dashboard/events/${eventId}`}
-          className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+          className="text-pebble hover:text-ink text-sm flex items-center gap-1.5 mb-8 w-fit transition-colors"
         >
+          <span aria-hidden>←</span>
           {isHe ? "חזור" : "Back"}
         </a>
-      </div>
 
-      <div className="bg-white rounded-lg shadow p-6">
-        <ReservationList eventId={eventId} />
+        <div className="mb-8">
+          <p className="eyebrow mb-2">{isHe ? "ניהול" : "Registry"}</p>
+          <h1 className="font-display text-3xl font-semibold text-ink">
+            {isHe ? "כל ההזמנות" : "All Reservations"}
+          </h1>
+        </div>
+
+        <div className="card p-6">
+          <ReservationList eventId={eventId} />
+        </div>
       </div>
     </div>
   );
