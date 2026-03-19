@@ -336,7 +336,7 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
       </GiftSection>
 
       {/* Subtle divider between sections */}
-      <div className="max-w-3xl mx-auto px-4">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="divider" />
       </div>
 
@@ -375,7 +375,7 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
                     <h3 className="font-display text-lg font-semibold text-ink mb-4 pb-2 border-b border-warm-border">
                       {locale === "he" ? "חבילות מתנה" : "Gift Sets"}
                     </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                       {displayBundles.map(renderBundleCard)}
                     </div>
                   </div>
@@ -387,7 +387,7 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
                     <h3 className="font-display text-lg font-semibold text-ink mb-4 pb-2 border-b border-warm-border">
                       {categoryHeadings[cat] || cat}
                     </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                       {productsByCategory[cat].map(renderProductCard)}
                     </div>
                   </div>
@@ -400,7 +400,7 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
 
       {/* Footer Disclaimer */}
       <footer className={`border-t border-warm-border py-10 px-4 bg-warm-white ${isRtl ? "rtl" : "ltr"}`}>
-        <div className="max-w-3xl mx-auto text-center">
+        <div className="max-w-6xl mx-auto text-center">
           <p className="font-display text-base font-medium text-ink mb-1">SimchaList</p>
           <p className="text-pebble text-xs leading-relaxed">
             {locale === "he"

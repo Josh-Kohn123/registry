@@ -8,6 +8,7 @@ interface GiftSectionProps {
   children?: React.ReactNode;
   isEmpty?: boolean;
   emptyMessage?: string;
+  wide?: boolean;
 }
 
 export function GiftSection({
@@ -16,17 +17,19 @@ export function GiftSection({
   children,
   isEmpty = false,
   emptyMessage,
+  wide = false,
 }: GiftSectionProps) {
   const locale = useLocale();
   const isRtl = locale === "he";
+  const containerClass = wide ? "max-w-6xl" : "max-w-6xl";
 
   return (
-    <section className={`py-14 px-4 ${isRtl ? "rtl" : "ltr"}`}>
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-8">
-          <h2 className="font-display text-3xl font-semibold text-ink mb-2">{title}</h2>
+    <section className={`py-12 px-4 sm:px-6 ${isRtl ? "rtl" : "ltr"}`}>
+      <div className={`${containerClass} mx-auto`}>
+        <div className="mb-7">
+          <h2 className="font-display text-2xl font-semibold text-ink mb-1">{title}</h2>
           {description && (
-            <p className="text-pebble">{description}</p>
+            <p className="text-pebble text-sm">{description}</p>
           )}
         </div>
 

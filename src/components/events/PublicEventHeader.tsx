@@ -32,25 +32,25 @@ export function PublicEventHeader({ event }: PublicEventHeaderProps) {
     <div className={`relative w-full ${isRtl ? "rtl" : "ltr"}`}>
       {/* Hero Image */}
       {event.coverImageUrl ? (
-        <div className="w-full h-72 sm:h-96 bg-cream overflow-hidden relative">
+        <div className="w-full h-72 sm:h-[420px] bg-cream overflow-hidden relative">
           <img
             src={event.coverImageUrl}
             alt={event.title}
             className="w-full h-full object-cover"
           />
-          {/* soft gradient fade at bottom */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-cream/60" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-cream/70" />
         </div>
       ) : (
-        /* Decorative header band when no cover photo */
-        <div className="w-full h-40 bg-brand-light relative overflow-hidden">
-          <div className="absolute inset-0 opacity-20" style={{backgroundImage: "radial-gradient(circle at 60% 50%, #C17D5C 0%, transparent 70%)"}} />
+        <div className="w-full h-48 bg-brand-light relative overflow-hidden">
+          <div className="absolute inset-0 opacity-30"
+            style={{backgroundImage: "radial-gradient(ellipse at 60% 50%, #C17D5C 0%, transparent 65%)"}}
+          />
         </div>
       )}
 
       {/* Content Card — pulled up over hero */}
-      <div className={`${event.coverImageUrl ? "relative -mt-28 mx-4" : "relative -mt-10 mx-4"}`}>
-        <div className="max-w-2xl mx-auto card p-8 sm:p-10">
+      <div className={`${event.coverImageUrl ? "relative -mt-32 sm:-mt-40 mx-4 sm:mx-6" : "relative -mt-10 mx-4 sm:mx-6"}`}>
+        <div className="max-w-3xl mx-auto card p-8 sm:p-10">
           {/* Avatar */}
           {event.avatarUrl && (
             <div className="flex justify-center -mt-16 mb-5">
@@ -68,15 +68,13 @@ export function PublicEventHeader({ event }: PublicEventHeaderProps) {
             <h1 className="font-display text-4xl sm:text-5xl font-semibold text-ink mb-3 leading-tight">
               {event.title}
             </h1>
-
             {event.eventDate && (
               <p className="text-pebble text-base mb-4">
                 {formatDate(event.eventDate)}
               </p>
             )}
-
             {event.description && (
-              <p className="text-ink-mid text-base max-w-lg mx-auto leading-relaxed mt-4">
+              <p className="text-ink-mid text-sm sm:text-base max-w-lg mx-auto leading-relaxed mt-4">
                 {event.description}
               </p>
             )}
