@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, useMemo } from "react";
 import { PublicEventHeader } from "@/components/events/PublicEventHeader";
 import { GiftSection } from "@/components/events/GiftSection";
 import { FundCard } from "@/components/funds/FundCard";
 import { BundleCard } from "@/components/bundles/BundleCard";
 import { ProductCard } from "@/components/products/ProductCard";
+import { ProductFilter } from "@/components/products/ProductFilter";
 import { PublicEvent } from "@/types/event";
 import { Fund } from "@/types/fund";
 import { Bundle } from "@/types/bundle";
-import { ProductLink } from "@/types/product";
+import { ProductLink, PRODUCT_CATEGORIES } from "@/types/product";
 import { useLocale } from "next-intl";
 import ReserveButton from "@/components/reservations/ReserveButton";
 import { Reservation } from "@/types/reservation";
@@ -28,6 +29,9 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
   const [products, setProducts] = useState<ProductLink[]>([]);
   const [declaredTotals, setDeclaredTotals] = useState<Record<string, number>>({});
   const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [filteredProducts, setFilteredProducts] = useState<ProductLink[]>([]);
+  const [filteredBundles, setFilteredBundles] = useState<Bundle[]>([]);
+  const [filtersInitialized, setFiltersInitialized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [eventId, setEventId] = useState<string | null>(null);
@@ -67,6 +71,7 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
             : undefined,
           eventType: eventData.eventType,
           coverImageUrl: eventData.coverImageUrl,
+          avatarUrl: eventData.avatarUrl,
           locale: eventData.locale,
         };
 
@@ -133,6 +138,28 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
     loadEvent();
   }, [slug, locale]);
 
+  // --- All derived state and memos must live before any early returns ---
+
+  const displayProducts = filtersInitialized ? filteredProducts : products;
+  const displayBundles = filtersInitialized ? filteredBundles : bundles;
+
+  // Group displayProducts by category, in PRODUCT_CATEGORIES order
+  const productsByCategory = useMemo(() => {
+    const groups: Record<string, ProductLink[]> = {};
+    for (const product of displayProducts) {
+      const cat = product.category || "other";
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(product);
+    }
+    return groups;
+  }, [displayProducts]);
+
+  const activeCategoryOrder = PRODUCT_CATEGORIES.filter(
+    (cat) => (productsByCategory[cat]?.length ?? 0) > 0
+  );
+
+  // --- Early returns ---
+
   if (isLoading) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${isRtl ? "rtl" : "ltr"}`}>
@@ -184,6 +211,84 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
   };
 
   const hasGifts = bundles.length > 0 || products.length > 0;
+  const hasDisplayGifts = displayBundles.length > 0 || displayProducts.length > 0;
+
+  // Category labels for section headings
+  const categoryHeadings: Record<string, string> = locale === "he"
+    ? { kitchen: "מטבח", bedroom: "חדר שינה", bathroom: "חדר אמבטיה", "living-room": "סלון", decor: "עיצוב", electronics: "אלקטרוניקה", outdoor: "חוץ", other: "אחר" }
+    : { kitchen: "Kitchen", bedroom: "Bedroom", bathroom: "Bathroom", "living-room": "Living Room", decor: "Decor", electronics: "Electronics", outdoor: "Outdoor", other: "Other" };
+
+  // Helper to render a product card with reservation state
+  const renderProductCard = (product: ProductLink) => {
+    const status = getItemReservationStatus(product.id);
+    const isReserved = status === "RESERVED";
+    const isPurchased = status === "PURCHASED_GUEST_CONFIRMED";
+    return (
+      <div key={product.id} className={`flex flex-col relative rounded-lg overflow-hidden ${isReserved ? "opacity-60 grayscale" : ""} ${isPurchased ? "ring-2 ring-green-500" : ""}`}>
+        {isReserved && (
+          <div className="absolute inset-0 bg-gray-400/30 z-10 flex items-center justify-center">
+            <span className="bg-gray-700 text-white px-4 py-2 rounded-lg text-lg font-bold">
+              {locale === "he" ? "שמור" : "Reserved"}
+            </span>
+          </div>
+        )}
+        {isPurchased && (
+          <div className="absolute inset-0 bg-green-500/20 z-10 flex items-center justify-center">
+            <span className="bg-green-600 text-white px-4 py-2 rounded-lg text-lg font-bold">
+              {locale === "he" ? "נרכש" : "Purchased"}
+            </span>
+          </div>
+        )}
+        <ProductCard product={product} locale={locale} eventId={eventId || undefined} />
+        {eventId && !isPurchased && (
+          <div className="mt-2 relative z-20">
+            <ReserveButton
+              eventId={eventId}
+              productLinkId={product.id}
+              retailerUrl={product.url}
+              existingReservation={isReserved ? getActiveReservation(product.id) : null}
+            />
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Helper to render a bundle card with reservation state
+  const renderBundleCard = (bundle: Bundle) => {
+    const status = getItemReservationStatus(undefined, bundle.id);
+    const isReserved = status === "RESERVED";
+    const isPurchased = status === "PURCHASED_GUEST_CONFIRMED";
+    return (
+      <div key={`bundle-${bundle.id}`} className={`flex flex-col relative rounded-lg overflow-hidden ${isReserved ? "opacity-60 grayscale" : ""} ${isPurchased ? "ring-2 ring-green-500" : ""}`}>
+        {isReserved && (
+          <div className="absolute inset-0 bg-gray-400/30 z-10 flex items-center justify-center">
+            <span className="bg-gray-700 text-white px-4 py-2 rounded-lg text-lg font-bold">
+              {locale === "he" ? "שמור" : "Reserved"}
+            </span>
+          </div>
+        )}
+        {isPurchased && (
+          <div className="absolute inset-0 bg-green-500/20 z-10 flex items-center justify-center">
+            <span className="bg-green-600 text-white px-4 py-2 rounded-lg text-lg font-bold">
+              {locale === "he" ? "נרכש" : "Purchased"}
+            </span>
+          </div>
+        )}
+        <BundleCard bundle={bundle} eventId={eventId || undefined} />
+        {eventId && !isPurchased && (
+          <div className="mt-2 relative z-20">
+            <ReserveButton
+              eventId={eventId}
+              bundleId={bundle.id}
+              bundleItemUrls={bundle.items.map((item) => item.url)}
+              existingReservation={isReserved ? getActiveReservation(undefined, bundle.id) : null}
+            />
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className={`min-h-screen bg-white ${isRtl ? "rtl" : "ltr"}`}>
@@ -230,7 +335,7 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
         )}
       </GiftSection>
 
-      {/* Section 2: Gifts (Bundles + Products together, bundles first) */}
+      {/* Section 2: Gifts — grouped by category */}
       <GiftSection
         title={locale === "he" ? "מוצרים" : "Products"}
         description={locale === "he" ? "מוצרים מחנויות שלנו" : "Products from our retailers"}
@@ -238,86 +343,53 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
         emptyMessage={locale === "he" ? "עדיין לא הוסיפו מוצרים" : "No products added yet"}
       >
         {hasGifts && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Bundles first */}
-            {bundles.map((bundle) => {
-              const status = getItemReservationStatus(undefined, bundle.id);
-              const isReserved = status === "RESERVED";
-              const isPurchased = status === "PURCHASED_GUEST_CONFIRMED";
-              return (
-                <div key={`bundle-${bundle.id}`} className={`flex flex-col relative rounded-lg overflow-hidden ${isReserved ? "opacity-60 grayscale" : ""} ${isPurchased ? "ring-2 ring-green-500" : ""}`}>
-                  {isReserved && (
-                    <div className="absolute inset-0 bg-gray-400/30 z-10 flex items-center justify-center">
-                      <span className="bg-gray-700 text-white px-4 py-2 rounded-lg text-lg font-bold">
-                        {locale === "he" ? "שמור" : "Reserved"}
-                      </span>
-                    </div>
-                  )}
-                  {isPurchased && (
-                    <div className="absolute inset-0 bg-green-500/20 z-10 flex items-center justify-center">
-                      <span className="bg-green-600 text-white px-4 py-2 rounded-lg text-lg font-bold">
-                        {locale === "he" ? "נרכש" : "Purchased"}
-                      </span>
-                    </div>
-                  )}
-                  <BundleCard
-                    bundle={bundle}
-                    eventId={eventId || undefined}
-                  />
-                  {eventId && !isPurchased && (
-                    <div className="mt-2 relative z-20">
-                      <ReserveButton
-                        eventId={eventId}
-                        bundleId={bundle.id}
-                        bundleItemUrls={bundle.items.map((item) => item.url)}
-                        existingReservation={isReserved ? getActiveReservation(undefined, bundle.id) : null}
-                      />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+          <>
+            {/* Filter bar */}
+            <ProductFilter
+              products={products}
+              bundles={bundles}
+              onFilteredProducts={(fp) => {
+                setFilteredProducts(fp);
+                if (!filtersInitialized) setFiltersInitialized(true);
+              }}
+              onFilteredBundles={(fb) => {
+                setFilteredBundles(fb);
+                if (!filtersInitialized) setFiltersInitialized(true);
+              }}
+            />
 
-            {/* Then products */}
-            {products.map((product) => {
-              const status = getItemReservationStatus(product.id);
-              const isReserved = status === "RESERVED";
-              const isPurchased = status === "PURCHASED_GUEST_CONFIRMED";
-              return (
-                <div key={product.id} className={`flex flex-col relative rounded-lg overflow-hidden ${isReserved ? "opacity-60 grayscale" : ""} ${isPurchased ? "ring-2 ring-green-500" : ""}`}>
-                  {isReserved && (
-                    <div className="absolute inset-0 bg-gray-400/30 z-10 flex items-center justify-center">
-                      <span className="bg-gray-700 text-white px-4 py-2 rounded-lg text-lg font-bold">
-                        {locale === "he" ? "שמור" : "Reserved"}
-                      </span>
+            {!hasDisplayGifts && filtersInitialized ? (
+              <p className="text-center text-gray-500 py-8">
+                {locale === "he" ? "אין מוצרים התואמים את הסינון" : "No products match your filters"}
+              </p>
+            ) : (
+              <div className="space-y-10">
+                {/* Bundles appear first in their own unlabelled group */}
+                {displayBundles.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
+                      {locale === "he" ? "חבילות מתנה" : "Gift Sets"}
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {displayBundles.map(renderBundleCard)}
                     </div>
-                  )}
-                  {isPurchased && (
-                    <div className="absolute inset-0 bg-green-500/20 z-10 flex items-center justify-center">
-                      <span className="bg-green-600 text-white px-4 py-2 rounded-lg text-lg font-bold">
-                        {locale === "he" ? "נרכש" : "Purchased"}
-                      </span>
+                  </div>
+                )}
+
+                {/* Products grouped by category */}
+                {activeCategoryOrder.map((cat) => (
+                  <div key={cat}>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
+                      {categoryHeadings[cat] || cat}
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {productsByCategory[cat].map(renderProductCard)}
                     </div>
-                  )}
-                  <ProductCard
-                    product={product}
-                    locale={locale}
-                    eventId={eventId || undefined}
-                  />
-                  {eventId && !isPurchased && (
-                    <div className="mt-2 relative z-20">
-                      <ReserveButton
-                        eventId={eventId}
-                        productLinkId={product.id}
-                        retailerUrl={product.url}
-                        existingReservation={isReserved ? getActiveReservation(product.id) : null}
-                      />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </GiftSection>
 

@@ -38,5 +38,6 @@ export interface PublicEvent {
   eventDate?: string;
   eventType: EventType;
   coverImageUrl?: string;
+  avatarUrl?: string;
   locale: string;
 }

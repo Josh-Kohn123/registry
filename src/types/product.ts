@@ -1,3 +1,16 @@
+export const PRODUCT_CATEGORIES = [
+  "kitchen",
+  "bedroom",
+  "bathroom",
+  "living-room",
+  "decor",
+  "electronics",
+  "outdoor",
+  "other",
+] as const;
+
+export type ProductCategory = (typeof PRODUCT_CATEGORIES)[number];
+
 export interface ProductLink {
   id: string;
   eventId: string;
@@ -5,6 +18,7 @@ export interface ProductLink {
   description?: string;
   url: string;
   retailerDomain: string;
+  category?: ProductCategory;
   imageUrl?: string;
   estimatedPrice?: number;
   previousPrice?: number;

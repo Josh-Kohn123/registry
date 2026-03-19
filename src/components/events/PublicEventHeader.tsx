@@ -40,13 +40,24 @@ export function PublicEventHeader({ event }: PublicEventHeaderProps) {
             alt={event.title}
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-black bg-opacity-30" />
         </div>
       )}
 
       {/* Content Overlay */}
       <div className={`${event.coverImageUrl ? "relative -mt-32 mx-4" : "py-12 px-4"}`}>
         <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-lg p-8">
+          {/* Avatar */}
+          {event.avatarUrl && (
+            <div className="flex justify-center -mt-16 mb-4">
+              <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-md">
+                <img
+                  src={event.avatarUrl}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          )}
           <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
               {event.title}

@@ -39,7 +39,7 @@ function mapEventToEventWithOwners(
     description: event.description,
     eventDate: event.eventDate,
     eventType: event.eventType,
-    coverImageUrl: event.coverImageUrl,
+    coverImageUrl: event.coverImageUrl ?? undefined,
     locale: event.locale,
     timezone: event.timezone,
     visibility: event.visibility,
@@ -65,6 +65,7 @@ function mapProductLinkFromPrisma(product: any): ProductLink {
     description: product.description,
     url: product.url,
     retailerDomain: product.retailerDomain,
+    category: product.category ?? undefined,
     imageUrl: product.imageUrl,
     estimatedPrice: product.estimatedPrice,
     previousPrice: product.previousPrice,
@@ -278,14 +279,28 @@ export async function getEventById(id: string): Promise<EventWithOwners | null> 
   return mapEventToEventWithOwners(event, event.owners);
 }
 
-export async function getEventBySlug(slug: string): Promise<EventWithOwners | null> {
+export async function getEventBySlug(slug: string): Promise<EventWithOwners & { avatarUrl?: string } | null> {
   const event = await prisma.event.findUnique({
     where: { slug },
-    include: { owners: true },
+    include: {
+      owners: {
+        include: {
+          profile: {
+            select: { avatarUrl: true },
+          },
+        },
+      },
+    },
   });
 
   if (!event) return null;
-  return mapEventToEventWithOwners(event, event.owners);
+
+  // Grab the first owner's avatarUrl to show on the public page
+  const firstOwner = event.owners[0] as any;
+  const avatarUrl = firstOwner?.profile?.avatarUrl ?? undefined;
+
+  const base = mapEventToEventWithOwners(event, event.owners);
+  return { ...base, avatarUrl };
 }
 
 export async function getUserEvents(userId: string): Promise<EventWithOwners[]> {

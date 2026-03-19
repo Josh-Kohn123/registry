@@ -188,6 +188,8 @@ export function EventForm({
         <label className="text-sm font-medium text-gray-700 block mb-2">
           {locale === "he" ? "תמונת כיסוי (אופציונלי)" : "Cover Photo (optional)"}
         </label>
+        {/* Hidden registered input so react-hook-form always tracks coverImageUrl */}
+        <input type="hidden" {...register("coverImageUrl")} />
         <div
           className={`relative border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${
             coverPreview ? "border-blue-400 bg-blue-50" : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"

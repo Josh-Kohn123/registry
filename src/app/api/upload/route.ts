@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
 
     const formData = await request.formData();
     const file = formData.get("file") as File;
+    const uploadType = (formData.get("type") as string) || "cover"; // "cover" | "avatar"
 
     if (!file) {
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
@@ -42,9 +43,10 @@ export async function POST(request: NextRequest) {
     const uploadsDir = path.join(process.cwd(), "public", "uploads");
     await mkdir(uploadsDir, { recursive: true });
 
-    // Generate unique filename
+    // Generate unique filename based on upload type
     const ext = file.name.split(".").pop() || "jpg";
-    const filename = `cover-${user.id}-${Date.now()}.${ext}`;
+    const prefix = uploadType === "avatar" ? "avatar" : "cover";
+    const filename = `${prefix}-${user.id}-${Date.now()}.${ext}`;
     const filepath = path.join(uploadsDir, filename);
 
     // Write file to disk
@@ -53,6 +55,23 @@ export async function POST(request: NextRequest) {
 
     // Return the public URL
     const url = `/uploads/${filename}`;
+
+    // If avatar upload, also update the profile record
+    if (uploadType === "avatar") {
+      const { PrismaClient } = require("@prisma/client");
+      const prisma = new PrismaClient();
+      try {
+        await prisma.profile.update({
+          where: { id: user.id },
+          data: { avatarUrl: url },
+        });
+      } catch (dbError) {
+        // Profile might not exist yet — that's ok, the URL is still returned
+        console.warn("Could not update profile avatarUrl:", dbError);
+      } finally {
+        await prisma.$disconnect();
+      }
+    }
 
     return NextResponse.json({ url, filename }, { status: 201 });
   } catch (error) {

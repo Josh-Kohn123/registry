@@ -28,6 +28,26 @@ function validateUrl(urlString: string): { valid: boolean; error?: string } {
 }
 
 /**
+ * Decode HTML entities in a plain text string (e.g. &#39; → ', &#x05DB; → כ)
+ */
+function decodeHtmlEntities(text: string): string {
+  return text
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&#x([0-9a-fA-F]+);/gi, (_, hex) =>
+      String.fromCodePoint(parseInt(hex, 16))
+    )
+    .replace(/&#(\d+);/g, (_, dec) =>
+      String.fromCodePoint(parseInt(dec, 10))
+    )
+    .trim();
+}
+
+/**
  * Parse Open Graph and HTML metadata from page content
  */
 function parseMetadata(
@@ -39,14 +59,14 @@ function parseMetadata(
   // Extract Open Graph title
   const ogTitleMatch = html.match(/<meta\s+property="og:title"\s+content="([^"]*)"/i);
   if (ogTitleMatch?.[1]) {
-    metadata.title = ogTitleMatch[1];
+    metadata.title = decodeHtmlEntities(ogTitleMatch[1]);
   }
 
   // Fallback to HTML title if no og:title
   if (!metadata.title) {
     const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
     if (titleMatch?.[1]) {
-      metadata.title = titleMatch[1];
+      metadata.title = decodeHtmlEntities(titleMatch[1]);
     }
   }
 

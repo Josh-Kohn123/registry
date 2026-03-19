@@ -56,15 +56,24 @@ export default function DashboardPage() {
   return (
     <div className={`min-h-screen bg-gray-50 py-12 px-4 ${isRtl ? "rtl" : "ltr"}`}>
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            {t("welcome")}
-          </h1>
-          <p className="text-gray-600">
-            {locale === "he"
-              ? `זהו דשבורדך, ${user?.email}`
-              : `This is your dashboard, ${user?.email}`}
-          </p>
+        <div className="mb-8 flex items-start justify-between flex-wrap gap-4">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              {t("welcome")}
+            </h1>
+            <p className="text-gray-600">
+              {locale === "he"
+                ? `זהו דשבורדך, ${user?.email}`
+                : `This is your dashboard, ${user?.email}`}
+            </p>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push("/dashboard/profile")}
+          >
+            {locale === "he" ? "הגדרות פרופיל" : "Profile Settings"}
+          </Button>
         </div>
 
         {/* Stats Cards */}

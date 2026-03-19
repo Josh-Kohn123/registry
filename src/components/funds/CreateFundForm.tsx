@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Fund, WalletProvider } from "@/types/fund";
 import { useTranslations } from "next-intl";
+import { WalletSetupGuide } from "./WalletSetupGuide";
 
 interface CreateFundFormProps {
   eventId: string;
@@ -110,6 +111,9 @@ export function CreateFundForm({
           </select>
         </div>
 
+        {/* Wallet Setup Guide */}
+        <WalletSetupGuide provider={walletProvider} />
+
         {/* Wallet Link */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -119,7 +123,13 @@ export function CreateFundForm({
             type="url"
             value={walletLink}
             onChange={(e) => setWalletLink(e.target.value)}
-            placeholder="https://paybox.me/..."
+            placeholder={
+              walletProvider === "PAYBOX"
+                ? "https://paybox.me/page/..."
+                : walletProvider === "BIT"
+                ? "https://bit.co.il/p/..."
+                : "https://..."
+            }
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
           />

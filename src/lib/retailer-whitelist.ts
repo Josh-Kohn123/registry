@@ -7,7 +7,7 @@ export const RETAILER_WHITELIST = [
   { domain: "naamanp.co.il", name: "Naaman" },
   { domain: "ace.co.il", name: "ACE" },
   { domain: "keter.com", name: "Keter Israel" },
-  { domain: "ikea.co.il", name: "IKEA Israel" },
+  { domain: "ikea.com", name: "IKEA" },
   { domain: "terminalx.com", name: "Terminal X" },
   { domain: "asos.com", name: "ASOS" },
   { domain: "amazon.com", name: "Amazon" },

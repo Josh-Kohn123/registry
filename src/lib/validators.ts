@@ -13,7 +13,7 @@ export const eventCreationSchema = z.object({
   description: z.string().max(1000).optional(),
   eventDate: z.string().optional(),
   eventType: z.enum(["wedding", "engagement", "birthday", "other"]).default("wedding"),
-  coverImageUrl: z.string().optional(),
+  coverImageUrl: z.string().nullish().transform((v) => v ?? undefined),
   slug: z
     .string()
     .min(3, "Slug must be at least 3 characters")
@@ -37,6 +37,7 @@ export const productCreateSchema = z.object({
   title: z.string().max(200).optional(),
   imageUrl: z.string().url().optional(),
   estimatedPrice: z.number().positive().optional(),
+  category: z.enum(["kitchen", "bedroom", "bathroom", "living-room", "decor", "electronics", "outdoor", "other"]),
 });
 
 export const productUpdateSchema = z.object({
@@ -45,6 +46,7 @@ export const productUpdateSchema = z.object({
   estimatedPrice: z.number().positive().optional(),
   isVisible: z.boolean().optional(),
   position: z.number().int().optional(),
+  category: z.enum(["kitchen", "bedroom", "bathroom", "living-room", "decor", "electronics", "outdoor", "other"]).optional(),
 });
 
 export const metadataFetchSchema = z.object({

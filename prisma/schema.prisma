@@ -12,6 +12,7 @@ model Profile {
   id            String    @id @db.Uuid
   email         String    @unique
   displayName   String?
+  avatarUrl     String?
   locale        String    @default("en")
   timezone      String    @default("UTC")
   createdAt     DateTime  @default(now())
@@ -88,6 +89,7 @@ model ProductLink {
   description     String?   @db.Text
   url             String
   retailerDomain  String    // e.g., "foxhome.co.il"
+  category        String?   // e.g., "kitchen", "bedroom", "electronics", "decor", "bathroom", "outdoor"
   imageUrl        String?
   estimatedPrice  Int?      // current price in ILS (auto-fetched)
   previousPrice   Int?      // yesterday's price (shown while refresh loads)

@@ -1,9 +1,27 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ProductLink } from "@/types/product";
+import { ProductLink, PRODUCT_CATEGORIES, ProductCategory } from "@/types/product";
 import { getRetailerName } from "@/lib/retailer-whitelist";
 import Image from "next/image";
+
+/** Decode any HTML entities that may have been stored in product titles */
+function decodeTitle(text: string): string {
+  return text
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&#x([0-9a-fA-F]+);/gi, (_, hex) =>
+      String.fromCodePoint(parseInt(hex, 16))
+    )
+    .replace(/&#(\d+);/g, (_, dec) =>
+      String.fromCodePoint(parseInt(dec, 10))
+    )
+    .trim();
+}
 
 interface ProductListManagerProps {
   eventId: string;
@@ -34,7 +52,8 @@ export function ProductListManager({
       save: "Save",
       cancel: "Cancel",
       productTitle: "Title",
-      estimatedPrice: "Estimated Price (ILS)",
+      category: "Category",
+      noCategory: "No category",
       moveUp: "↑",
       moveDown: "↓",
       deleteConfirm: "Are you sure?",
@@ -49,12 +68,24 @@ export function ProductListManager({
       save: "שמור",
       cancel: "ביטול",
       productTitle: "שם המוצר",
-      estimatedPrice: "מחיר משוער (₪)",
+      category: "קטגוריה",
+      noCategory: "ללא קטגוריה",
       moveUp: "↑",
       moveDown: "↓",
       deleteConfirm: "בטוח?",
       retailer: "סוחר",
     },
+  };
+
+  const categoryLabels: Record<ProductCategory, string> = {
+    kitchen: locale === "he" ? "מטבח" : "Kitchen",
+    bedroom: locale === "he" ? "חדר שינה" : "Bedroom",
+    bathroom: locale === "he" ? "חדר אמבטיה" : "Bathroom",
+    "living-room": locale === "he" ? "סלון" : "Living Room",
+    decor: locale === "he" ? "עיצוב" : "Decor",
+    electronics: locale === "he" ? "אלקטרוניקה" : "Electronics",
+    outdoor: locale === "he" ? "חוץ" : "Outdoor",
+    other: locale === "he" ? "אחר" : "Other",
   };
 
   const text = labels[locale as keyof typeof labels] || labels.en;
@@ -112,7 +143,7 @@ export function ProductListManager({
     setEditValues({
       title: product.title,
       imageUrl: product.imageUrl,
-      estimatedPrice: product.estimatedPrice,
+      category: product.category,
     });
   };
 
@@ -209,33 +240,25 @@ export function ProductListManager({
 
                 <div>
                   <label className="text-sm font-medium text-gray-700">
-                    Image URL
+                    {text.category}
                   </label>
-                  <input
-                    type="url"
-                    value={editValues.imageUrl || ""}
-                    onChange={(e) =>
-                      setEditValues({ ...editValues, imageUrl: e.target.value })
-                    }
-                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-gray-700">
-                    {text.estimatedPrice}
-                  </label>
-                  <input
-                    type="number"
-                    value={editValues.estimatedPrice || ""}
+                  <select
+                    value={editValues.category || ""}
                     onChange={(e) =>
                       setEditValues({
                         ...editValues,
-                        estimatedPrice: e.target.value ? parseInt(e.target.value) : undefined,
+                        category: (e.target.value as ProductCategory) || undefined,
                       })
                     }
-                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded"
-                  />
+                    className="w-full mt-1 px-3 py-2 border border-gray-300 rounded bg-white"
+                  >
+                    <option value="">{text.noCategory}</option>
+                    {PRODUCT_CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {categoryLabels[cat]}
+                      </option>
+                    ))}
+                  </select>
                 </div>
 
                 <div className="flex gap-2">
@@ -273,14 +296,14 @@ export function ProductListManager({
 
                 <div className="flex-1">
                   <h4 className="font-semibold text-gray-900 mb-1">
-                    {product.title}
+                    {decodeTitle(product.title)}
                   </h4>
-                  <p className="text-xs text-gray-600 mb-2">
+                  <p className="text-xs text-gray-600 mb-1">
                     {text.retailer}: {getRetailerName(product.retailerDomain)}
                   </p>
-                  {product.estimatedPrice && (
-                    <p className="text-sm font-medium text-gray-900">
-                      ₪{product.estimatedPrice}
+                  {product.category && (
+                    <p className="text-xs text-blue-600">
+                      {categoryLabels[product.category as ProductCategory] || product.category}
                     </p>
                   )}
                 </div>

@@ -10,8 +10,27 @@ interface ProductCardProps {
   eventId?: string;
 }
 
+/** Decode HTML entities that may have been stored in product titles (e.g. &#39; → ', &#x05DB; → כ) */
+function decodeTitle(text: string): string {
+  return text
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&#x([0-9a-fA-F]+);/gi, (_, hex) =>
+      String.fromCodePoint(parseInt(hex, 16))
+    )
+    .replace(/&#(\d+);/g, (_, dec) =>
+      String.fromCodePoint(parseInt(dec, 10))
+    )
+    .trim();
+}
+
 export function ProductCard({ product, locale = "en", eventId }: ProductCardProps) {
   const retailerName = getRetailerName(product.retailerDomain);
+  const displayTitle = decodeTitle(product.title);
 
   return (
     <div className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-shadow h-full flex flex-col bg-white">
@@ -20,7 +39,7 @@ export function ProductCard({ product, locale = "en", eventId }: ProductCardProp
         <div className="relative h-48 w-full bg-gray-100 overflow-hidden">
           <Image
             src={product.imageUrl}
-            alt={product.title}
+            alt={displayTitle}
             fill
             className="object-cover"
             onError={(e) => {
@@ -33,7 +52,7 @@ export function ProductCard({ product, locale = "en", eventId }: ProductCardProp
       {/* Product Info */}
       <div className="flex flex-col flex-1 p-4">
         <h3 className="font-semibold text-gray-900 text-sm line-clamp-2 mb-1">
-          {product.title}
+          {displayTitle}
         </h3>
 
         {/* Retailer domain + price */}

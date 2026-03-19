@@ -22,6 +22,7 @@ export async function GET(
       eventDate: event.eventDate,
       eventType: event.eventType,
       coverImageUrl: event.coverImageUrl,
+      avatarUrl: (event as any).avatarUrl,
       locale: event.locale,
       isPublished: event.isPublished,
     });
