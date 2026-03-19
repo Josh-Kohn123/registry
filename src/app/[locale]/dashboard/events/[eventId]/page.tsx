@@ -4,7 +4,6 @@ import { useState, useEffect, use } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { EventWithOwners } from "@/types/event";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
@@ -76,7 +75,6 @@ export default function EventDetailsPage({
         ? "האם אתה בטוח שברצונך למחוק אירוע זה?"
         : "Are you sure you want to delete this event?"
     )) return;
-
     try {
       const response = await fetch(`/api/events/${eventId}`, { method: "DELETE" });
       if (response.ok) router.push("/dashboard/events");
@@ -135,221 +133,267 @@ export default function EventDetailsPage({
 
   const publicUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/${locale}/events/${event.slug}`;
 
-  const manageLinks = [
-    { href: `/dashboard/events/${event.id}/products`, label: locale === "he" ? "🛍️ מוצרים" : "🛍️ Products" },
-    { href: `/dashboard/events/${event.id}/funds`, label: locale === "he" ? "💰 קרנות כספיות" : "💰 Cash Funds" },
-    { href: `/dashboard/events/${event.id}/bundles`, label: locale === "he" ? "🎁 מתנות חבילה" : "🎁 Bundle Gifts" },
-    { href: `/dashboard/events/${event.id}/addresses`, label: locale === "he" ? "📍 כתובות משלוח" : "📍 Delivery Addresses" },
-    { href: `/dashboard/events/${event.id}/reservations`, label: locale === "he" ? "📋 מתנות שמורות" : "📋 Reserved Gifts" },
+  // Registry management sections
+  const registrySections = [
+    {
+      href: `/dashboard/events/${event.id}/products`,
+      icon: "🛍️",
+      title: locale === "he" ? "מוצרים" : "Products",
+      desc: locale === "he" ? "הוסף מוצרים מחנויות" : "Add items from retailers",
+    },
+    {
+      href: `/dashboard/events/${event.id}/funds`,
+      icon: "💰",
+      title: locale === "he" ? "קרנות כספיות" : "Cash Funds",
+      desc: locale === "he" ? "אפשרויות מתנה כספית" : "Flexible cash gift options",
+    },
+    {
+      href: `/dashboard/events/${event.id}/bundles`,
+      icon: "🎁",
+      title: locale === "he" ? "מתנות חבילה" : "Bundle Gifts",
+      desc: locale === "he" ? "מתנות קבוצתיות" : "Group contribution gifts",
+    },
+    {
+      href: `/dashboard/events/${event.id}/addresses`,
+      icon: "📍",
+      title: locale === "he" ? "כתובות משלוח" : "Addresses",
+      desc: locale === "he" ? "כתובות לאורחים" : "Delivery destinations for guests",
+    },
+    {
+      href: `/dashboard/events/${event.id}/reservations`,
+      icon: "📋",
+      title: locale === "he" ? "מתנות שמורות" : "Reservations",
+      desc: locale === "he" ? "מה שמור על ידי אורחים" : "Track what guests have reserved",
+    },
   ];
 
   return (
-    <div className={`min-h-screen bg-cream py-10 px-4 ${isRtl ? "rtl" : "ltr"}`}>
-      <div className="max-w-2xl mx-auto">
+    <div className={`min-h-screen bg-cream py-10 px-4 sm:px-6 ${isRtl ? "rtl" : "ltr"}`}>
+      <div className="max-w-5xl mx-auto">
 
-        {/* ── Header ── */}
-        <div className="flex items-start gap-4 mb-8">
+        {/* ── Page Header ── */}
+        <div className="mb-8">
           <button
             onClick={() => router.push("/dashboard/events")}
-            className="mt-1 text-pebble hover:text-ink transition-colors text-sm flex items-center gap-1.5 shrink-0"
+            className="text-pebble hover:text-ink transition-colors text-sm flex items-center gap-1.5 mb-6 w-fit"
           >
             <span aria-hidden>←</span>
             {locale === "he" ? "חזור" : "Back"}
           </button>
-          <div className="flex-1 min-w-0">
-            <p className="eyebrow mb-1">{eventTypeLabel}</p>
-            <h1 className="font-display text-3xl font-semibold text-ink leading-tight truncate">
-              {event.title}
-            </h1>
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div>
+              <p className="eyebrow mb-1">{eventTypeLabel}</p>
+              <h1 className="font-display text-4xl font-semibold text-ink leading-tight">
+                {event.title}
+              </h1>
+              {event.eventDate && (
+                <p className="text-pebble text-sm mt-1">
+                  {new Date(event.eventDate).toLocaleDateString(locale === "he" ? "he-IL" : "en-US", {
+                    year: "numeric", month: "long", day: "numeric",
+                  })}
+                </p>
+              )}
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border ${
+                event.isPublished
+                  ? "bg-green-50 text-green-700 border-green-200"
+                  : "bg-cream text-pebble border-warm-border"
+              }`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${event.isPublished ? "bg-green-500" : "bg-mist"}`} />
+                {event.isPublished
+                  ? (locale === "he" ? "פורסם" : "Published")
+                  : (locale === "he" ? "טיוטה" : "Draft")}
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* ── Event Details Card ── */}
-        <Card className="mb-5">
-          <CardHeader>
-            <CardTitle>{locale === "he" ? "פרטי האירוע" : "Event Details"}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-xs text-pebble uppercase tracking-wide font-medium mb-1">
-                  {locale === "he" ? "סוג אירוע" : "Type"}
-                </p>
-                <p className="font-medium text-ink text-sm">{eventTypeLabel}</p>
-              </div>
-              <div>
-                <p className="text-xs text-pebble uppercase tracking-wide font-medium mb-1">
-                  {locale === "he" ? "נראות" : "Visibility"}
-                </p>
-                <p className="font-medium text-ink text-sm">{visibilityLabel}</p>
-                <p className="text-xs text-pebble mt-1 leading-relaxed">
-                  {event.visibility === "private"
-                    ? locale === "he"
-                      ? "רק בעלי האירוע יכולים לראות את הדף."
-                      : "Only event owners can view this page."
-                    : event.visibility === "unlisted"
-                    ? locale === "he"
-                      ? "רק מי שיש לו את הקישור יכול לראות."
-                      : "Only people with the direct link can view."
-                    : locale === "he"
-                    ? "כל אחד יכול לראות את הדף."
-                    : "Anyone can view this page."}
-                </p>
-              </div>
-              {event.eventDate && (
+        {/* ── Two-column layout ── */}
+        <div className="flex flex-col lg:flex-row gap-6 items-start">
+
+          {/* ── Left: meta + publish + actions ── */}
+          <div className="w-full lg:w-72 lg:flex-shrink-0 space-y-4 lg:sticky lg:top-6">
+
+            {/* Event meta */}
+            <div className="card p-5 space-y-4">
+              <h2 className="font-semibold text-ink text-sm">
+                {locale === "he" ? "פרטי האירוע" : "Event Details"}
+              </h2>
+              <div className="space-y-3 text-sm">
                 <div>
-                  <p className="text-xs text-pebble uppercase tracking-wide font-medium mb-1">
-                    {locale === "he" ? "תאריך" : "Date"}
+                  <p className="text-xs text-pebble uppercase tracking-wide font-medium mb-0.5">
+                    {locale === "he" ? "סוג" : "Type"}
                   </p>
-                  <p className="font-medium text-ink text-sm">
-                    {new Date(event.eventDate).toLocaleDateString(locale === "he" ? "he-IL" : "en-US")}
-                  </p>
+                  <p className="font-medium text-ink">{eventTypeLabel}</p>
                 </div>
-              )}
-              <div>
-                <p className="text-xs text-pebble uppercase tracking-wide font-medium mb-1">
-                  {locale === "he" ? "שפה" : "Language"}
-                </p>
-                <p className="font-medium text-ink text-sm">{event.locale}</p>
+                <div>
+                  <p className="text-xs text-pebble uppercase tracking-wide font-medium mb-0.5">
+                    {locale === "he" ? "נראות" : "Visibility"}
+                  </p>
+                  <p className="font-medium text-ink">{visibilityLabel}</p>
+                </div>
+                {event.eventDate && (
+                  <div>
+                    <p className="text-xs text-pebble uppercase tracking-wide font-medium mb-0.5">
+                      {locale === "he" ? "תאריך" : "Date"}
+                    </p>
+                    <p className="font-medium text-ink">
+                      {new Date(event.eventDate).toLocaleDateString(locale === "he" ? "he-IL" : "en-US")}
+                    </p>
+                  </div>
+                )}
+                <div>
+                  <p className="text-xs text-pebble uppercase tracking-wide font-medium mb-0.5">
+                    {locale === "he" ? "שפה" : "Language"}
+                  </p>
+                  <p className="font-medium text-ink">{event.locale}</p>
+                </div>
+                {event.description && (
+                  <div className="pt-3 border-t border-warm-border">
+                    <p className="text-xs text-pebble uppercase tracking-wide font-medium mb-1">
+                      {locale === "he" ? "תיאור" : "Description"}
+                    </p>
+                    <p className="text-ink-mid text-xs leading-relaxed">{event.description}</p>
+                  </div>
+                )}
               </div>
             </div>
 
-            {event.description && (
-              <div className="pt-3 border-t border-warm-border">
-                <p className="text-xs text-pebble uppercase tracking-wide font-medium mb-2">
-                  {locale === "he" ? "תיאור" : "Description"}
-                </p>
-                <p className="text-ink-mid text-sm leading-relaxed">{event.description}</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* ── Publishing Status Card ── */}
-        <Card className="mb-5">
-          <CardHeader>
-            <CardTitle>{locale === "he" ? "מצב פרסום" : "Publishing Status"}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-5">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span
-                    className={`inline-block w-2 h-2 rounded-full ${
-                      event.isPublished ? "bg-green-500" : "bg-mist"
-                    }`}
-                  />
+            {/* Publish toggle */}
+            <div className="card p-5 space-y-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
                   <p className="font-semibold text-ink text-sm">
                     {event.isPublished
-                      ? locale === "he" ? "פורסם" : "Published"
-                      : locale === "he" ? "טיוטה" : "Draft"}
+                      ? (locale === "he" ? "פורסם" : "Published")
+                      : (locale === "he" ? "טיוטה" : "Draft")}
+                  </p>
+                  <p className="text-pebble text-xs mt-0.5">
+                    {event.isPublished
+                      ? (locale === "he" ? "גלוי לאורחים" : "Visible to guests")
+                      : (locale === "he" ? "מוסתר מאורחים" : "Hidden from guests")}
                   </p>
                 </div>
-                <p className="text-pebble text-xs">
-                  {event.isPublished
-                    ? locale === "he" ? "האירוע גלוי לאורחים" : "Visible to guests"
-                    : locale === "he" ? "האירוע אינו גלוי לאורחים" : "Not visible to guests"}
-                </p>
-              </div>
-              <Button
-                onClick={handlePublishToggle}
-                isLoading={isPublishing}
-                variant={event.isPublished ? "outline" : "primary"}
-                size="sm"
-              >
-                {event.isPublished ? t("unpublish") : t("publish")}
-              </Button>
-            </div>
-
-            <div className="pt-4 border-t border-warm-border">
-              <p className="text-xs text-pebble mb-3 leading-relaxed">
-                {event.isPublished
-                  ? locale === "he"
-                    ? "כשהאירוע מפורסם, אורחים יכולים לצפות ברשימת המתנות ולשלוח מתנות."
-                    : "When published, guests can view your gift registry and send gifts."
-                  : locale === "he"
-                  ? "כשהאירוע בטיוטה, אף אורח לא יכול לראות את העמוד."
-                  : "While in draft, no guest can see your page."}
-              </p>
-              <p className="text-xs text-pebble uppercase tracking-wide font-medium mb-2">
-                {locale === "he" ? "קישור ציבורי" : "Public URL"}
-              </p>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={publicUrl}
-                  readOnly
-                  className="flex-1 rounded-xl border border-warm-border bg-cream px-4 py-2 text-xs text-ink-mid focus:outline-none"
-                  dir="ltr"
-                />
-                <button
-                  onClick={handleCopyLink}
-                  className={`px-4 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-colors ${
-                    copied
-                      ? "bg-green-50 text-green-700 border border-green-200"
-                      : "bg-brand text-white hover:bg-brand-dark"
-                  }`}
+                <Button
+                  onClick={handlePublishToggle}
+                  isLoading={isPublishing}
+                  variant={event.isPublished ? "outline" : "primary"}
+                  size="sm"
                 >
-                  {copied
-                    ? locale === "he" ? "✓ הועתק" : "✓ Copied"
-                    : locale === "he" ? "העתק" : "Copy"}
-                </button>
+                  {event.isPublished ? t("unpublish") : t("publish")}
+                </Button>
               </div>
-              <div className="mt-3">
+
+              {/* URL row */}
+              <div className="pt-3 border-t border-warm-border">
+                <p className="text-xs text-pebble uppercase tracking-wide font-medium mb-2">
+                  {locale === "he" ? "קישור ציבורי" : "Public URL"}
+                </p>
+                <div className="flex gap-1.5">
+                  <input
+                    type="text"
+                    value={publicUrl}
+                    readOnly
+                    className="flex-1 min-w-0 rounded-xl border border-warm-border bg-cream px-3 py-2 text-xs text-ink-mid focus:outline-none"
+                    dir="ltr"
+                  />
+                  <button
+                    onClick={handleCopyLink}
+                    className={`px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-colors flex-shrink-0 ${
+                      copied
+                        ? "bg-green-50 text-green-700 border border-green-200"
+                        : "bg-brand text-white hover:bg-brand-dark"
+                    }`}
+                  >
+                    {copied ? "✓" : (locale === "he" ? "העתק" : "Copy")}
+                  </button>
+                </div>
                 <a
                   href={publicUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-xs text-brand hover:text-brand-dark underline underline-offset-2 transition-colors"
+                  className="inline-block mt-2 text-xs text-brand hover:text-brand-dark transition-colors"
                 >
-                  {locale === "he" ? "↗ פתח עמוד ציבורי" : "↗ Open public page"}
+                  {locale === "he" ? "↗ פתח עמוד" : "↗ Open page"}
                 </a>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* ── Manage Gifts Card ── */}
-        <Card className="mb-5">
-          <CardHeader>
-            <CardTitle>{locale === "he" ? "ניהול מתנות" : "Manage Gifts"}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              {manageLinks.map((link) => (
-                <button
-                  key={link.href}
-                  onClick={() => router.push(link.href)}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl border border-warm-border bg-warm-white hover:bg-cream hover:border-ink/20 transition-all text-sm font-medium text-ink text-start"
-                >
-                  {link.label}
-                </button>
-              ))}
-              <button
-                onClick={() => router.push(`/dashboard/events/${event.id}/gifts`)}
-                className="sm:col-span-2 flex items-center gap-3 px-4 py-3 rounded-xl bg-brand text-white hover:bg-brand-dark transition-colors text-sm font-medium"
+            {/* Edit + delete */}
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1"
+                onClick={() => router.push(`/dashboard/events/${event.id}/edit`)}
               >
-                {locale === "he" ? "🎯 מעקב מתנות — מי נתן מה" : "🎯 Gift Tracker — Who Gave What"}
-              </button>
+                {t("editEvent")}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-red-400 hover:text-red-600 hover:bg-red-50"
+                onClick={handleDelete}
+              >
+                {locale === "he" ? "מחק" : "Delete"}
+              </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        {/* ── Actions ── */}
-        <div className="flex gap-3 justify-between">
-          <Button
-            variant="outline"
-            onClick={() => router.push(`/dashboard/events/${event.id}/edit`)}
-          >
-            {t("editEvent")}
-          </Button>
-          <Button
-            variant="ghost"
-            className="text-red-500 hover:text-red-600 hover:bg-red-50"
-            onClick={handleDelete}
-          >
-            {locale === "he" ? "מחק אירוע" : "Delete Event"}
-          </Button>
+          {/* ── Right: registry management ── */}
+          <div className="flex-1 min-w-0 space-y-4">
+            <div className="card p-6">
+              <h2 className="font-display text-xl font-semibold text-ink mb-1">
+                {locale === "he" ? "בניית הרישום" : "Build Your Registry"}
+              </h2>
+              <p className="text-pebble text-sm mb-6">
+                {locale === "he"
+                  ? "הוסיפו מוצרים, קרנות ועוד לרשימת המתנות שלכם"
+                  : "Add products, cash funds, and more to your gift list"}
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                {registrySections.map((section) => (
+                  <button
+                    key={section.href}
+                    onClick={() => router.push(section.href)}
+                    className="group flex items-start gap-3 p-4 rounded-xl border border-warm-border bg-warm-white hover:bg-brand-xlight hover:border-brand-light transition-all text-start"
+                  >
+                    <span className="text-2xl mt-0.5 flex-shrink-0">{section.icon}</span>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-ink text-sm">{section.title}</p>
+                      <p className="text-pebble text-xs mt-0.5 leading-snug">{section.desc}</p>
+                    </div>
+                    <svg className="w-4 h-4 text-mist group-hover:text-pebble transition-colors mt-0.5 flex-shrink-0 ms-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Gift Tracker — featured */}
+            <button
+              onClick={() => router.push(`/dashboard/events/${event.id}/gifts`)}
+              className="group w-full card p-6 flex items-center justify-between gap-4 hover:shadow-md transition-all text-start bg-ink border-ink"
+            >
+              <div>
+                <p className="eyebrow mb-1" style={{color: "var(--brand-light)"}}>
+                  {locale === "he" ? "מעקב" : "Tracker"}
+                </p>
+                <h3 className="font-display text-xl font-semibold text-warm-white mb-1">
+                  {locale === "he" ? "מעקב מתנות" : "Gift Tracker"}
+                </h3>
+                <p className="text-warm-white/60 text-sm">
+                  {locale === "he" ? "מי נתן מה — כל המתנות במקום אחד" : "Who gave what — all gifts in one place"}
+                </p>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-brand/20 flex items-center justify-center flex-shrink-0 group-hover:bg-brand/30 transition-colors">
+                <span className="text-2xl">🎯</span>
+              </div>
+            </button>
+          </div>
         </div>
       </div>
     </div>
