@@ -470,11 +470,16 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Scrollable track */}
+        {/* Scrollable track — left edge aligns with the header container */}
         <div
           ref={scrollRef}
-          className="flex gap-4 overflow-x-auto scroll-smooth px-5 pb-2 snap-x snap-mandatory"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          className="flex gap-4 overflow-x-auto scroll-smooth pb-2 snap-x snap-mandatory"
+          style={{
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            paddingLeft: "max(20px, calc((100vw - 64rem) / 2 + 20px))",
+            paddingRight: "max(20px, calc((100vw - 64rem) / 2 + 20px))",
+          }}
         >
           {FEATURED.map((product) => {
             const imgSrc = carouselImages[product.id];
