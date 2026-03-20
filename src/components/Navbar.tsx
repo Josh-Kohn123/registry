@@ -50,7 +50,7 @@ export function Navbar() {
 
   return (
     <nav
-      className={`bg-warm-white/90 backdrop-blur-sm border-b border-warm-border sticky top-0 z-50 ${
+      className={`bg-cream/90 backdrop-blur-sm border-b border-warm-border sticky top-0 z-50 ${
         isRtl ? "rtl" : "ltr"
       }`}
     >
