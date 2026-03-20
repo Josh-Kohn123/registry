@@ -68,12 +68,18 @@ export function Navbar() {
             SimchaList
           </Link>
 
-          {/* ── Centre links ── */}
+          {/* ── Left-side nav links (no flex-1 so they stay close to logo) ── */}
           <div
-            className={`hidden md:flex items-center gap-7 flex-1 ${
-              isRtl ? "flex-row-reverse justify-end" : ""
+            className={`hidden md:flex items-center gap-7 ${
+              isRtl ? "flex-row-reverse" : ""
             }`}
           >
+            <a
+              href={`/${locale}/#how-it-works`}
+              className={navLink}
+            >
+              {isRtl ? "איך זה עובד" : "How it works"}
+            </a>
             <Link href="/inspiration" className={navLink}>
               {isRtl ? "השראה" : "Inspiration"}
             </Link>

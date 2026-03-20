@@ -265,7 +265,6 @@ export default function HomePage() {
         {/* ── Right: Mockup panel ── */}
         <div
           className={`hidden lg:flex items-center justify-center bg-brand-xlight border-warm-border relative overflow-hidden p-12 ${isRtl ? "border-r" : "border-l"}`}
-          style={{ backgroundImage: "radial-gradient(circle, color-mix(in srgb, var(--brand) 20%, transparent) 1px, transparent 1px)", backgroundSize: "24px 24px" }}
         >
           {/* Card wrapper with room for floating badges */}
           <div className="relative w-full max-w-[400px]">
@@ -369,7 +368,7 @@ export default function HomePage() {
       </div>
 
       {/* ── How it works ──────────────────────────────────────────────── */}
-      <section className="bg-warm-white py-24 px-5">
+      <section id="how-it-works" className="bg-warm-white py-24 px-5 scroll-mt-16">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <p className="eyebrow mb-3">
