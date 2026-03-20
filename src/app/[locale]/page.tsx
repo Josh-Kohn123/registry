@@ -150,6 +150,18 @@ export default function HomePage() {
   const [carouselImages, setCarouselImages] = useState<Record<string, string | null | undefined>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Scroll carousel to center on mount so user can go both directions
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) {
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => {
+          el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2;
+        })
+      );
+    }
+  }, []);
+
   useEffect(() => {
     FEATURED.forEach(async (p) => {
       try {
@@ -513,17 +525,33 @@ export default function HomePage() {
           })}
 
           {/* Terminal CTA card */}
-          <div className="w-[210px] flex-shrink-0 snap-start bg-brand-xlight border border-warm-border rounded-2xl overflow-hidden flex flex-col items-center justify-center p-6 gap-3 text-center">
-            <p className="font-display text-lg font-normal text-ink leading-tight">
-              {isRtl ? <><em>+200 מוצרים</em><br />להוסיף לרשם</> : <><em>200+ products</em><br />to add to your registry</>}
+          <div className="w-[210px] flex-shrink-0 snap-start bg-brand-xlight border border-warm-border rounded-2xl overflow-hidden flex flex-col items-center justify-center p-6 gap-4 text-center">
+            <p className="font-display text-xl font-normal text-ink leading-snug">
+              {isRtl
+                ? <><em>הוסיפו כל מתנה</em><br />לרשם שלכם</>
+                : <><em>Any gift,</em><br />any Israeli retailer</>}
             </p>
-            <Link href="/inspiration">
-              <button className="text-xs font-medium text-brand border border-brand px-4 py-2 hover:bg-brand hover:text-white transition-colors">
-                {isRtl ? "לכל המוצרים ←" : "Browse all →"}
+            <Link href="/login">
+              <button className="bg-ink text-cream text-[10px] font-medium tracking-[0.08em] uppercase px-5 py-2.5 hover:opacity-80 transition-opacity">
+                {isRtl ? "יצירת רשם ←" : "Start free →"}
               </button>
             </Link>
           </div>
         </div>
+
+        {/* Inline CTA — visible without needing to reach carousel end */}
+        {!user && (
+          <div className={`max-w-5xl mx-auto px-5 mt-8 flex items-center gap-4 ${isRtl ? "flex-row-reverse justify-end" : ""}`}>
+            <Link href="/login">
+              <button className="bg-ink text-cream text-[11px] font-medium tracking-[0.08em] uppercase px-8 py-3.5 hover:opacity-80 transition-opacity">
+                {isRtl ? "יצירת רשם חינמי" : "Create your registry — free"}
+              </button>
+            </Link>
+            <span className="text-pebble text-sm font-light">
+              {isRtl ? "ללא כרטיס אשראי" : "No credit card required"}
+            </span>
+          </div>
+        )}
       </section>
 
       {/* ── CTA band ──────────────────────────────────────────────────── */}
