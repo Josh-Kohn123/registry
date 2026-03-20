@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+/* ── Brand Design Tokens ──────────────────────────────────────────────── */
+:root {
+  /* Sage Green — primary brand colour */
+  --brand:          #6B9A6E;
+  --brand-dark:     #4D7A50;
+  --brand-light:    #C4DCC4;
+  --brand-xlight:   #EEF5EE;
+
+  /* Neutrals — green-tinted, not cold-gray */
+  --ink:            #161D16;   /* near-black headings + body */
+  --ink-mid:        #3C4A3C;   /* secondary body text */
+  --pebble:         #6A786A;   /* tertiary / captions */
+  --mist:           #9AAA9A;   /* placeholders, disabled */
+  --warm-border:    #D8E6D8;   /* dividers, card borders */
+  --cream:          #F5FAF5;   /* page background */
+  --warm-white:     #F9FDF9;   /* card surfaces */
+
+  /* Accent */
+  --gold:           #C9A561;
+
+  /* Semantic aliases */
+  --background:     var(--cream);
+  --foreground:     var(--ink);
+}
+
+/* ── Tailwind v4 theme registration ──────────────────────────────────── */
+@theme inline {
+  /* Colours */
+  --color-brand:        var(--brand);
+  --color-brand-dark:   var(--brand-dark);
+  --color-brand-light:  var(--brand-light);
+  --color-brand-xlight: var(--brand-xlight);
+
+  --color-ink:          var(--ink);
+  --color-ink-mid:      var(--ink-mid);
+  --color-pebble:       var(--pebble);
+  --color-mist:         var(--mist);
+  --color-warm-border:  var(--warm-border);
+  --color-cream:        var(--cream);
+  --color-warm-white:   var(--warm-white);
+  --color-gold:         var(--gold);
+
+  --color-background:   var(--background);
+  --color-foreground:   var(--foreground);
+
+  /* Typography */
+  --font-sans:    var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-playfair), Georgia, "Times New Roman", serif;
+}
+
+/* ── Base Reset & Globals ─────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "liga" 1, "kern" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+}
+
+/* ── Typography utilities ─────────────────────────────────────────────── */
+
+/* Apply display font — use className="font-display" */
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* Refined heading tracking */
+h1, h2, h3 {
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+/* ── Shared component patterns ────────────────────────────────────────── */
+
+/* Card surface — use className="card" */
+.card {
+  background-color: var(--warm-white);
+  border: 1px solid var(--warm-border);
+  border-radius: 1rem;          /* 16px */
+  box-shadow:
+    0 1px 3px rgba(22, 29, 22, 0.06),
+    0 4px 16px rgba(22, 29, 22, 0.04);
+}
+
+/* Subtle section divider */
+.divider {
+  border-top: 1px solid var(--warm-border);
+}
+
+/* Eyebrow label — small caps label above headlines */
+.eyebrow {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--brand);
+}
