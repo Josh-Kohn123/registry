@@ -103,6 +103,10 @@ h1, h2, h3 {
   border-top: 1px solid var(--warm-border);
 }
 
+/* Hide scrollbar — used on horizontal carousels */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
 /* Eyebrow label — small caps label above headlines */
 .eyebrow {
   font-size: 0.7rem;
