@@ -439,132 +439,121 @@ export default function HomePage() {
       </section>
 
       {/* ── Featured picks carousel ───────────────────────────────────── */}
-      <section className={`py-16 bg-warm-white border-y border-warm-border overflow-hidden ${isRtl ? "rtl" : "ltr"}`}>
+      <section className={`py-16 bg-warm-white border-y border-warm-border ${isRtl ? "rtl" : "ltr"}`}>
+        <div className="max-w-5xl mx-auto px-5">
 
-        {/* Header row */}
-        <div className={`max-w-5xl mx-auto px-5 mb-8 flex items-end justify-between ${isRtl ? "flex-row-reverse" : ""}`}>
-          <div className={isRtl ? "text-right" : ""}>
-            <p className="eyebrow mb-2">
-              {isRtl ? "הכי פופולרי" : "Top picks"}
-            </p>
-            <h2 className="font-display text-3xl font-medium text-ink leading-tight">
-              {isRtl ? "מה שזוגות ישראלים אוהבים לקבל" : "Loved by Israeli couples"}
-            </h2>
-          </div>
-          {/* Scroll arrows */}
-          <div className={`flex gap-2 shrink-0 ${isRtl ? "flex-row-reverse" : ""}`}>
-            <button
-              onClick={() => scrollRef.current?.scrollBy({ left: isRtl ? 240 : -240, behavior: "smooth" })}
-              className="w-9 h-9 rounded-full border border-warm-border bg-warm-white flex items-center justify-center text-pebble hover:border-ink hover:text-ink transition-colors"
-              aria-label="Previous"
-            >
-              {isRtl ? "→" : "←"}
-            </button>
-            <button
-              onClick={() => scrollRef.current?.scrollBy({ left: isRtl ? -240 : 240, behavior: "smooth" })}
-              className="w-9 h-9 rounded-full border border-warm-border bg-warm-white flex items-center justify-center text-pebble hover:border-ink hover:text-ink transition-colors"
-              aria-label="Next"
-            >
-              {isRtl ? "←" : "→"}
-            </button>
-          </div>
-        </div>
-
-        {/* Scrollable track */}
-        <div
-          ref={scrollRef}
-          className="flex gap-4 overflow-x-auto scroll-smooth pb-2 snap-x snap-mandatory"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          {/* Left spacer — aligns first card with the header above */}
-          <div
-            aria-hidden
-            className="shrink-0"
-            style={{ width: "max(20px, calc((100vw - 64rem) / 2 + 20px))" }}
-          />
-          {FEATURED.map((product) => {
-            const imgSrc = carouselImages[product.id];
-            const loaded = imgSrc !== undefined;
-            const CAT_BG: Record<string, string> = {
-              bedroom: "bg-indigo-50", kitchen: "bg-amber-50",
-              bathroom: "bg-cyan-50", "living-room": "bg-emerald-50",
-              decor: "bg-pink-50", electronics: "bg-blue-50",
-              outdoor: "bg-green-50", other: "bg-cream",
-            };
-            const CAT_EMOJI: Record<string, string> = {
-              bedroom: "🛏️", kitchen: "🍳", bathroom: "🛁",
-              "living-room": "🛋️", decor: "🕯️", electronics: "💡",
-              outdoor: "🌿", other: "🎁",
-            };
-            return (
-              <div
-                key={product.id}
-                className="w-[210px] flex-shrink-0 snap-start bg-warm-white border border-warm-border rounded-2xl overflow-hidden hover:-translate-y-0.5 transition-transform duration-200"
+          {/* Header row */}
+          <div className={`mb-8 flex items-end justify-between ${isRtl ? "flex-row-reverse" : ""}`}>
+            <div className={isRtl ? "text-right" : ""}>
+              <p className="eyebrow mb-2">
+                {isRtl ? "הכי פופולרי" : "Top picks"}
+              </p>
+              <h2 className="font-display text-3xl font-medium text-ink leading-tight">
+                {isRtl ? "מה שזוגות ישראלים אוהבים לקבל" : "Loved by Israeli couples"}
+              </h2>
+            </div>
+            {/* Scroll arrows */}
+            <div className={`flex gap-2 shrink-0 ${isRtl ? "flex-row-reverse" : ""}`}>
+              <button
+                onClick={() => scrollRef.current?.scrollBy({ left: isRtl ? 226 : -226, behavior: "smooth" })}
+                className="w-9 h-9 rounded-full border border-warm-border bg-warm-white flex items-center justify-center text-pebble hover:border-ink hover:text-ink transition-colors"
+                aria-label="Previous"
               >
-                {/* Photo */}
-                <div className={`w-full h-44 relative overflow-hidden ${CAT_BG[product.category] || "bg-cream"}`}>
-                  {!loaded ? (
-                    <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-warm-border via-cream to-warm-border" />
-                  ) : imgSrc ? (
-                    <img
-                      src={imgSrc}
-                      alt={isRtl ? product.titleHe : product.titleEn}
-                      className="w-full h-full object-cover"
-                      onError={(e) => { e.currentTarget.style.display = "none"; }}
-                    />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center opacity-30">
-                      <span className="text-5xl">{CAT_EMOJI[product.category] || "🎁"}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Info */}
-                <div className={`p-3.5 ${isRtl ? "text-right" : ""}`}>
-                  <p className="text-ink text-sm font-medium leading-snug line-clamp-2 mb-1">
-                    {isRtl ? product.titleHe : product.titleEn}
-                  </p>
-                  <p className="text-pebble text-xs">{product.retailerName}</p>
-                </div>
-              </div>
-            );
-          })}
-
-          {/* Terminal CTA card */}
-          <div className="w-[210px] flex-shrink-0 snap-start bg-brand-xlight border border-warm-border rounded-2xl overflow-hidden flex flex-col items-center justify-center p-6 gap-4 text-center">
-            <p className="font-display text-xl font-normal text-ink leading-snug">
-              {isRtl
-                ? <><em>הוסיפו כל מתנה</em><br />לרשם שלכם</>
-                : <><em>Any gift,</em><br />any Israeli retailer</>}
-            </p>
-            <Link href="/login">
-              <button className="bg-ink text-cream text-[10px] font-medium tracking-[0.08em] uppercase px-5 py-2.5 hover:opacity-80 transition-opacity">
-                {isRtl ? "יצירת רשם ←" : "Start free →"}
+                {isRtl ? "→" : "←"}
               </button>
-            </Link>
+              <button
+                onClick={() => scrollRef.current?.scrollBy({ left: isRtl ? -226 : 226, behavior: "smooth" })}
+                className="w-9 h-9 rounded-full border border-warm-border bg-warm-white flex items-center justify-center text-pebble hover:border-ink hover:text-ink transition-colors"
+                aria-label="Next"
+              >
+                {isRtl ? "←" : "→"}
+              </button>
+            </div>
           </div>
 
-          {/* Right spacer — mirrors left spacer */}
+          {/* Scrollable track — -mr-5 lets it bleed to the right of the container */}
           <div
-            aria-hidden
-            className="shrink-0"
-            style={{ width: "max(20px, calc((100vw - 64rem) / 2 + 20px))" }}
-          />
-        </div>
+            ref={scrollRef}
+            className={`flex gap-4 overflow-x-auto scroll-smooth pb-2 -mr-5 ${isRtl ? "-ml-5 pr-0 pl-5" : "pr-0"}`}
+            style={{ scrollbarWidth: "none" }}
+          >
+            {FEATURED.map((product) => {
+              const imgSrc = carouselImages[product.id];
+              const loaded = imgSrc !== undefined;
+              const CAT_BG: Record<string, string> = {
+                bedroom: "bg-indigo-50", kitchen: "bg-amber-50",
+                bathroom: "bg-cyan-50", "living-room": "bg-emerald-50",
+                decor: "bg-pink-50", electronics: "bg-blue-50",
+                outdoor: "bg-green-50", other: "bg-cream",
+              };
+              const CAT_EMOJI: Record<string, string> = {
+                bedroom: "🛏️", kitchen: "🍳", bathroom: "🛁",
+                "living-room": "🛋️", decor: "🕯️", electronics: "💡",
+                outdoor: "🌿", other: "🎁",
+              };
+              return (
+                <div
+                  key={product.id}
+                  className="w-[210px] flex-shrink-0 bg-warm-white border border-warm-border rounded-2xl overflow-hidden hover:-translate-y-0.5 transition-transform duration-200"
+                >
+                  {/* Photo */}
+                  <div className={`w-full h-44 relative overflow-hidden ${CAT_BG[product.category] || "bg-cream"}`}>
+                    {!loaded ? (
+                      <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-warm-border via-cream to-warm-border" />
+                    ) : imgSrc ? (
+                      <img
+                        src={imgSrc}
+                        alt={isRtl ? product.titleHe : product.titleEn}
+                        className="w-full h-full object-cover"
+                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center opacity-30">
+                        <span className="text-5xl">{CAT_EMOJI[product.category] || "🎁"}</span>
+                      </div>
+                    )}
+                  </div>
 
-        {/* Inline CTA — visible without needing to reach carousel end */}
-        {!user && (
-          <div className={`max-w-5xl mx-auto px-5 mt-8 flex items-center gap-4 ${isRtl ? "flex-row-reverse justify-end" : ""}`}>
-            <Link href="/login">
-              <button className="bg-ink text-cream text-[11px] font-medium tracking-[0.08em] uppercase px-8 py-3.5 hover:opacity-80 transition-opacity">
-                {isRtl ? "יצירת רשם חינמי" : "Create your registry — free"}
-              </button>
-            </Link>
-            <span className="text-pebble text-sm font-light">
-              {isRtl ? "ללא כרטיס אשראי" : "No credit card required"}
-            </span>
+                  {/* Info */}
+                  <div className={`p-3.5 ${isRtl ? "text-right" : ""}`}>
+                    <p className="text-ink text-sm font-medium leading-snug line-clamp-2 mb-1">
+                      {isRtl ? product.titleHe : product.titleEn}
+                    </p>
+                    <p className="text-pebble text-xs">{product.retailerName}</p>
+                  </div>
+                </div>
+              );
+            })}
+
+            {/* Terminal CTA card */}
+            <div className="w-[210px] flex-shrink-0 bg-brand-xlight border border-warm-border rounded-2xl overflow-hidden flex flex-col items-center justify-center p-6 gap-4 text-center mr-5">
+              <p className="font-display text-xl font-normal text-ink leading-snug">
+                {isRtl
+                  ? <><em>הוסיפו כל מתנה</em><br />לרשם שלכם</>
+                  : <><em>Any gift,</em><br />any Israeli retailer</>}
+              </p>
+              <Link href="/login">
+                <button className="bg-ink text-cream text-[10px] font-medium tracking-[0.08em] uppercase px-5 py-2.5 hover:opacity-80 transition-opacity">
+                  {isRtl ? "יצירת רשם ←" : "Start free →"}
+                </button>
+              </Link>
+            </div>
           </div>
-        )}
+
+          {/* Inline CTA — visible without needing to reach carousel end */}
+          {!user && (
+            <div className={`mt-8 flex items-center gap-4 ${isRtl ? "flex-row-reverse justify-end" : ""}`}>
+              <Link href="/login">
+                <button className="bg-ink text-cream text-[11px] font-medium tracking-[0.08em] uppercase px-8 py-3.5 hover:opacity-80 transition-opacity">
+                  {isRtl ? "יצירת רשם חינמי" : "Create your registry — free"}
+                </button>
+              </Link>
+              <span className="text-pebble text-sm font-light">
+                {isRtl ? "ללא כרטיס אשראי" : "No credit card required"}
+              </span>
+            </div>
+          )}
+        </div>
       </section>
 
       {/* ── CTA band ──────────────────────────────────────────────────── */}
