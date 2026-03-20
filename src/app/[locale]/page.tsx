@@ -224,7 +224,7 @@ export default function HomePage() {
 
           {/* CTAs — square-edged, editorial style */}
           {!isLoading && (
-            <div className={`flex flex-col sm:flex-row items-start gap-4 mb-6 ${isRtl ? "sm:flex-row-reverse" : ""}`}>
+            <div className={`flex flex-col sm:flex-row items-center gap-6 mb-6 ${isRtl ? "sm:flex-row-reverse" : ""}`}>
               {user ? (
                 <Link href="/dashboard">
                   <button className="bg-ink text-cream text-[11px] font-medium tracking-[0.08em] uppercase px-8 py-3.5 hover:opacity-80 transition-opacity">
@@ -239,9 +239,9 @@ export default function HomePage() {
                     </button>
                   </Link>
                   <Link href="/inspiration">
-                    <button className="text-brand text-sm font-light underline underline-offset-4 decoration-brand/40 hover:decoration-brand transition-colors bg-transparent border-none">
+                    <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-pebble hover:text-ink transition-colors">
                       {isRtl ? "← גלו מוצרים" : "Browse gift ideas →"}
-                    </button>
+                    </span>
                   </Link>
                 </>
               )}
