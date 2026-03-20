@@ -54,7 +54,7 @@ export function Navbar() {
         isRtl ? "rtl" : "ltr"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-5 sm:px-8">
+      <div className="px-8 sm:px-12 lg:px-16">
         <div
           className={`flex items-center h-16 gap-8 ${
             isRtl ? "flex-row-reverse" : ""
