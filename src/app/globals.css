@@ -74,8 +74,10 @@ body {
 /* ── Typography utilities ─────────────────────────────────────────────── */
 
 /* Apply display font — use className="font-display" */
+/* Note: uses var(--font-eb-garamond) directly; @theme inline does not
+   expose --font-display as a real CSS custom property at runtime. */
 .font-display {
-  font-family: var(--font-display);
+  font-family: var(--font-eb-garamond), Georgia, "Times New Roman", serif;
 }
 
 /* Refined heading tracking */
