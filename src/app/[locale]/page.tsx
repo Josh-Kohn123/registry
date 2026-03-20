@@ -578,9 +578,9 @@ export default function HomePage() {
                 </button>
               </Link>
               <Link href="/inspiration">
-                <button className="text-brand text-sm font-light underline underline-offset-4 decoration-brand/40 hover:decoration-brand transition-colors bg-transparent border-none">
-                  {isRtl ? "גלו מוצרים ←" : "Browse gift ideas →"}
-                </button>
+                <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-pebble hover:text-ink transition-colors">
+                  {isRtl ? "← גלו מוצרים" : "Browse gift ideas →"}
+                </span>
               </Link>
             </div>
           )}
