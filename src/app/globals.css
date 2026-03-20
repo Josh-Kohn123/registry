@@ -6,16 +6,16 @@
   --brand:          #6B9A6E;
   --brand-dark:     #4D7A50;
   --brand-light:    #C4DCC4;
-  --brand-xlight:   #EEF5EE;
+  --brand-xlight:   #EEF2EE;
 
-  /* Neutrals — green-tinted, not cold-gray */
-  --ink:            #161D16;   /* near-black headings + body */
-  --ink-mid:        #3C4A3C;   /* secondary body text */
-  --pebble:         #6A786A;   /* tertiary / captions */
-  --mist:           #9AAA9A;   /* placeholders, disabled */
-  --warm-border:    #D8E6D8;   /* dividers, card borders */
-  --cream:          #F5FAF5;   /* page background */
-  --warm-white:     #F9FDF9;   /* card surfaces */
+  /* Neutrals — warm, not green-tinted */
+  --ink:            #141210;   /* near-black headings + body */
+  --ink-mid:        #3A3530;   /* secondary body text */
+  --pebble:         #6B6560;   /* tertiary / captions */
+  --mist:           #B5B0AA;   /* placeholders, disabled */
+  --warm-border:    #D8D3CE;   /* dividers, card borders */
+  --cream:          #FEFCF9;   /* page background — warm neutral */
+  --warm-white:     #FFFFFF;   /* card surfaces */
 
   /* Accent */
   --gold:           #C9A561;
