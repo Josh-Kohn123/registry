@@ -19,11 +19,26 @@ model Profile {
   updatedAt     DateTime  @updatedAt
 
   // Relations
-  eventOwners   EventOwner[]
-  addresses     Address[]
-  reports       Report[]
+  eventOwners     EventOwner[]
+  addresses       Address[]
+  reports         Report[]
+  extensionTokens ExtensionToken[]
 
   @@map("profiles")
+}
+
+model ExtensionToken {
+  id         String    @id @default(cuid())
+  profileId  String    @db.Uuid
+  tokenHash  String    @unique
+  lastUsedAt DateTime?
+  createdAt  DateTime  @default(now())
+  revokedAt  DateTime?
+
+  profile    Profile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId])
+  @@map("extension_tokens")
 }
 
 // Event (wedding, engagement, etc.)
