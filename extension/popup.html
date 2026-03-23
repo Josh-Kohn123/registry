@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Signed-in view -->
+    <div id="signed-in" style="display: none;">
+      <div class="header">
+        <span class="header-title">My Registry</span>
+        <button id="sign-out-btn" class="header-link">Sign out</button>
+      </div>
+      <div class="user-section">
+        <div class="avatar" id="avatar">?</div>
+        <div>
+          <div class="event-title" id="event-title">—</div>
+          <div class="event-meta" id="event-meta">—</div>
+        </div>
+      </div>
+      <div class="section-label">Recently added</div>
+      <div id="recent-list" class="recent-list">
+        <div class="empty-state">No products added yet.</div>
+      </div>
+      <div class="footer">
+        <a id="dashboard-link" class="footer-link" target="_blank">Open Dashboard →</a>
+      </div>
+    </div>
+
+    <!-- Signed-out view -->
+    <div id="signed-out" style="display: none;">
+      <div class="header">
+        <span class="header-title">My Registry</span>
+      </div>
+      <div class="signed-out-body">
+        <div class="signed-out-icon">🎁</div>
+        <div class="signed-out-title">Add products while you shop</div>
+        <div class="signed-out-desc">
+          Sign in to start adding products to your wedding registry from any supported store.
+        </div>
+        <button id="sign-in-btn" class="sign-in-btn">Sign in to your registry</button>
+      </div>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
