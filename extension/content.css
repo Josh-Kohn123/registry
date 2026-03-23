@@ -1,0 +1,108 @@
+.registry-ext-fab {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 24px;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, transform 0.2s;
+  line-height: 1;
+}
+
+.registry-ext-fab:hover {
+  transform: translateY(-1px);
+}
+
+.registry-ext-fab:active {
+  transform: translateY(0);
+}
+
+.registry-ext-fab--active {
+  background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+  color: white;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+.registry-ext-fab--disabled {
+  background: #444;
+  color: #999;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.registry-ext-fab--loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.registry-ext-fab__icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* Toast */
+.registry-ext-toast {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 1000000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  animation: registry-ext-slide-in 0.3s ease-out;
+  transition: opacity 0.3s;
+}
+
+.registry-ext-toast--success {
+  background: #065f46;
+  border: 1px solid #34d399;
+  color: #d1fae5;
+}
+
+.registry-ext-toast--error {
+  background: #7c2d12;
+  border: 1px solid #f97316;
+  color: #fed7aa;
+}
+
+.registry-ext-toast--info {
+  background: #1e1b4b;
+  border: 1px solid #818cf8;
+  color: #c7d2fe;
+}
+
+.registry-ext-toast--unsupported {
+  background: #44403c;
+  border: 1px solid #a8a29e;
+  color: #e7e5e4;
+}
+
+.registry-ext-toast__link {
+  color: #8b5cf6;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-left: 4px;
+}
+
+@keyframes registry-ext-slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
