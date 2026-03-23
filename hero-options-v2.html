@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SimchaList — Hero Options v2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Instrument+Sans:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;1,9..144,300;1,9..144,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0a0a0a; }
+
+    .label {
+      background: #000;
+      color: #fff;
+      padding: 16px 24px;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .label strong { color: #E8B86D; font-size: 12px; }
+    .label em { color: #666; font-style: normal; }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       OPTION 1  ·  EDITORIAL
+       Inspired by: Kinfolk, Vogue weddings, The Row
+       EB Garamond editorial + DM Sans clean body
+       Palette: Near-white · Near-black · Pale sage
+    ═══════════════════════════════════════════════════════════════════ */
+    .o1 {
+      background: #FEFCF9;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .o1-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 24px 64px;
+      border-bottom: 1px solid #E8E4DF;
+    }
+    .o1-logo {
+      font-family: 'EB Garamond', serif;
+      font-size: 20px; font-weight: 400;
+      color: #141210;
+      letter-spacing: 0.04em;
+    }
+    .o1-nav-r { display: flex; align-items: center; gap: 36px; }
+    .o1-nav-r a {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 400;
+      color: #9A9490; text-decoration: none;
+      letter-spacing: 0.01em;
+    }
+    .o1-nav-btn {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 500;
+      color: #141210; background: none; border: 1px solid #D0CBC4;
+      padding: 9px 22px; cursor: pointer;
+      letter-spacing: 0.03em;
+    }
+
+    .o1-hero {
+      max-width: 960px; margin: 0 auto;
+      padding: 100px 64px 110px;
+      text-align: center;
+      position: relative;
+    }
+
+    .o1-pre {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px; font-weight: 500;
+      color: #8EA68A;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+
+    .o1-h1 {
+      font-family: 'EB Garamond', serif;
+      font-size: 100px; font-weight: 400;
+      color: #141210;
+      line-height: 0.96;
+      letter-spacing: -0.03em;
+      margin-bottom: 40px;
+    }
+    .o1-h1 span {
+      display: block;
+      font-style: italic;
+      color: #8EA68A;
+    }
+
+    .o1-divider {
+      width: 40px; height: 1px;
+      background: #D0CBC4;
+      margin: 0 auto 32px;
+    }
+
+    .o1-body {
+      font-size: 16px; font-weight: 300;
+      color: #6B6560;
+      line-height: 1.75;
+      max-width: 440px; margin: 0 auto 44px;
+      letter-spacing: 0.01em;
+    }
+
+    .o1-ctas {
+      display: flex; align-items: center; justify-content: center; gap: 24px;
+    }
+    .o1-btn-p {
+      font-family: 'DM Sans', sans-serif;
+      background: #141210; color: #FEFCF9;
+      font-size: 13px; font-weight: 500;
+      padding: 14px 40px; cursor: pointer;
+      border: none; letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .o1-btn-s {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 400;
+      color: #8EA68A; background: none; border: none;
+      cursor: pointer; text-decoration: underline;
+      text-underline-offset: 3px;
+      letter-spacing: 0.03em;
+    }
+
+    .o1-cats {
+      display: flex; justify-content: center; align-items: center;
+      gap: 0; margin-top: 72px;
+      border-top: 1px solid #E8E4DF;
+      padding-top: 36px;
+    }
+    .o1-cat {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px; font-weight: 400;
+      color: #B5B0AB; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 0 28px;
+      border-right: 1px solid #E8E4DF;
+    }
+    .o1-cat:last-child { border-right: none; }
+
+    .o1-strip {
+      background: #F5F2EE;
+      border-top: 1px solid #E8E4DF;
+      padding: 18px 64px;
+      display: flex; justify-content: center; gap: 56px;
+    }
+    .o1-strip span {
+      font-size: 12px; color: #9A9490;
+      display: flex; align-items: center; gap: 6px;
+      font-weight: 400; letter-spacing: 0.04em;
+    }
+    .o1-strip span b { color: #141210; font-weight: 500; }
+
+
+    /* ═══════════════════════════════════════════════════════════════════
+       OPTION 2  ·  PRODUCT-FORWARD SPLIT
+       Inspired by: Stripe homepage, Vercel, Linear — but warm and human
+       Syne ultra-bold + Instrument Sans
+       Palette: Off-white · Forest green · Warm black
+    ═══════════════════════════════════════════════════════════════════ */
+    .o2 {
+      background: #F9F7F3;
+      font-family: 'Instrument Sans', sans-serif;
+    }
+
+    .o2-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 56px;
+      background: #F9F7F3;
+    }
+    .o2-logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 18px; font-weight: 700;
+      color: #0E1A0F; letter-spacing: -0.02em;
+    }
+    .o2-logo span { color: #3D7A45; }
+    .o2-nav-r { display: flex; align-items: center; gap: 32px; }
+    .o2-nav-r a { font-size: 14px; font-weight: 500; color: #6B6B5F; text-decoration: none; }
+    .o2-nav-btn {
+      background: #0E1A0F; color: #F9F7F3;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 14px; font-weight: 600;
+      padding: 10px 22px; border: none;
+      border-radius: 6px; cursor: pointer;
+    }
+
+    .o2-hero {
+      display: grid; grid-template-columns: 1fr 1fr;
+      min-height: 620px;
+    }
+
+    .o2-left {
+      padding: 80px 48px 80px 56px;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+
+    .o2-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-bottom: 28px;
+    }
+    .o2-tag-line { width: 24px; height: 2px; background: #3D7A45; }
+    .o2-tag span {
+      font-size: 12px; font-weight: 600;
+      color: #3D7A45; letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .o2-h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 58px; font-weight: 800;
+      color: #0E1A0F; line-height: 1.0;
+      letter-spacing: -0.04em;
+      margin-bottom: 24px;
+    }
+    .o2-h1 em { color: #3D7A45; font-style: normal; }
+
+    .o2-body {
+      font-size: 16px; font-weight: 400;
+      color: #6B6B5F; line-height: 1.65;
+      margin-bottom: 36px; max-width: 380px;
+    }
+
+    .o2-stats {
+      display: flex; gap: 28px; margin-bottom: 36px;
+    }
+    .o2-stat-n {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px; font-weight: 800;
+      color: #0E1A0F; letter-spacing: -0.04em;
+      line-height: 1;
+    }
+    .o2-stat-l {
+      font-size: 11px; font-weight: 500;
+      color: #9A9A8E; letter-spacing: 0.06em;
+      text-transform: uppercase; margin-top: 4px;
+    }
+    .o2-stat-d { width: 1px; background: #E0DDD7; }
+
+    .o2-btns { display: flex; gap: 12px; }
+    .o2-btn-p {
+      font-family: 'Instrument Sans', sans-serif;
+      background: #0E1A0F; color: #F9F7F3;
+      font-size: 14px; font-weight: 600;
+      padding: 14px 32px; border: none;
+      border-radius: 6px; cursor: pointer;
+    }
+    .o2-btn-s {
+      font-family: 'Instrument Sans', sans-serif;
+      background: transparent; color: #0E1A0F;
+      font-size: 14px; font-weight: 500;
+      padding: 14px 28px;
+      border: 1.5px solid #D4D0C8;
+      border-radius: 6px; cursor: pointer;
+    }
+
+    .o2-right {
+      background: #0E1A0F;
+      padding: 40px 48px 40px 40px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .o2-right::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 300px; height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(61,122,69,0.3) 0%, transparent 70%);
+    }
+
+    /* Browser chrome mockup */
+    .o2-browser {
+      width: 100%; max-width: 400px;
+      background: #FEFCF9;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.5);
+      position: relative; z-index: 1;
+    }
+    .o2-browser-bar {
+      background: #F0EDE8;
+      padding: 12px 16px;
+      display: flex; align-items: center; gap: 10px;
+      border-bottom: 1px solid #E2DDD8;
+    }
+    .o2-dots-b { display: flex; gap: 6px; }
+    .o2-dot-b { width: 10px; height: 10px; border-radius: 50%; }
+    .o2-url {
+      flex: 1; background: white;
+      border-radius: 4px; padding: 5px 10px;
+      font-size: 11px; color: #9A9490;
+      font-family: 'Instrument Sans', sans-serif;
+    }
+    .o2-reg-header {
+      background: #FEFCF9; padding: 18px 20px 14px;
+      border-bottom: 1px solid #EDE9E4; text-align: center;
+    }
+    .o2-reg-small {
+      font-size: 9px; font-weight: 600;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: #3D7A45; margin-bottom: 4px;
+    }
+    .o2-reg-name {
+      font-family: 'EB Garamond', serif;
+      font-size: 22px; color: #141210; font-weight: 500;
+    }
+    .o2-reg-date { font-size: 11px; color: #ABA69F; margin-top: 3px; }
+    .o2-reg-item {
+      display: flex; align-items: center;
+      gap: 12px; padding: 11px 16px;
+      border-bottom: 1px solid #F0EDE8;
+    }
+    .o2-reg-item:last-of-type { border-bottom: none; }
+    .o2-reg-thumb {
+      width: 38px; height: 38px; border-radius: 8px;
+      background: #F0EDE8; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .o2-reg-title { font-size: 12px; font-weight: 600; color: #141210; }
+    .o2-reg-sub { font-size: 10px; color: #ABA69F; margin-top: 2px; }
+    .o2-reg-btn {
+      margin-left: auto; flex-shrink: 0;
+      background: #3D7A45; color: white;
+      font-size: 10px; font-weight: 700;
+      padding: 4px 10px; border-radius: 4px;
+      letter-spacing: 0.04em;
+    }
+    .o2-reg-btn-d {
+      margin-left: auto; flex-shrink: 0;
+      background: #F0EDE8; color: #C0BCB7;
+      font-size: 10px; font-weight: 600;
+      padding: 4px 10px; border-radius: 4px;
+    }
+    .o2-reg-footer {
+      background: #F5F2EE; padding: 10px 16px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .o2-reg-prog-wrap { width: 80px; height: 3px; background: #E0DDD7; border-radius: 2px; overflow: hidden; }
+    .o2-reg-prog { width: 25%; height: 100%; background: #3D7A45; }
+
+    .o2-strip {
+      background: white; border-top: 1px solid #E8E4DF;
+      padding: 16px 56px;
+      display: flex; justify-content: center; gap: 52px;
+    }
+    .o2-strip span {
+      font-size: 13px; color: #6B6B5F;
+      display: flex; align-items: center; gap: 7px; font-weight: 500;
+    }
+
+
+    /* ═══════════════════════════════════════════════════════════════════
+       OPTION 3  ·  WARM CINEMATIC DARK
+       Inspired by: WithJoy luxury, Mr Porter, Ace&Tate
+       Fraunces italic serif + DM Sans
+       Palette: Dark warm near-black · Warm cream · Burnt amber
+    ═══════════════════════════════════════════════════════════════════ */
+    .o3 {
+      background: #18120C;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .o3-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 24px 64px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .o3-logo {
+      font-family: 'Fraunces', serif;
+      font-size: 21px; font-weight: 300;
+      color: #EDE0CC; letter-spacing: 0.06em;
+      font-style: italic;
+    }
+    .o3-nav-r { display: flex; align-items: center; gap: 36px; }
+    .o3-nav-r a {
+      font-size: 13px; font-weight: 400;
+      color: rgba(237,224,204,0.38); text-decoration: none;
+    }
+    .o3-nav-btn {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 600;
+      color: #18120C; background: #C8874A;
+      padding: 10px 24px; border: none;
+      border-radius: 4px; cursor: pointer;
+    }
+
+    .o3-hero {
+      max-width: 1100px; margin: 0 auto;
+      padding: 96px 64px 48px;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 80px;
+      align-items: start;
+    }
+
+    .o3-left {}
+
+    .o3-kicker {
+      display: flex; align-items: center; gap: 14px; margin-bottom: 32px;
+    }
+    .o3-kicker-line { width: 36px; height: 1px; background: #C8874A; }
+    .o3-kicker span {
+      font-size: 11px; font-weight: 500;
+      color: rgba(200,135,74,0.8);
+      letter-spacing: 0.2em; text-transform: uppercase;
+    }
+
+    .o3-h1 {
+      font-family: 'Fraunces', serif;
+      font-size: 80px; font-weight: 300;
+      color: #EDE0CC;
+      line-height: 1.02;
+      letter-spacing: -0.02em;
+      margin-bottom: 32px;
+    }
+    .o3-h1 em {
+      font-style: italic;
+      color: #C8874A;
+    }
+
+    .o3-body {
+      font-size: 16px; font-weight: 300;
+      color: rgba(237,224,204,0.48);
+      line-height: 1.72;
+      margin-bottom: 40px; max-width: 400px;
+    }
+
+    .o3-btns { display: flex; align-items: center; gap: 16px; margin-bottom: 52px; }
+    .o3-btn-p {
+      font-family: 'DM Sans', sans-serif;
+      background: #C8874A; color: #18120C;
+      font-size: 14px; font-weight: 700;
+      padding: 14px 36px; border: none;
+      border-radius: 4px; cursor: pointer;
+      letter-spacing: 0.02em;
+    }
+    .o3-btn-s {
+      font-family: 'DM Sans', sans-serif;
+      background: transparent; color: #EDE0CC;
+      font-size: 14px; font-weight: 400;
+      border: none; cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      text-decoration-color: rgba(237,224,204,0.25);
+    }
+
+    .o3-social {
+      display: flex; align-items: center; gap: 16px;
+    }
+    .o3-social span {
+      font-size: 11px; color: rgba(237,224,204,0.25);
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .o3-social-line { flex: 1; height: 1px; background: rgba(255,255,255,0.07); }
+    .o3-social-item {
+      font-size: 12px; color: rgba(237,224,204,0.35); font-weight: 400;
+    }
+
+    .o3-right { padding-top: 24px; }
+
+    /* Stacked cards visual */
+    .o3-cards { position: relative; height: 420px; }
+
+    .o3-card-bg {
+      position: absolute; top: 24px; left: 24px; right: -12px; bottom: -12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+    }
+
+    .o3-card-mid {
+      position: absolute; top: 12px; left: 12px; right: -6px; bottom: -6px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+    }
+
+    .o3-card {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: #231C14;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+    }
+
+    .o3-card-head {
+      background: rgba(200,135,74,0.1);
+      border-bottom: 1px solid rgba(200,135,74,0.15);
+      padding: 20px 24px; text-align: center;
+    }
+    .o3-card-label {
+      font-size: 9px; font-weight: 600;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: #C8874A; margin-bottom: 6px;
+    }
+    .o3-card-name {
+      font-family: 'Fraunces', serif;
+      font-size: 24px; font-weight: 300;
+      color: #EDE0CC; font-style: italic;
+    }
+    .o3-card-date { font-size: 11px; color: rgba(237,224,204,0.3); margin-top: 4px; }
+
+    .o3-item {
+      display: flex; align-items: center;
+      gap: 14px; padding: 14px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .o3-item:last-of-type { border-bottom: none; }
+    .o3-item-thumb {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: rgba(200,135,74,0.1); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .o3-item-title { font-size: 12px; font-weight: 500; color: #EDE0CC; }
+    .o3-item-sub { font-size: 10px; color: rgba(237,224,204,0.3); margin-top: 2px; }
+    .o3-item-avail {
+      margin-left: auto; flex-shrink: 0;
+      background: #C8874A; color: #18120C;
+      font-size: 10px; font-weight: 700;
+      padding: 4px 10px; border-radius: 3px;
+      letter-spacing: 0.04em;
+    }
+    .o3-item-taken {
+      margin-left: auto; flex-shrink: 0;
+      background: rgba(255,255,255,0.06); color: rgba(237,224,204,0.25);
+      font-size: 10px; font-weight: 600;
+      padding: 4px 10px; border-radius: 3px;
+    }
+
+    .o3-card-foot {
+      background: rgba(0,0,0,0.2); border-top: 1px solid rgba(255,255,255,0.05);
+      padding: 10px 20px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .o3-prog { width: 80px; height: 2px; background: rgba(255,255,255,0.08); border-radius: 1px; overflow: hidden; }
+    .o3-prog-fill { width: 25%; height: 100%; background: #C8874A; }
+
+    .o3-strip {
+      background: rgba(255,255,255,0.02);
+      border-top: 1px solid rgba(255,255,255,0.05);
+      padding: 16px 64px;
+      display: flex; justify-content: center; gap: 52px; margin-top: 60px;
+    }
+    .o3-strip span {
+      font-size: 12px; color: rgba(237,224,204,0.25);
+      display: flex; align-items: center; gap: 7px;
+      letter-spacing: 0.06em;
+    }
+  </style>
+</head>
+<body>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     OPTION 1  ·  EDITORIAL
+     EB Garamond display · DM Sans body · Sage green accent · Near-white bg
+     Inspired by: Kinfolk magazine, Vogue Weddings, The Row brand
+     Key ideas: Oversized single-weight serif, NO buttons, NO widgets, pure type
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="label">
+  <strong>Option 1 — Editorial</strong>
+  <em>EB Garamond + DM Sans · sage on near-white · inspired by Kinfolk & Vogue Weddings</em>
+</div>
+<div class="o1">
+  <nav class="o1-nav">
+    <div class="o1-logo">SimchaList</div>
+    <div class="o1-nav-r">
+      <a href="#">How it works</a>
+      <a href="#">Inspiration</a>
+      <a href="#">FAQ</a>
+      <button class="o1-nav-btn">Sign in</button>
+    </div>
+  </nav>
+
+  <div class="o1-hero">
+    <div class="o1-pre">The Israeli Gift Registry</div>
+
+    <h1 class="o1-h1">
+      Your registry,
+      <span>nobody else's.</span>
+    </h1>
+
+    <div class="o1-divider"></div>
+
+    <p class="o1-body">
+      Add gifts from any Israeli retailer, share one link with guests,
+      and receive exactly what you had in mind — from day one.
+    </p>
+
+    <div class="o1-ctas">
+      <button class="o1-btn-p">Create your registry — free</button>
+      <button class="o1-btn-s">Browse the inspiration list</button>
+    </div>
+
+    <div class="o1-cats">
+      <span class="o1-cat">Kitchen</span>
+      <span class="o1-cat">Bedroom</span>
+      <span class="o1-cat">Living Room</span>
+      <span class="o1-cat">Electronics</span>
+      <span class="o1-cat">Outdoor</span>
+      <span class="o1-cat">Decor</span>
+    </div>
+  </div>
+
+  <div class="o1-strip">
+    <span>All major Israeli retailers <b>·</b> IKEA, ACE, FOX HOME + more</span>
+    <span>Duplicate-gift protection <b>·</b> reservations in real-time</span>
+    <span>Free forever <b>·</b> no credit card required</span>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     OPTION 2  ·  PRODUCT-FORWARD SPLIT
+     Syne ultra-bold display · Instrument Sans body · Forest green · Off-white
+     Inspired by: Stripe, Linear, Vercel — but warm and human not cold SaaS
+     Key ideas: Stats as design, browser chrome mockup, strong left/right divide
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="label" style="margin-top:2px">
+  <strong>Option 2 — Product-Forward</strong>
+  <em>Syne Bold + Instrument Sans · forest green · inspired by Stripe & Babylist</em>
+</div>
+<div class="o2">
+  <nav class="o2-nav">
+    <div class="o2-logo">Simcha<span>List</span></div>
+    <div class="o2-nav-r">
+      <a href="#">How it works</a>
+      <a href="#">Inspiration</a>
+      <a href="#">FAQ</a>
+      <button class="o2-nav-btn">Get started</button>
+    </div>
+  </nav>
+
+  <div class="o2-hero">
+    <!-- Left: copy -->
+    <div class="o2-left">
+      <div class="o2-tag">
+        <div class="o2-tag-line"></div>
+        <span>Israeli Gift Registry</span>
+      </div>
+
+      <h1 class="o2-h1">
+        The gift registry<br>Israel's couples<br><em>actually use.</em>
+      </h1>
+
+      <p class="o2-body">
+        Pick gifts from any Israeli retailer. One shareable link. Guests reserve in real-time so nothing gets bought twice.
+      </p>
+
+      <div class="o2-stats">
+        <div>
+          <div class="o2-stat-n">₪0</div>
+          <div class="o2-stat-l">Free forever</div>
+        </div>
+        <div class="o2-stat-d"></div>
+        <div>
+          <div class="o2-stat-n">12+</div>
+          <div class="o2-stat-l">Retailers</div>
+        </div>
+        <div class="o2-stat-d"></div>
+        <div>
+          <div class="o2-stat-n">1</div>
+          <div class="o2-stat-l">Link to share</div>
+        </div>
+      </div>
+
+      <div class="o2-btns">
+        <button class="o2-btn-p">Create free registry</button>
+        <button class="o2-btn-s">Browse gift ideas →</button>
+      </div>
+    </div>
+
+    <!-- Right: browser mockup on dark bg -->
+    <div class="o2-right">
+      <div class="o2-browser">
+        <div class="o2-browser-bar">
+          <div class="o2-dots-b">
+            <div class="o2-dot-b" style="background:#FF5F57"></div>
+            <div class="o2-dot-b" style="background:#FEBC2E"></div>
+            <div class="o2-dot-b" style="background:#28C840"></div>
+          </div>
+          <div class="o2-url">simchalist.com/registry/sarah-david-2025</div>
+        </div>
+
+        <div class="o2-reg-header">
+          <div class="o2-reg-small">Gift Registry</div>
+          <div class="o2-reg-name">Sarah &amp; David</div>
+          <div class="o2-reg-date">June 12, 2025 · Tel Aviv</div>
+        </div>
+
+        <div class="o2-reg-item">
+          <div class="o2-reg-thumb">🛏️</div>
+          <div>
+            <div class="o2-reg-title">IKEA HEMNES Bed Frame</div>
+            <div class="o2-reg-sub">IKEA · ₪1,699</div>
+          </div>
+          <span class="o2-reg-btn">Reserve</span>
+        </div>
+        <div class="o2-reg-item" style="opacity:0.45">
+          <div class="o2-reg-thumb">🍴</div>
+          <div>
+            <div class="o2-reg-title">KitchenAid Stand Mixer</div>
+            <div class="o2-reg-sub">ACE · ₪1,490</div>
+          </div>
+          <span class="o2-reg-btn-d">Reserved</span>
+        </div>
+        <div class="o2-reg-item">
+          <div class="o2-reg-thumb">🛋️</div>
+          <div>
+            <div class="o2-reg-title">Velvet Cushion Set ×4</div>
+            <div class="o2-reg-sub">FOX HOME · ₪249</div>
+          </div>
+          <span class="o2-reg-btn">Reserve</span>
+        </div>
+
+        <div class="o2-reg-footer">
+          <span style="font-size:11px; color:#ABA69F">1 of 12 gifts reserved</span>
+          <div class="o2-reg-prog-wrap"><div class="o2-reg-prog"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="o2-strip">
+    <span>🏪 All major Israeli retailers</span>
+    <span>🔒 Duplicate-gift protection</span>
+    <span>📲 Share via WhatsApp</span>
+    <span>💸 100% free forever</span>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════════
+     OPTION 3  ·  WARM CINEMATIC DARK
+     Fraunces italic serif · DM Sans body · Dark warm brown · Burnt amber
+     Inspired by: WithJoy luxury dark, Mr Porter, Ace&Tate, high-end hotel brands
+     Key ideas: Italic serif on dark = instant premium, stacked card depth effect
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="label" style="margin-top:2px">
+  <strong>Option 3 — Warm Cinematic Dark</strong>
+  <em>Fraunces italic + DM Sans · dark warm brown + burnt amber · inspired by WithJoy & Mr Porter</em>
+</div>
+<div class="o3">
+  <nav class="o3-nav">
+    <div class="o3-logo">SimchaList</div>
+    <div class="o3-nav-r">
+      <a href="#">How it works</a>
+      <a href="#">Inspiration</a>
+      <a href="#">FAQ</a>
+      <button class="o3-nav-btn">Get started</button>
+    </div>
+  </nav>
+
+  <div class="o3-hero">
+    <div class="o3-left">
+      <div class="o3-kicker">
+        <div class="o3-kicker-line"></div>
+        <span>The Israeli Gift Registry</span>
+      </div>
+
+      <h1 class="o3-h1">
+        For the couple<br>who knows exactly<br>what they <em>want.</em>
+      </h1>
+
+      <p class="o3-body">
+        Add gifts from any Israeli retailer. Share one link. Your guests reserve gifts in real-time — no duplicates, no guessing.
+      </p>
+
+      <div class="o3-btns">
+        <button class="o3-btn-p">Create your registry free</button>
+        <button class="o3-btn-s">Browse the inspiration list</button>
+      </div>
+
+      <div class="o3-social">
+        <span>Trusted by couples across Israel</span>
+        <div class="o3-social-line"></div>
+        <span class="o3-social-item">All major retailers</span>
+        <span style="color:rgba(237,224,204,0.1)">·</span>
+        <span class="o3-social-item">₪0 cost</span>
+      </div>
+    </div>
+
+    <div class="o3-right">
+      <div class="o3-cards">
+        <div class="o3-card-bg"></div>
+        <div class="o3-card-mid"></div>
+        <div class="o3-card">
+          <div class="o3-card-head">
+            <div class="o3-card-label">Gift Registry</div>
+            <div class="o3-card-name">Sarah &amp; David</div>
+            <div class="o3-card-date">June 12, 2025 · Tel Aviv</div>
+          </div>
+
+          <div class="o3-item">
+            <div class="o3-item-thumb">🛏️</div>
+            <div>
+              <div class="o3-item-title">IKEA HEMNES Bed Frame</div>
+              <div class="o3-item-sub">IKEA · ₪1,699</div>
+            </div>
+            <span class="o3-item-avail">Reserve</span>
+          </div>
+          <div class="o3-item" style="opacity:0.4">
+            <div class="o3-item-thumb">🍴</div>
+            <div>
+              <div class="o3-item-title">KitchenAid Stand Mixer</div>
+              <div class="o3-item-sub">ACE · ₪1,490</div>
+            </div>
+            <span class="o3-item-taken">Reserved</span>
+          </div>
+          <div class="o3-item">
+            <div class="o3-item-thumb">🛋️</div>
+            <div>
+              <div class="o3-item-title">Velvet Cushion Set ×4</div>
+              <div class="o3-item-sub">FOX HOME · ₪249</div>
+            </div>
+            <span class="o3-item-avail">Reserve</span>
+          </div>
+
+          <div class="o3-card-foot">
+            <span style="font-size:11px; color:rgba(237,224,204,0.25)">1 of 12 gifts reserved</span>
+            <div class="o3-prog"><div class="o3-prog-fill"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="o3-strip">
+    <span>All major Israeli retailers</span>
+    <span>Duplicate-gift protection</span>
+    <span>WhatsApp sharing</span>
+    <span>Free forever · no credit card</span>
+  </div>
+</div>
+
+
+</body>
+</html>

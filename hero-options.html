@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SimchaList — Hero Design Options</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Mulish:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui; }
+
+    .option-label {
+      background: #111;
+      color: #fff;
+      text-align: center;
+      padding: 14px 20px;
+      font-family: 'Inter', monospace;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .option-label strong { color: #F4C97A; }
+
+    /* ═══════════════════════════════════════════════════════
+       OPTION A — WARM HERITAGE
+       Cormorant Garamond + Inter · refined terracotta + ivory
+    ═══════════════════════════════════════════════════════ */
+    .a { background: #FAF6F1; font-family: 'Inter', sans-serif; }
+
+    .a-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 56px;
+      border-bottom: 1px solid #EAE2D9;
+    }
+    .a-logo { font-family: 'Cormorant Garamond', serif; font-size: 23px; font-weight: 600; color: #1E1915; letter-spacing: 0.01em; }
+    .a-links { display: flex; gap: 32px; align-items: center; }
+    .a-links a { color: #8A7E77; font-size: 14px; text-decoration: none; font-weight: 500; }
+    .a-cta-nav { background: #B87C5A; color: white; border: none; padding: 10px 24px; border-radius: 7px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; letter-spacing: 0.01em; }
+
+    .a-hero {
+      display: grid; grid-template-columns: 1fr 480px;
+      gap: 80px; align-items: center;
+      max-width: 1200px; margin: 0 auto;
+      padding: 84px 56px 108px;
+    }
+    .a-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #F2EAE0; border: 1px solid #DDD0C2;
+      border-radius: 100px; padding: 7px 16px; margin-bottom: 30px;
+    }
+    .a-pill-dot { width: 6px; height: 6px; border-radius: 50%; background: #B87C5A; flex-shrink: 0; }
+    .a-pill span { font-size: 11px; font-weight: 700; color: #B87C5A; letter-spacing: 0.14em; text-transform: uppercase; }
+    .a-h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 76px; font-weight: 500; color: #1E1915;
+      line-height: 1.04; margin-bottom: 24px;
+    }
+    .a-h1 em { color: #B87C5A; font-style: italic; }
+    .a-body { font-size: 17px; color: #7A6F68; line-height: 1.68; margin-bottom: 38px; max-width: 400px; }
+    .a-btns { display: flex; gap: 12px; margin-bottom: 34px; flex-wrap: wrap; }
+    .a-btn-p { background: #B87C5A; color: white; border: none; padding: 14px 34px; border-radius: 9px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif; }
+    .a-btn-s { background: #FAF6F1; color: #1E1915; border: 1px solid #DDD0C2; padding: 14px 28px; border-radius: 9px; font-size: 15px; font-weight: 500; cursor: pointer; font-family: 'Inter', sans-serif; }
+    .a-chips { display: flex; gap: 22px; color: #A9A09A; font-size: 12px; font-weight: 500; flex-wrap: wrap; }
+    .a-chip::before { content: "✦  "; color: #C49A80; }
+
+    .a-mock { position: relative; padding: 20px; }
+    .a-card { background: white; border-radius: 18px; border: 1px solid #EAE2D9; box-shadow: 0 4px 6px rgba(0,0,0,0.02), 0 20px 56px rgba(0,0,0,0.07); overflow: hidden; }
+    .a-ch { background: linear-gradient(160deg, #FDF4EE 0%, #F8EDE3 100%); border-bottom: 1px solid #EAE2D9; padding: 22px 28px; text-align: center; }
+    .a-ch-label { font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #B87C5A; margin-bottom: 6px; }
+    .a-ch-name { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; color: #1E1915; }
+    .a-ch-date { font-size: 12px; color: #A9A09A; margin-top: 4px; }
+    .a-row { display: flex; align-items: center; gap: 14px; padding: 15px 22px; border-bottom: 1px solid #F5EDE6; }
+    .a-row:last-of-type { border-bottom: none; }
+    .a-icon { width: 42px; height: 42px; border-radius: 11px; background: #FDF4EE; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; }
+    .a-info { flex: 1; min-width: 0; }
+    .a-name { font-size: 13px; font-weight: 600; color: #1E1915; }
+    .a-meta { font-size: 11px; color: #A9A09A; margin-top: 3px; }
+    .a-tag-r { background: #B87C5A; color: white; font-size: 11px; font-weight: 700; padding: 5px 11px; border-radius: 20px; white-space: nowrap; }
+    .a-tag-d { background: #F0EBE5; color: #C0B5AD; font-size: 11px; font-weight: 600; padding: 5px 11px; border-radius: 20px; white-space: nowrap; }
+    .a-cf { background: #FAF6F1; border-top: 1px solid #EAE2D9; padding: 11px 22px; display: flex; justify-content: space-between; align-items: center; }
+    .a-cf p { font-size: 11px; color: #A9A09A; }
+    .a-dots { display: flex; gap: 5px; }
+    .a-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+    .a-fb-t { position: absolute; top: 4px; right: -4px; background: white; border: 1px solid #EAE2D9; border-radius: 14px; padding: 11px 16px; box-shadow: 0 6px 28px rgba(0,0,0,0.09); display: flex; align-items: center; gap: 9px; z-index: 10; }
+    .a-fb-b { position: absolute; bottom: 4px; left: -4px; background: #B87C5A; border-radius: 14px; padding: 11px 16px; box-shadow: 0 8px 28px rgba(184,124,90,0.32); display: flex; align-items: center; gap: 9px; z-index: 10; }
+    .a-ft { font-size: 11px; font-weight: 700; color: #1E1915; line-height: 1.2; }
+    .a-fs { font-size: 10px; color: #A9A09A; margin-top: 2px; }
+    .a-ftw { font-size: 11px; font-weight: 700; color: white; line-height: 1.2; }
+    .a-fsw { font-size: 10px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+
+    .a-strip { background: white; border-top: 1px solid #EAE2D9; border-bottom: 1px solid #EAE2D9; padding: 16px 56px; display: flex; justify-content: center; gap: 52px; }
+    .a-strip span { font-size: 13px; color: #A9A09A; display: flex; align-items: center; gap: 8px; }
+
+
+    /* ═══════════════════════════════════════════════════════
+       OPTION B — MODERN CLEAN
+       Plus Jakarta Sans · crisp white · slate-navy accent
+    ═══════════════════════════════════════════════════════ */
+    .b { background: #FFFFFF; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    .b-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 56px;
+      border-bottom: 1px solid #EAECF0;
+    }
+    .b-logo { font-size: 20px; font-weight: 800; color: #101828; letter-spacing: -0.03em; }
+    .b-logo span { color: #2563EB; }
+    .b-links { display: flex; gap: 28px; align-items: center; }
+    .b-links a { color: #667085; font-size: 14px; text-decoration: none; font-weight: 500; }
+    .b-cta-nav { background: #101828; color: white; border: none; padding: 10px 22px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    .b-hero {
+      display: grid; grid-template-columns: 1fr 480px;
+      gap: 80px; align-items: center;
+      max-width: 1200px; margin: 0 auto;
+      padding: 84px 56px 108px;
+      background: radial-gradient(ellipse 60% 50% at 70% 50%, #EFF4FF 0%, transparent 70%);
+    }
+    .b-pill {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: #EFF4FF; border: 1px solid #C7D7FE;
+      border-radius: 100px; padding: 6px 14px; margin-bottom: 24px;
+    }
+    .b-pill-dot { width: 6px; height: 6px; border-radius: 50%; background: #2563EB; flex-shrink: 0; }
+    .b-pill span { font-size: 11px; font-weight: 700; color: #2563EB; letter-spacing: 0.08em; text-transform: uppercase; }
+    .b-h1 {
+      font-size: 62px; font-weight: 800; color: #101828;
+      line-height: 1.08; letter-spacing: -0.04em; margin-bottom: 22px;
+    }
+    .b-h1 span { color: #2563EB; }
+    .b-body { font-size: 17px; color: #667085; line-height: 1.65; margin-bottom: 38px; max-width: 400px; font-weight: 400; }
+    .b-btns { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
+    .b-btn-p { background: #101828; color: white; border: none; padding: 14px 32px; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; }
+    .b-btn-s { background: white; color: #101828; border: 1.5px solid #EAECF0; padding: 14px 28px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; }
+    .b-chips { display: flex; gap: 20px; color: #98A2B3; font-size: 12px; font-weight: 600; flex-wrap: wrap; }
+    .b-chip::before { content: "✓  "; color: #2563EB; }
+
+    .b-mock { position: relative; padding: 20px; }
+    .b-card { background: white; border-radius: 20px; border: 1px solid #EAECF0; box-shadow: 0 4px 6px rgba(16,24,40,0.02), 0 24px 56px rgba(16,24,40,0.07); overflow: hidden; }
+    .b-ch { background: linear-gradient(135deg, #EFF4FF 0%, #F5F8FF 100%); border-bottom: 1px solid #EAECF0; padding: 24px 28px; text-align: center; }
+    .b-ch-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #2563EB; margin-bottom: 6px; }
+    .b-ch-name { font-size: 26px; font-weight: 800; color: #101828; letter-spacing: -0.03em; }
+    .b-ch-date { font-size: 12px; color: #98A2B3; margin-top: 5px; font-weight: 500; }
+    .b-row { display: flex; align-items: center; gap: 14px; padding: 15px 22px; border-bottom: 1px solid #F9FAFB; }
+    .b-row:last-of-type { border-bottom: none; }
+    .b-icon { width: 42px; height: 42px; border-radius: 10px; background: #F9FAFB; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; }
+    .b-info { flex: 1; min-width: 0; }
+    .b-name { font-size: 13px; font-weight: 700; color: #101828; }
+    .b-meta { font-size: 11px; color: #98A2B3; margin-top: 3px; font-weight: 500; }
+    .b-tag-r { background: #101828; color: white; font-size: 11px; font-weight: 700; padding: 5px 12px; border-radius: 7px; white-space: nowrap; }
+    .b-tag-d { background: #F2F4F7; color: #B0B8C4; font-size: 11px; font-weight: 600; padding: 5px 12px; border-radius: 7px; white-space: nowrap; }
+    .b-cf { background: #F9FAFB; border-top: 1px solid #EAECF0; padding: 12px 22px; display: flex; justify-content: space-between; align-items: center; }
+    .b-cf p { font-size: 11px; color: #98A2B3; font-weight: 500; }
+    .b-bar { width: 80px; height: 4px; background: #EAECF0; border-radius: 2px; overflow: hidden; }
+    .b-fill { width: 25%; height: 100%; background: #2563EB; border-radius: 2px; }
+
+    .b-fb-t { position: absolute; top: 4px; right: -4px; background: white; border: 1px solid #EAECF0; border-radius: 14px; padding: 11px 16px; box-shadow: 0 6px 28px rgba(16,24,40,0.09); display: flex; align-items: center; gap: 9px; z-index: 10; }
+    .b-fb-b { position: absolute; bottom: 4px; left: -4px; background: #101828; border-radius: 14px; padding: 11px 16px; box-shadow: 0 8px 28px rgba(16,24,40,0.28); display: flex; align-items: center; gap: 9px; z-index: 10; }
+    .b-ft { font-size: 11px; font-weight: 700; color: #101828; line-height: 1.2; }
+    .b-fs { font-size: 10px; color: #98A2B3; margin-top: 2px; }
+    .b-ftw { font-size: 11px; font-weight: 700; color: white; line-height: 1.2; }
+    .b-fsw { font-size: 10px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+
+    .b-strip { background: #F9FAFB; border-top: 1px solid #EAECF0; border-bottom: 1px solid #EAECF0; padding: 16px 56px; display: flex; justify-content: center; gap: 52px; }
+    .b-strip span { font-size: 13px; color: #667085; display: flex; align-items: center; gap: 8px; font-weight: 500; }
+
+
+    /* ═══════════════════════════════════════════════════════
+       OPTION C — MIDNIGHT LUXE
+       Libre Baskerville + Mulish · deep dark warm + gold
+    ═══════════════════════════════════════════════════════ */
+    .c { background: #14110C; font-family: 'Mulish', sans-serif; }
+
+    .c-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 56px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .c-logo { font-family: 'Libre Baskerville', serif; font-size: 22px; color: #F0E8D8; letter-spacing: 0.01em; }
+    .c-links { display: flex; gap: 32px; align-items: center; }
+    .c-links a { color: rgba(240,232,216,0.42); font-size: 14px; text-decoration: none; font-weight: 500; }
+    .c-cta-nav { background: transparent; color: #D4A55E; border: 1px solid rgba(212,165,94,0.36); padding: 10px 24px; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Mulish', sans-serif; }
+
+    .c-hero {
+      display: grid; grid-template-columns: 1fr 480px;
+      gap: 80px; align-items: center;
+      max-width: 1200px; margin: 0 auto;
+      padding: 84px 56px 108px;
+    }
+    .c-eyebrow { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+    .c-line { width: 30px; height: 1px; background: #D4A55E; }
+    .c-eye-txt { font-size: 11px; font-weight: 700; color: #D4A55E; letter-spacing: 0.2em; text-transform: uppercase; }
+    .c-h1 {
+      font-family: 'Libre Baskerville', serif;
+      font-size: 70px; font-weight: 400; color: #F0E8D8;
+      line-height: 1.08; margin-bottom: 24px;
+    }
+    .c-h1 em { color: #D4A55E; font-style: italic; }
+    .c-body { font-size: 17px; color: rgba(240,232,216,0.48); line-height: 1.7; margin-bottom: 40px; max-width: 400px; font-weight: 400; }
+    .c-btns { display: flex; gap: 14px; margin-bottom: 36px; flex-wrap: wrap; }
+    .c-btn-p { background: #D4A55E; color: #14110C; border: none; padding: 14px 34px; border-radius: 7px; font-size: 15px; font-weight: 800; cursor: pointer; font-family: 'Mulish', sans-serif; letter-spacing: 0.01em; }
+    .c-btn-s { background: transparent; color: #F0E8D8; border: 1px solid rgba(240,232,216,0.16); padding: 14px 28px; border-radius: 7px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'Mulish', sans-serif; }
+    .c-chips { display: flex; gap: 22px; color: rgba(240,232,216,0.28); font-size: 12px; font-weight: 600; flex-wrap: wrap; }
+    .c-chip { display: flex; align-items: center; gap: 8px; }
+    .c-chip::before { content: "—"; color: #D4A55E; }
+
+    .c-mock { position: relative; padding: 20px; }
+    .c-card { background: #1C1812; border-radius: 18px; border: 1px solid rgba(255,255,255,0.07); box-shadow: 0 4px 8px rgba(0,0,0,0.3), 0 32px 80px rgba(0,0,0,0.55); overflow: hidden; }
+    .c-ch { background: rgba(212,165,94,0.07); border-bottom: 1px solid rgba(255,255,255,0.06); padding: 22px 28px; text-align: center; }
+    .c-ch-label { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #D4A55E; margin-bottom: 6px; }
+    .c-ch-name { font-family: 'Libre Baskerville', serif; font-size: 26px; color: #F0E8D8; }
+    .c-ch-date { font-size: 12px; color: rgba(240,232,216,0.35); margin-top: 5px; }
+    .c-row { display: flex; align-items: center; gap: 14px; padding: 15px 22px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .c-row:last-of-type { border-bottom: none; }
+    .c-icon { width: 42px; height: 42px; border-radius: 11px; background: rgba(212,165,94,0.1); display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; }
+    .c-info { flex: 1; min-width: 0; }
+    .c-name { font-size: 13px; font-weight: 700; color: #F0E8D8; }
+    .c-meta { font-size: 11px; color: rgba(240,232,216,0.35); margin-top: 3px; }
+    .c-tag-r { background: #D4A55E; color: #14110C; font-size: 11px; font-weight: 800; padding: 5px 11px; border-radius: 5px; white-space: nowrap; }
+    .c-tag-d { background: rgba(255,255,255,0.06); color: rgba(240,232,216,0.25); font-size: 11px; font-weight: 600; padding: 5px 11px; border-radius: 5px; white-space: nowrap; }
+    .c-cf { background: rgba(0,0,0,0.2); border-top: 1px solid rgba(255,255,255,0.04); padding: 12px 22px; display: flex; justify-content: space-between; align-items: center; }
+    .c-cf p { font-size: 11px; color: rgba(240,232,216,0.25); }
+    .c-bar { width: 80px; height: 2px; background: rgba(255,255,255,0.08); border-radius: 1px; overflow: hidden; }
+    .c-fill { width: 25%; height: 100%; background: #D4A55E; border-radius: 1px; }
+
+    .c-fb-t { position: absolute; top: 4px; right: -4px; background: #1C1812; border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 11px 16px; box-shadow: 0 6px 28px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 9px; z-index: 10; }
+    .c-fb-b { position: absolute; bottom: 4px; left: -4px; background: #D4A55E; border-radius: 14px; padding: 11px 16px; box-shadow: 0 8px 28px rgba(212,165,94,0.35); display: flex; align-items: center; gap: 9px; z-index: 10; }
+    .c-ft { font-size: 11px; font-weight: 700; color: #F0E8D8; line-height: 1.2; }
+    .c-fs { font-size: 10px; color: rgba(240,232,216,0.35); margin-top: 2px; }
+    .c-ftk { font-size: 11px; font-weight: 800; color: #14110C; line-height: 1.2; }
+    .c-fsk { font-size: 10px; color: rgba(20,17,12,0.55); margin-top: 2px; }
+
+    .c-strip { background: rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); padding: 16px 56px; display: flex; justify-content: center; gap: 52px; }
+    .c-strip span { font-size: 13px; color: rgba(240,232,216,0.3); display: flex; align-items: center; gap: 8px; font-weight: 500; }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════
+     OPTION A  ·  WARM HERITAGE
+     Cormorant Garamond + Inter  ·  refined terracotta + ivory
+════════════════════════════════════════════════════════════ -->
+<div class="option-label"><strong>Option A</strong> &nbsp;·&nbsp; Warm Heritage &nbsp;·&nbsp; Cormorant Garamond + Inter &nbsp;·&nbsp; terracotta on ivory</div>
+<div class="a">
+  <nav class="a-nav">
+    <div class="a-logo">SimchaList</div>
+    <div class="a-links">
+      <a href="#">How it works</a>
+      <a href="#">Inspiration</a>
+      <a href="#">FAQ</a>
+      <button class="a-cta-nav">Get started</button>
+    </div>
+  </nav>
+
+  <div class="a-hero">
+    <!-- Copy -->
+    <div>
+      <div class="a-pill">
+        <div class="a-pill-dot"></div>
+        <span>The Israeli Gift Registry</span>
+      </div>
+      <h1 class="a-h1">Your registry,<br><em>beautifully<br>done.</em></h1>
+      <p class="a-body">Add gifts from any Israeli retailer, share one link with guests, and receive exactly what you want.</p>
+      <div class="a-btns">
+        <button class="a-btn-p">Create free registry</button>
+        <button class="a-btn-s">Browse gift ideas →</button>
+      </div>
+      <div class="a-chips">
+        <span class="a-chip">Completely free</span>
+        <span class="a-chip">No credit card</span>
+        <span class="a-chip">WhatsApp sharing</span>
+      </div>
+    </div>
+
+    <!-- Mockup -->
+    <div class="a-mock">
+      <div class="a-fb-t">
+        <span style="font-size:18px">🔒</span>
+        <div>
+          <div class="a-ft">Duplicate-proof</div>
+          <div class="a-fs">Gifts reserved in real-time</div>
+        </div>
+      </div>
+
+      <div class="a-card">
+        <div class="a-ch">
+          <div class="a-ch-label">Gift Registry</div>
+          <div class="a-ch-name">Sarah &amp; David</div>
+          <div class="a-ch-date">June 12, 2025 · Tel Aviv</div>
+        </div>
+        <div class="a-row">
+          <div class="a-icon">🛏️</div>
+          <div class="a-info">
+            <div class="a-name">IKEA HEMNES Bed Frame</div>
+            <div class="a-meta">IKEA · ₪1,699</div>
+          </div>
+          <span class="a-tag-r">Reserve</span>
+        </div>
+        <div class="a-row" style="opacity:0.42">
+          <div class="a-icon">🍴</div>
+          <div class="a-info">
+            <div class="a-name">KitchenAid Stand Mixer</div>
+            <div class="a-meta">ACE · ₪1,490</div>
+          </div>
+          <span class="a-tag-d">Reserved</span>
+        </div>
+        <div class="a-row">
+          <div class="a-icon">🛋️</div>
+          <div class="a-info">
+            <div class="a-name">Velvet Cushion Set ×4</div>
+            <div class="a-meta">FOX HOME · ₪249</div>
+          </div>
+          <span class="a-tag-r">Reserve</span>
+        </div>
+        <div class="a-cf">
+          <p>1 of 12 gifts reserved</p>
+          <div class="a-dots">
+            <div class="a-dot" style="background:#B87C5A"></div>
+            <div class="a-dot" style="background:#DDD0C2"></div>
+            <div class="a-dot" style="background:#DDD0C2"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="a-fb-b">
+        <span style="font-size:18px">📲</span>
+        <div>
+          <div class="a-ftw">Share via WhatsApp</div>
+          <div class="a-fsw">Guests need no account</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="a-strip">
+    <span>🏪 All major Israeli retailers</span>
+    <span>🎁 Any gift category</span>
+    <span>🔒 Duplicate-gift protection</span>
+    <span>💸 100% free forever</span>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     OPTION B  ·  MODERN CLEAN
+     Plus Jakarta Sans  ·  white + slate-navy accent
+════════════════════════════════════════════════════════════ -->
+<div class="option-label"><strong>Option B</strong> &nbsp;·&nbsp; Modern Clean &nbsp;·&nbsp; Plus Jakarta Sans &nbsp;·&nbsp; white + slate-navy</div>
+<div class="b">
+  <nav class="b-nav">
+    <div class="b-logo">Simcha<span>List</span></div>
+    <div class="b-links">
+      <a href="#">How it works</a>
+      <a href="#">Inspiration</a>
+      <a href="#">FAQ</a>
+      <button class="b-cta-nav">Get started</button>
+    </div>
+  </nav>
+
+  <div class="b-hero">
+    <div>
+      <div class="b-pill">
+        <div class="b-pill-dot"></div>
+        <span>Israeli Gift Registry</span>
+      </div>
+      <h1 class="b-h1">The smarter<br>way to build<br>your <span>registry.</span></h1>
+      <p class="b-body">Add gifts from any Israeli retailer, share one link with guests, and receive exactly what you want — all for free.</p>
+      <div class="b-btns">
+        <button class="b-btn-p">Create free registry</button>
+        <button class="b-btn-s">Browse gift ideas →</button>
+      </div>
+      <div class="b-chips">
+        <span class="b-chip">Completely free</span>
+        <span class="b-chip">No credit card</span>
+        <span class="b-chip">WhatsApp sharing</span>
+      </div>
+    </div>
+
+    <div class="b-mock">
+      <div class="b-fb-t">
+        <span style="font-size:18px">🔒</span>
+        <div>
+          <div class="b-ft">Duplicate-proof</div>
+          <div class="b-fs">Gifts reserved in real-time</div>
+        </div>
+      </div>
+
+      <div class="b-card">
+        <div class="b-ch">
+          <div class="b-ch-label">Gift Registry</div>
+          <div class="b-ch-name">Sarah &amp; David</div>
+          <div class="b-ch-date">June 12, 2025 · Tel Aviv</div>
+        </div>
+        <div class="b-row">
+          <div class="b-icon">🛏️</div>
+          <div class="b-info">
+            <div class="b-name">IKEA HEMNES Bed Frame</div>
+            <div class="b-meta">IKEA · ₪1,699</div>
+          </div>
+          <span class="b-tag-r">Reserve</span>
+        </div>
+        <div class="b-row" style="opacity:0.38">
+          <div class="b-icon">🍴</div>
+          <div class="b-info">
+            <div class="b-name">KitchenAid Stand Mixer</div>
+            <div class="b-meta">ACE · ₪1,490</div>
+          </div>
+          <span class="b-tag-d">Reserved</span>
+        </div>
+        <div class="b-row">
+          <div class="b-icon">🛋️</div>
+          <div class="b-info">
+            <div class="b-name">Velvet Cushion Set ×4</div>
+            <div class="b-meta">FOX HOME · ₪249</div>
+          </div>
+          <span class="b-tag-r">Reserve</span>
+        </div>
+        <div class="b-cf">
+          <p>1 of 12 gifts reserved</p>
+          <div class="b-bar"><div class="b-fill"></div></div>
+        </div>
+      </div>
+
+      <div class="b-fb-b">
+        <span style="font-size:18px">📲</span>
+        <div>
+          <div class="b-ftw">Share via WhatsApp</div>
+          <div class="b-fsw">Guests need no account</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="b-strip">
+    <span>🏪 All major Israeli retailers</span>
+    <span>🎁 Any gift category</span>
+    <span>🔒 Duplicate-gift protection</span>
+    <span>💸 100% free forever</span>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     OPTION C  ·  MIDNIGHT LUXE
+     Libre Baskerville + Mulish  ·  deep dark warm + gold
+════════════════════════════════════════════════════════════ -->
+<div class="option-label"><strong>Option C</strong> &nbsp;·&nbsp; Midnight Luxe &nbsp;·&nbsp; Libre Baskerville + Mulish &nbsp;·&nbsp; dark warm + gold</div>
+<div class="c">
+  <nav class="c-nav">
+    <div class="c-logo">SimchaList</div>
+    <div class="c-links">
+      <a href="#">How it works</a>
+      <a href="#">Inspiration</a>
+      <a href="#">FAQ</a>
+      <button class="c-cta-nav">Get started</button>
+    </div>
+  </nav>
+
+  <div class="c-hero">
+    <div>
+      <div class="c-eyebrow">
+        <div class="c-line"></div>
+        <span class="c-eye-txt">The Israeli Gift Registry</span>
+      </div>
+      <h1 class="c-h1">Your registry,<br><em>beautifully<br>done.</em></h1>
+      <p class="c-body">Add gifts from any Israeli retailer, share one link with guests, and receive exactly what you want.</p>
+      <div class="c-btns">
+        <button class="c-btn-p">Create free registry</button>
+        <button class="c-btn-s">Browse gift ideas →</button>
+      </div>
+      <div class="c-chips">
+        <span class="c-chip">Completely free</span>
+        <span class="c-chip">No credit card</span>
+        <span class="c-chip">WhatsApp sharing</span>
+      </div>
+    </div>
+
+    <div class="c-mock">
+      <div class="c-fb-t">
+        <span style="font-size:18px">🔒</span>
+        <div>
+          <div class="c-ft">Duplicate-proof</div>
+          <div class="c-fs">Gifts reserved in real-time</div>
+        </div>
+      </div>
+
+      <div class="c-card">
+        <div class="c-ch">
+          <div class="c-ch-label">Gift Registry</div>
+          <div class="c-ch-name">Sarah &amp; David</div>
+          <div class="c-ch-date">June 12, 2025 · Tel Aviv</div>
+        </div>
+        <div class="c-row">
+          <div class="c-icon">🛏️</div>
+          <div class="c-info">
+            <div class="c-name">IKEA HEMNES Bed Frame</div>
+            <div class="c-meta">IKEA · ₪1,699</div>
+          </div>
+          <span class="c-tag-r">Reserve</span>
+        </div>
+        <div class="c-row" style="opacity:0.4">
+          <div class="c-icon">🍴</div>
+          <div class="c-info">
+            <div class="c-name">KitchenAid Stand Mixer</div>
+            <div class="c-meta">ACE · ₪1,490</div>
+          </div>
+          <span class="c-tag-d">Reserved</span>
+        </div>
+        <div class="c-row">
+          <div class="c-icon">🛋️</div>
+          <div class="c-info">
+            <div class="c-name">Velvet Cushion Set ×4</div>
+            <div class="c-meta">FOX HOME · ₪249</div>
+          </div>
+          <span class="c-tag-r">Reserve</span>
+        </div>
+        <div class="c-cf">
+          <p>1 of 12 gifts reserved</p>
+          <div class="c-bar"><div class="c-fill"></div></div>
+        </div>
+      </div>
+
+      <div class="c-fb-b">
+        <span style="font-size:18px">📲</span>
+        <div>
+          <div class="c-ftk">Share via WhatsApp</div>
+          <div class="c-fsk">Guests need no account</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="c-strip">
+    <span>🏪 All major Israeli retailers</span>
+    <span>🎁 Any gift category</span>
+    <span>🔒 Duplicate-gift protection</span>
+    <span>💸 100% free forever</span>
+  </div>
+</div>
+
+</body>
+</html>

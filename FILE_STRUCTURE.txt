@@ -1,0 +1,81 @@
+=== F08, F10, F11 IMPLEMENTATION - FILE STRUCTURE ===
+
+All file paths are absolute from /sessions/hopeful-sleepy-gates/mnt/Desktop/registry-website/
+
+TYPES
+----
+src/types/analytics.ts - Click event and stats types
+src/types/admin.ts - Report and AdminAction types
+
+LIBRARIES
+---------
+src/lib/tracking.ts - Privacy-aware click tracking (trackOutboundClick, appendUtmParams)
+src/lib/rate-limit.ts - In-memory rate limiter
+
+API ROUTES - ANALYTICS (F10)
+-----------------------------
+src/app/api/track/route.ts - Public click tracker (POST, rate-limited)
+src/app/api/events/[eventId]/clicks/route.ts - Get click stats (GET, owner only)
+
+API ROUTES - EXPORT (F08)
+--------------------------
+src/app/api/events/[eventId]/export/route.ts - CSV export (GET, owner only)
+
+API ROUTES - ADMIN (F11)
+------------------------
+src/app/api/admin/events/route.ts - Search and disable events (GET/POST, admin)
+src/app/api/admin/events/[eventId]/route.ts - Event detail and status (GET/PUT, admin)
+src/app/api/admin/reports/route.ts - List and create reports (GET/POST, admin/public)
+src/app/api/admin/reports/[reportId]/route.ts - Report detail and resolution (GET/PUT, admin)
+src/app/api/admin/audit/route.ts - Audit log (GET, admin only)
+
+DASHBOARD COMPONENTS (F08)
+---------------------------
+src/components/dashboard/MetricsCards.tsx - Summary metrics display
+src/components/dashboard/GiftOverviewTable.tsx - Filterable gift table
+src/components/dashboard/ExportButton.tsx - CSV export button
+src/components/dashboard/ShareEventLink.tsx - Event sharing UI
+src/components/dashboard/AnalyticsPanel.tsx - Click statistics display
+
+ANALYTICS COMPONENTS (F10)
+--------------------------
+src/components/ClickTracker.tsx - Click tracking wrapper
+
+ADMIN COMPONENTS (F11)
+---------------------
+src/components/admin/EventSearch.tsx - Event search and disable
+src/components/admin/ReportList.tsx - Report management
+src/components/admin/AuditLog.tsx - Admin action history
+
+PUBLIC COMPONENTS (F11)
+-----------------------
+src/components/ReportButton.tsx - Guest report submission
+
+PAGES (F08)
+----------
+src/app/[locale]/dashboard/events/[eventId]/dashboard-page.tsx - Event dashboard
+
+PAGES (F11)
+----------
+src/app/[locale]/admin/page.tsx - Admin dashboard (protected)
+
+UPDATED FILES
+-------------
+src/lib/db/mock.ts - Added click events, admin actions, reports functions
+src/lib/validators.ts - Added validators for analytics, admin, reports
+messages/en.json - Added translation keys
+src/middleware.ts - Added /admin/* protection
+src/components/products/ProductCard.tsx - Added click tracking
+src/components/funds/FundCard.tsx - Added click tracking
+src/components/bundles/BundleCard.tsx - Added click tracking
+
+DOCUMENTATION
+--------------
+IMPLEMENTATION_SUMMARY.md - Detailed implementation overview
+FEATURES_QUICK_REFERENCE.md - Quick usage guide
+FILE_STRUCTURE.txt - This file
+
+=== SUMMARY ===
+Total New Files: 30
+Total Updated Files: 7
+Features: 3 (F08, F10, F11)
