@@ -27,7 +27,7 @@ function showSignedIn(auth) {
   document.getElementById("sign-out-btn").addEventListener("click", async () => {
     await chrome.runtime.sendMessage({ type: "SIGN_OUT" });
     showSignedOut();
-  });
+  }, { once: true });
 }
 
 function showSignedOut() {
@@ -35,6 +35,8 @@ function showSignedOut() {
   document.getElementById("signed-out").style.display = "block";
 
   document.getElementById("sign-in-btn").addEventListener("click", () => {
+    // Prevent double-click
+    document.getElementById("sign-in-btn").disabled = true;
     const redirectUri = chrome.identity.getRedirectURL("callback");
     const authUrl =
       `${API_BASE}/en/auth/extension?redirect_uri=${encodeURIComponent(redirectUri)}`;

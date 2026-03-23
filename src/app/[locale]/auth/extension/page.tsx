@@ -16,6 +16,16 @@ export default async function ExtensionAuthPage({
     return <div>Missing redirect_uri parameter.</div>;
   }
 
+  // Validate redirect_uri to prevent open redirect token theft
+  try {
+    const parsed = new URL(redirect_uri);
+    if (!parsed.hostname.endsWith(".chromiumapp.org")) {
+      return <div>Invalid redirect URI.</div>;
+    }
+  } catch {
+    return <div>Invalid redirect URI.</div>;
+  }
+
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 

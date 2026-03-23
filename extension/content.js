@@ -52,7 +52,12 @@
     toast.className = `registry-ext-toast registry-ext-toast--${type}`;
 
     const icons = { success: "\u2713", error: "!", info: "\u2605", unsupported: "\u2022" };
-    toast.innerHTML = `<span>${icons[type] || ""}</span><span>${message}</span>`;
+    const iconSpan = document.createElement("span");
+    iconSpan.textContent = icons[type] || "";
+    const msgSpan = document.createElement("span");
+    msgSpan.textContent = message;
+    toast.appendChild(iconSpan);
+    toast.appendChild(msgSpan);
 
     if (link) {
       const a = document.createElement("a");

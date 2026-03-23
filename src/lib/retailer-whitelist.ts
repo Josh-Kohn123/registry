@@ -43,7 +43,8 @@ export function isRetailerWhitelisted(urlString: string): boolean {
   if (!domain) return false;
 
   return RETAILER_WHITELIST.some(
-    (retailer) => retailer.domain === domain
+    (retailer) =>
+      retailer.domain === domain || domain.endsWith("." + retailer.domain)
   );
 }
 
