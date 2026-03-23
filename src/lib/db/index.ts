@@ -160,10 +160,15 @@ function mapReservationFromPrisma(reservation: any): Reservation {
     eventId: reservation.eventId,
     guestName: reservation.guestName,
     guestEmail: reservation.guestEmail,
+    guestPhone: reservation.guestPhone,
+    guestMessage: reservation.guestMessage,
     status: reservation.status,
     expiresAt: reservation.expiresAt,
     confirmedAt: reservation.confirmedAt,
     receivedAt: reservation.receivedAt,
+    cancelToken: reservation.cancelToken,
+    reminderSentAt: reservation.reminderSentAt,
+    locale: reservation.locale ?? "en",
     chosenAddressId: reservation.chosenAddressId,
     productLinkId: reservation.productLinkId,
     bundleId: reservation.bundleId,
@@ -845,6 +850,103 @@ export async function deleteReservation(id: string): Promise<void> {
   await prisma.reservation.delete({
     where: { id },
   });
+}
+
+export async function getReservationByCancelToken(
+  token: string
+): Promise<Reservation | null> {
+  const reservation = await prisma.reservation.findUnique({
+    where: { cancelToken: token },
+  });
+
+  if (!reservation) return null;
+  return mapReservationFromPrisma(reservation);
+}
+
+export async function getReservationsDueForReminder(): Promise<Reservation[]> {
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+  const reservations = await prisma.reservation.findMany({
+    where: {
+      status: "RESERVED",
+      reminderSentAt: null,
+      createdAt: { lte: oneHourAgo },
+      expiresAt: { gt: new Date() },
+    },
+  });
+  return reservations.map(mapReservationFromPrisma);
+}
+
+export async function getExpiredReservations(): Promise<Reservation[]> {
+  const reservations = await prisma.reservation.findMany({
+    where: {
+      status: "RESERVED",
+      expiresAt: { lte: new Date() },
+    },
+  });
+  return reservations.map(mapReservationFromPrisma);
+}
+
+export async function markReservationsExpired(ids: string[]): Promise<number> {
+  const result = await prisma.reservation.updateMany({
+    where: {
+      id: { in: ids },
+      status: "RESERVED", // only expire if still RESERVED (race-condition safe)
+    },
+    data: { status: "EXPIRED" },
+  });
+  return result.count;
+}
+
+export async function getReservationWithItemsById(id: string) {
+  const r = await prisma.reservation.findUnique({
+    where: { id },
+    include: {
+      productLink: { select: { id: true, title: true, imageUrl: true, estimatedPrice: true, url: true, retailerDomain: true } },
+      bundle: {
+        select: {
+          id: true, title: true, imageUrl: true, targetAmount: true, storeDomain: true,
+          items: { select: { id: true, title: true, url: true, imageUrl: true, estimatedPrice: true } },
+        },
+      },
+      event: { select: { id: true, title: true, coupleFirstName: true, coupleSecondName: true, slug: true, locale: true, owners: { select: { profileId: true } } } },
+    },
+  });
+
+  if (!r) return null;
+  return {
+    ...mapReservationFromPrisma(r),
+    product: r.productLink ? {
+      id: r.productLink.id,
+      title: r.productLink.title,
+      imageUrl: r.productLink.imageUrl ?? undefined,
+      estimatedPrice: r.productLink.estimatedPrice ?? undefined,
+      url: r.productLink.url,
+      retailerDomain: r.productLink.retailerDomain,
+    } : undefined,
+    bundle: r.bundle ? {
+      id: r.bundle.id,
+      title: r.bundle.title,
+      imageUrl: r.bundle.imageUrl ?? undefined,
+      targetAmount: r.bundle.targetAmount,
+      storeDomain: r.bundle.storeDomain,
+      items: r.bundle.items.map((item) => ({
+        id: item.id,
+        title: item.title,
+        url: item.url,
+        imageUrl: item.imageUrl ?? undefined,
+        estimatedPrice: item.estimatedPrice ?? undefined,
+      })),
+    } : undefined,
+    event: {
+      id: r.event.id,
+      title: r.event.title,
+      coupleFirstName: r.event.coupleFirstName,
+      coupleSecondName: r.event.coupleSecondName,
+      slug: r.event.slug,
+      locale: r.event.locale,
+      ownerProfileIds: r.event.owners.map((o) => o.profileId),
+    },
+  };
 }
 
 // Address operations

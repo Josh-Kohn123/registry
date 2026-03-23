@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useLocale } from "next-intl";
 
 interface GuestReservationFormProps {
-  onReserve: (guestName: string, guestEmail?: string, guestPhone?: string) => void;
+  onReserve: (guestName: string, guestEmail: string, guestMessage?: string) => void;
   onCancel: () => void;
   isLoading: boolean;
   error?: string | null;
@@ -20,12 +20,12 @@ export default function GuestReservationForm({
   const isHe = locale === "he";
   const [guestName, setGuestName] = useState("");
   const [guestEmail, setGuestEmail] = useState("");
-  const [guestPhone, setGuestPhone] = useState("");
+  const [guestMessage, setGuestMessage] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!guestName.trim() || !guestEmail.trim()) return;
-    onReserve(guestName.trim(), guestEmail.trim(), guestPhone.trim() || undefined);
+    onReserve(guestName.trim(), guestEmail.trim(), guestMessage.trim() || undefined);
   };
 
   return (
@@ -69,24 +69,19 @@ export default function GuestReservationForm({
               required
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <p className="text-xs text-blue-600 mt-1 font-medium">
-              {isHe
-                ? "כתובת המשלוח תישלח לאימייל זה לאחר השריון"
-                : "The delivery address will be sent to this email after reservation"}
-            </p>
           </div>
 
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2">
-              {isHe ? "טלפון (אופציונלי)" : "Phone (optional)"}
+              {isHe ? "הודעה לזוג (אופציונלי)" : "Message for the couple (optional)"}
             </label>
-            <input
-              type="tel"
-              value={guestPhone}
-              onChange={(e) => setGuestPhone(e.target.value)}
-              placeholder={isHe ? "050-1234567" : "050-1234567"}
-              dir="ltr"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            <textarea
+              value={guestMessage}
+              onChange={(e) => setGuestMessage(e.target.value)}
+              placeholder={isHe ? "כתוב הודעה אישית..." : "Write a personal message..."}
+              maxLength={500}
+              rows={3}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
             />
           </div>
 

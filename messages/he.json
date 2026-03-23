@@ -171,7 +171,20 @@
     "statusReceived": "התקבל",
     "statusExpired": "פקע",
     "statusCancelled": "בוטל",
-    "noReservations": "אין הזמנות עדיין"
+    "noReservations": "אין הזמנות עדיין",
+    "reservationConfirmed": "השריון אושר!",
+    "checkEmailForDetails": "בדוק את האימייל שלך ב-{email} לפרטי משלוח וקישור לאישור רכישה.",
+    "guestMessage": "הודעה לזוג (אופציונלי)",
+    "guestMessagePlaceholder": "כתוב הודעה אישית...",
+    "activeReservation": "שריון פעיל",
+    "checkEmailToConfirm": "בדוק את האימייל שלך לאישור הרכישה.",
+    "reminderSent": "תזכורת נשלחה",
+    "message": "הודעה",
+    "purchaseConfirmedTitle": "הרכישה אושרה!",
+    "purchaseConfirmedMessage": "תודה רבה! הזוג קיבל הודעה על המתנה שלך.",
+    "reservationCancelledTitle": "השריון בוטל",
+    "reservationCancelledMessage": "השריון שלך בוטל. הפריט זמין כעת לאחרים.",
+    "canClosePage": "אפשר לסגור דף זה."
   },
   "addresses": {
     "manageAddresses": "ניהול כתובות משלוח",

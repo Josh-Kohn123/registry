@@ -11,10 +11,15 @@ export interface Reservation {
   eventId: string;
   guestName: string;
   guestEmail?: string;
+  guestPhone?: string;
+  guestMessage?: string;
   status: ReservationStatus;
   expiresAt?: Date;
   confirmedAt?: Date;
   receivedAt?: Date;
+  cancelToken?: string;
+  reminderSentAt?: Date;
+  locale: string;
   chosenAddressId?: string;
   productLinkId?: string;
   bundleId?: string;
@@ -41,6 +46,9 @@ export interface ReservationWithItem extends Reservation {
 export interface CreateReservationInput {
   guestName: string;
   guestEmail?: string;
+  guestPhone?: string;
+  guestMessage?: string;
+  locale?: string;
   productLinkId?: string;
   bundleId?: string;
 }

@@ -85,8 +85,10 @@ export type FundContributeInput = z.infer<typeof fundContributeSchema>;
 // Reservation Validators
 export const reservationCreateSchema = z.object({
   guestName: z.string().min(1, "Guest name is required").max(200),
-  guestEmail: z.string().optional().or(z.literal("")),
+  guestEmail: z.string().email("Valid email is required"),
   guestPhone: z.string().optional().or(z.literal("")),
+  guestMessage: z.string().max(500).optional().or(z.literal("")),
+  locale: z.enum(["en", "he"]).optional(),
   productLinkId: z.string().optional(),
   bundleId: z.string().optional(),
 }).refine((data) => data.productLinkId || data.bundleId, {

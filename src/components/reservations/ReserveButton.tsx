@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useLocale } from "next-intl";
 import { Reservation } from "@/types/reservation";
 import GuestReservationForm from "./GuestReservationForm";
-import ConfirmPurchaseModal from "./ConfirmPurchaseModal";
 
 interface ReserveButtonProps {
   eventId: string;
@@ -26,13 +25,14 @@ export default function ReserveButton({
   existingReservation = null,
 }: ReserveButtonProps) {
   const locale = useLocale();
+  const isHe = locale === "he";
   const [showForm, setShowForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [reservation, setReservation] = useState<Reservation | null>(existingReservation);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [successEmail, setSuccessEmail] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleReserve = async (guestName: string, guestEmail?: string, guestPhone?: string) => {
+  const handleReserve = async (guestName: string, guestEmail: string, guestMessage?: string) => {
     setIsLoading(true);
     setError(null);
 
@@ -45,7 +45,8 @@ export default function ReserveButton({
           body: JSON.stringify({
             guestName,
             guestEmail,
-            guestPhone,
+            guestMessage,
+            locale,
             productLinkId,
             bundleId,
           }),
@@ -62,10 +63,10 @@ export default function ReserveButton({
       const data: Reservation = await response.json();
       setReservation(data);
       setShowForm(false);
+      setSuccessEmail(guestEmail);
 
       // For bundles: open all item URLs sequentially so guest can add each to cart
       if (bundleItemUrls && bundleItemUrls.length > 0) {
-        // Open each product page with a small delay to avoid popup blockers
         for (let i = 0; i < bundleItemUrls.length; i++) {
           if (i === 0) {
             window.open(bundleItemUrls[i], "_blank");
@@ -87,18 +88,20 @@ export default function ReserveButton({
     }
   };
 
-  const handleConfirmPurchase = () => {
-    setReservation(null);
-    setShowConfirmModal(false);
-  };
-
-  // Show confirm modal when it was just reserved OR when returning guest clicks "Confirm Purchase"
-  if ((reservation && !existingReservation) || showConfirmModal) {
+  // Show success message after reservation is created
+  if (successEmail && reservation) {
     return (
-      <ConfirmPurchaseModal
-        reservation={reservation!}
-        onConfirmed={handleConfirmPurchase}
-      />
+      <div className="w-full bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+        <div className="text-green-600 text-lg mb-1">✓</div>
+        <p className="text-sm font-medium text-green-800">
+          {isHe ? "השריון אושר!" : "Reservation confirmed!"}
+        </p>
+        <p className="text-xs text-green-700 mt-1">
+          {isHe
+            ? `בדוק את האימייל שלך ב-${successEmail} לפרטי משלוח וקישור לאישור רכישה.`
+            : `Check your email at ${successEmail} for shipping details and purchase confirmation.`}
+        </p>
+      </div>
     );
   }
 
@@ -113,15 +116,19 @@ export default function ReserveButton({
     );
   }
 
-  // Returning guest with existing reservation — show "Confirm Purchase" button
+  // Returning guest with existing reservation — show status
   if (existingReservation && reservation) {
     return (
-      <button
-        onClick={() => setShowConfirmModal(true)}
-        className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
-      >
-        {locale === "he" ? "אשר מתנה" : "Confirm Purchase"}
-      </button>
+      <div className="w-full bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-center">
+        <p className="text-sm font-medium text-yellow-800">
+          {isHe ? "שריון פעיל" : "Reserved"}
+        </p>
+        <p className="text-xs text-yellow-700 mt-1">
+          {isHe
+            ? "בדוק את האימייל שלך לאישור הרכישה."
+            : "Check your email to confirm your purchase."}
+        </p>
+      </div>
     );
   }
 
@@ -131,7 +138,7 @@ export default function ReserveButton({
       disabled={isDisabled}
       className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 text-sm font-medium"
     >
-      {locale === "he" ? "שריין וקנה בחנות" : "Reserve & Go to Store"}
+      {isHe ? "שריין וקנה בחנות" : "Reserve & Go to Store"}
     </button>
   );
 }

@@ -198,9 +198,21 @@ export default function ReservationList({ eventId }: ReservationListProps) {
                 {reservation.guestEmail && (
                   <p className="text-sm text-gray-600" dir="ltr">{reservation.guestEmail}</p>
                 )}
+                {reservation.guestPhone && (
+                  <p className="text-sm text-gray-500" dir="ltr">{reservation.guestPhone}</p>
+                )}
               </div>
               <ReservationStatus reservation={reservation} />
             </div>
+
+            {reservation.guestMessage && (
+              <div className="mt-2 bg-blue-50 border border-blue-100 rounded p-2">
+                <p className="text-xs text-blue-600 font-medium mb-1">
+                  {isHe ? "הודעה:" : "Message:"}
+                </p>
+                <p className="text-sm text-blue-800">{reservation.guestMessage}</p>
+              </div>
+            )}
 
             <div className="mt-3 text-sm text-gray-600">
               {reservation.expiresAt && (
@@ -213,6 +225,12 @@ export default function ReservationList({ eventId }: ReservationListProps) {
                 <p>
                   {isHe ? "אושר:" : "Confirmed:"}{" "}
                   {new Date(reservation.confirmedAt).toLocaleString(isHe ? "he-IL" : "en-US")}
+                </p>
+              )}
+              {reservation.reminderSentAt && (
+                <p className="text-yellow-600">
+                  {isHe ? "תזכורת נשלחה:" : "Reminder sent:"}{" "}
+                  {new Date(reservation.reminderSentAt).toLocaleString(isHe ? "he-IL" : "en-US")}
                 </p>
               )}
             </div>

@@ -170,7 +170,20 @@
     "statusReceived": "Received",
     "statusExpired": "Expired",
     "statusCancelled": "Cancelled",
-    "noReservations": "No reservations yet"
+    "noReservations": "No reservations yet",
+    "reservationConfirmed": "Reservation confirmed!",
+    "checkEmailForDetails": "Check your email at {email} for shipping details and purchase confirmation.",
+    "guestMessage": "Message for the couple (optional)",
+    "guestMessagePlaceholder": "Write a personal message...",
+    "activeReservation": "Reserved",
+    "checkEmailToConfirm": "Check your email to confirm your purchase.",
+    "reminderSent": "Reminder sent",
+    "message": "Message",
+    "purchaseConfirmedTitle": "Purchase Confirmed!",
+    "purchaseConfirmedMessage": "Thank you! The couple has been notified about your gift.",
+    "reservationCancelledTitle": "Reservation Cancelled",
+    "reservationCancelledMessage": "Your reservation has been cancelled. The item is now available for others.",
+    "canClosePage": "You can close this page."
   },
   "addresses": {
     "manageAddresses": "Manage Delivery Addresses",
