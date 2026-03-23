@@ -1111,3 +1111,20 @@ export async function updateReport(
 
   return mapReportFromPrisma(report);
 }
+
+// Extension Tokens
+export async function createExtensionToken(
+  profileId: string,
+  tokenHash: string
+) {
+  return prisma.extensionToken.create({
+    data: { profileId, tokenHash },
+  });
+}
+
+export async function revokeExtensionTokensForProfile(profileId: string) {
+  return prisma.extensionToken.updateMany({
+    where: { profileId, revokedAt: null },
+    data: { revokedAt: new Date() },
+  });
+}
