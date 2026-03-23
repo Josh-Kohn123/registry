@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Add products to your wedding registry with one click while shopping.",
   "permissions": ["storage", "identity"],
-  "host_permissions": ["https://*/*"],
+  "host_permissions": ["https://*/*", "http://localhost/*"],
   "background": {
     "service_worker": "background.js"
   },
