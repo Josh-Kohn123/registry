@@ -40,6 +40,15 @@ export const productCreateSchema = z.object({
   category: z.enum(["kitchen", "bedroom", "bathroom", "living-room", "decor", "electronics", "outdoor", "other"]),
 });
 
+export const extensionProductSchema = z.object({
+  url: z.string().url("Invalid URL"),
+  title: z.string().min(1).max(200),
+  imageUrl: z.string().url().optional(),
+  estimatedPrice: z.number().positive().optional(),
+});
+
+export type ExtensionProductInput = z.infer<typeof extensionProductSchema>;
+
 export const productUpdateSchema = z.object({
   title: z.string().max(200).optional(),
   imageUrl: z.string().url().optional(),
