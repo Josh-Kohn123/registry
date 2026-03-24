@@ -123,7 +123,6 @@ For each discovered domain, sequentially with polite 500ms delays:
 
 - Write all discovered retailers to `discovered_retailer` with status `pending`.
 - Update `discovery_batch` with final counts and status `completed`.
-- Update `scripts/discovery-state.json` with queries used in this run.
 - Print summary to console: "Found X new retailers, Y skipped (already known), Z skipped (cooldown). API queries used: N/100."
 
 ### Error handling
@@ -198,7 +197,8 @@ Added as a 4th tab alongside "Event Search", "Reports", and "Audit Log".
 ### Whitelist Management (sub-view)
 
 - Table of all retailers in `retailer_whitelist`.
-- Columns: domain, name, active status, date added.
+- Columns: domain, name, allowedPaths, active status, date added.
+- Inline edit for `name` and `allowedPaths` fields (click to edit).
 - Toggle active/inactive per retailer.
 - Search/filter by domain or name.
 
@@ -209,7 +209,7 @@ Added as a 4th tab alongside "Event Search", "Reports", and "Audit Log".
 | `/api/admin/retailers/discovery`    | GET    | List pending discoveries with batch grouping | `ADMIN_SECRET_KEY`  |
 | `/api/admin/retailers/discovery`    | POST   | Submit batch decisions (approve/reject array)| `ADMIN_SECRET_KEY`  |
 | `/api/admin/retailers`              | GET    | List existing whitelist (paginated)          | `ADMIN_SECRET_KEY`  |
-| `/api/admin/retailers/[id]`         | PUT    | Toggle active/deactivate a retailer          | `ADMIN_SECRET_KEY`  |
+| `/api/admin/retailers/[id]`         | PUT    | Update retailer (name, allowedPaths, isActive) | `ADMIN_SECRET_KEY`  |
 
 ---
 
@@ -232,6 +232,7 @@ Both only needed for the discovery script. Not required for the website to run.
 | ------------ | ------------------------------------------------ | ---------------------------------------------- |
 | **New**      | `prisma/schema.prisma`                           | Add `DiscoveredRetailer` + `DiscoveryBatch` models |
 | **New**      | `scripts/discover-retailers.ts`                  | The discovery bot script                       |
+| **Update**   | `prisma/seed.ts`                                 | Seed existing 15 retailers into retailer_whitelist |
 | **Refactor** | `src/lib/retailer-whitelist.ts`                  | DB-backed with in-memory cache                 |
 | **Update**   | `src/app/api/metadata/route.ts`                  | Async whitelist calls                          |
 | **Update**   | `src/lib/metadata.ts`                            | Async whitelist calls                          |
