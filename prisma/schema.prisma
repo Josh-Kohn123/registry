@@ -385,3 +385,63 @@ model Report {
   @@index([status])
   @@map("reports")
 }
+
+enum DeliveryStatus {
+  yes
+  no
+  unknown
+}
+
+enum DiscoveryStatus {
+  pending
+  approved
+  rejected
+}
+
+enum BatchStatus {
+  running
+  completed
+  failed
+}
+
+model DiscoveryBatch {
+  id               String      @id @default(cuid())
+  startedAt        DateTime    @default(now())
+  completedAt      DateTime?
+  retailersFound   Int         @default(0)
+  retailersSkipped Int         @default(0)
+  searchQueries    String[]
+  status           BatchStatus @default(running)
+
+  discoveries      DiscoveredRetailer[]
+
+  @@map("discovery_batches")
+}
+
+model DiscoveredRetailer {
+  id                 String          @id @default(cuid())
+  domain             String          @unique
+  name               String
+  batchId            String
+  discoverySource    String          // "google_search" or "seed_list"
+  searchQuery        String?
+  hasOgTitle         Boolean         @default(false)
+  hasOgImage         Boolean         @default(false)
+  hasOgPrice         Boolean         @default(false)
+  score              Int             @default(0)
+  deliversToIsrael   DeliveryStatus  @default(unknown)
+  deliveryEvidence   String?
+  sampleProductUrl   String?
+  sampleProductTitle String?
+  sampleImageUrl     String?
+  status             DiscoveryStatus @default(pending)
+  rejectedAt         DateTime?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  batch              DiscoveryBatch  @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([rejectedAt])
+  @@map("discovered_retailers")
+}
