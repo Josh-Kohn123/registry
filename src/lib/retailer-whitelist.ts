@@ -1,28 +1,35 @@
-// Israeli retailer whitelist for product links
-// V1 only allows product links from approved retailers
+import { prisma } from "@/lib/prisma";
 
-export const RETAILER_WHITELIST = [
-  { domain: "foxhome.co.il", name: "FOX HOME" },
-  { domain: "golfco.co.il", name: "Golf & Co" },
-  { domain: "naamanp.co.il", name: "Naaman" },
-  { domain: "ace.co.il", name: "ACE" },
-  { domain: "keter.com", name: "Keter Israel" },
-  { domain: "ikea.com", name: "IKEA" },
-  { domain: "terminalx.com", name: "Terminal X" },
-  { domain: "asos.com", name: "ASOS" },
-  { domain: "amazon.com", name: "Amazon" },
-  { domain: "next.co.il", name: "NEXT" },
-  { domain: "zara.com", name: "Zara" },
-  { domain: "hm.com", name: "H&M" },
-  { domain: "castro.com", name: "Castro" },
-  { domain: "renuar.co.il", name: "Renuar" },
-  { domain: "urbanica.co.il", name: "Urbanica" },
-];
+type WhitelistEntry = {
+  domain: string;
+  name: string;
+  allowedPaths: string | null;
+  isActive: boolean;
+};
+
+// In-memory cache with 5-minute TTL
+let cache: WhitelistEntry[] = [];
+let lastFetched = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+async function getWhitelist(): Promise<WhitelistEntry[]> {
+  const now = Date.now();
+  if (cache.length > 0 && now - lastFetched < CACHE_TTL) {
+    return cache;
+  }
+
+  const entries = await prisma.retailerWhitelist.findMany({
+    where: { isActive: true },
+    select: { domain: true, name: true, allowedPaths: true, isActive: true },
+  });
+
+  cache = entries;
+  lastFetched = now;
+  return cache;
+}
 
 /**
  * Extract domain from URL
- * @param urlString - Full URL
- * @returns Domain hostname (e.g., "foxhome.co.il")
  */
 export function extractDomain(urlString: string): string | null {
   try {
@@ -34,36 +41,70 @@ export function extractDomain(urlString: string): string | null {
 }
 
 /**
- * Check if a URL is from an approved retailer
- * @param urlString - Full URL to validate
- * @returns True if domain is whitelisted
+ * Find the matching whitelist entry for a domain (supports subdomain matching).
  */
-export function isRetailerWhitelisted(urlString: string): boolean {
-  const domain = extractDomain(urlString);
-  if (!domain) return false;
-
-  return RETAILER_WHITELIST.some(
-    (retailer) =>
-      retailer.domain === domain || domain.endsWith("." + retailer.domain)
+async function findMatchingRetailer(domain: string): Promise<WhitelistEntry | undefined> {
+  const whitelist = await getWhitelist();
+  return whitelist.find(
+    (r) => r.domain === domain || domain.endsWith("." + r.domain)
   );
 }
 
 /**
- * Get retailer name by domain
- * @param domain - Retailer domain
- * @returns Friendly name or domain if not found
+ * Check if a URL is from an approved retailer (async, DB-backed).
+ * Also enforces allowedPaths if the retailer has path restrictions.
  */
-export function getRetailerName(domain: string): string {
-  const retailer = RETAILER_WHITELIST.find(
-    (r) => r.domain === domain.toLowerCase()
-  );
+export async function isRetailerWhitelisted(urlString: string): Promise<boolean> {
+  const domain = extractDomain(urlString);
+  if (!domain) return false;
+
+  const retailer = await findMatchingRetailer(domain);
+  if (!retailer) return false;
+
+  // Check path restriction if configured (e.g., Keter's "/he-il/")
+  if (retailer.allowedPaths) {
+    try {
+      const url = new URL(urlString);
+      if (!url.pathname.startsWith(retailer.allowedPaths)) {
+        return false;
+      }
+    } catch {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Get retailer name by domain (async, DB-backed, supports subdomain matching).
+ */
+export async function getRetailerName(domain: string): Promise<string> {
+  const normalized = domain.toLowerCase();
+  const retailer = await findMatchingRetailer(normalized);
   return retailer?.name || domain;
 }
 
 /**
- * Get all whitelisted domains
- * @returns Array of domain strings
+ * Get all whitelisted domains (async, DB-backed)
  */
-export function getWhitelistedDomains(): string[] {
-  return RETAILER_WHITELIST.map((r) => r.domain);
+export async function getWhitelistedDomains(): Promise<string[]> {
+  const whitelist = await getWhitelist();
+  return whitelist.map((r) => r.domain);
 }
+
+/**
+ * @deprecated Use the async functions instead.
+ * This getter exists to catch any missed migration from the old synchronous API.
+ */
+export const RETAILER_WHITELIST: never[] = new Proxy([] as never[], {
+  get(target, prop) {
+    if (prop === "length") return 0;
+    if (typeof prop === "string" && !isNaN(Number(prop))) {
+      throw new Error(
+        "RETAILER_WHITELIST is deprecated. Use getWhitelistedDomains() or getWhitelist() instead."
+      );
+    }
+    return Reflect.get(target, prop);
+  },
+});
