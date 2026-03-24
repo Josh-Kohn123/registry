@@ -4,6 +4,8 @@ import { useTranslations, useLocale } from "next-intl";
 import { EventSearch } from "@/components/admin/EventSearch";
 import { ReportList } from "@/components/admin/ReportList";
 import { AuditLog } from "@/components/admin/AuditLog";
+import { RetailerDiscovery } from "@/components/admin/RetailerDiscovery";
+import { RetailerWhitelist } from "@/components/admin/RetailerWhitelist";
 
 export default function AdminPage() {
   const t = useTranslations();
@@ -41,6 +43,12 @@ export default function AdminPage() {
             >
               {t("admin.auditLog")}
             </a>
+            <a
+              href="#retailers"
+              className="py-4 px-2 border-b-2 border-transparent hover:border-gray-300 text-gray-600 font-medium"
+            >
+              Retailers
+            </a>
           </div>
         </div>
 
@@ -56,6 +64,14 @@ export default function AdminPage() {
 
           <section id="audit">
             <AuditLog />
+          </section>
+
+          <section id="retailers">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Retailer Discovery</h2>
+            <RetailerDiscovery />
+
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4 mt-8">Whitelist Management</h2>
+            <RetailerWhitelist />
           </section>
         </div>
       </div>
