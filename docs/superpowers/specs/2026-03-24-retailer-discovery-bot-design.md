@@ -40,7 +40,7 @@ The registry website whitelist is manually maintained with 15 hardcoded retailer
 | `hasOgImage`       | Boolean       | Whether og:image was found                                     |
 | `hasOgPrice`       | Boolean       | Whether og:price:amount was found                              |
 | `score`            | Int (0-3)     | Sum of the three OG booleans                                   |
-| `deliversToIsrael` | String        | "yes" / "no" / "unknown"                                      |
+| `deliversToIsrael` | Enum          | `yes` / `no` / `unknown`                                      |
 | `deliveryEvidence` | String?       | What made the bot decide (e.g., "Hebrew homepage")             |
 | `sampleProductUrl` | String?       | The product page URL tested                                    |
 | `sampleProductTitle` | String?     | What og:title returned                                         |
@@ -50,7 +50,7 @@ The registry website whitelist is manually maintained with 15 hardcoded retailer
 | `createdAt`        | DateTime      | When discovered                                                |
 | `updatedAt`        | DateTime      | Last modification                                              |
 
-**Indexes:** Unique on `domain` + `batchId`. Index on `status`. Index on `rejectedAt`.
+**Indexes:** Unique on `domain` (globally — a domain can only appear once across all batches; re-discoveries update the existing record rather than creating duplicates). Index on `status`. Index on `rejectedAt`.
 
 ### New table: `discovery_batch`
 
@@ -76,10 +76,11 @@ No schema changes to `retailer_whitelist` — it already has `id`, `domain`, `na
 
 ### Step 1: Load state
 
+- **Concurrency guard:** Check for any `discovery_batch` with status `running`. If one exists, abort with a message ("Another discovery run is already in progress").
 - Create a new `discovery_batch` record with status `running`.
 - Fetch all existing domains from `retailer_whitelist` and `discovered_retailer` to avoid re-checking.
 - Fetch rejected retailers — skip any rejected less than 14 days ago. Re-check those past the cooldown window.
-- Load `scripts/discovery-state.json` to see which search queries were used in previous runs. Rotate to unused queries.
+- Derive query rotation from the database: query `discovery_batch.searchQueries` from the last N batches to determine which queries were recently used. Pick unused queries first. No local state file needed.
 
 ### Step 2: Discover retailer domains
 
@@ -97,14 +98,14 @@ For each discovered domain, sequentially with polite 500ms delays:
 
 **3a. Israel delivery check:**
 
-1. Fetch the homepage. If the page content is primarily Hebrew (detect via character range analysis), mark `deliversToIsrael: "yes"`, evidence: `"Hebrew homepage"`.
+1. Fetch the homepage. Detect Hebrew by checking if >20% of non-whitespace characters in the visible `<body>` text fall in the Hebrew Unicode range (U+0590–U+05FF). If so, mark `deliversToIsrael: "yes"`, evidence: `"Hebrew homepage (X% Hebrew characters)"`.
 2. Otherwise, fetch common paths: `/shipping`, `/delivery`, `/faq`, `/about`, `/help`.
 3. Search page content for keywords: "Israel", "ישראל", "worldwide", "international shipping", "global delivery".
 4. If found → `"yes"` with the matching evidence. If no signal → `"unknown"`.
 
 **3b. Find product pages:**
 
-1. Fetch `robots.txt` → find `Sitemap:` directives.
+1. Fetch `robots.txt` → find `Sitemap:` directives. Respect `Disallow` rules — do not fetch paths the site explicitly disallows for bots.
 2. Parse `sitemap.xml` → filter URLs matching product patterns: paths containing `/product/`, `/p/`, `/item/`, `/shop/`, `/products/`.
 3. If no sitemap or no product URLs found: Google fallback query `site:domain.com product` (costs 1 API query).
 4. If still no product pages: try homepage and look for links matching product URL patterns.
@@ -129,7 +130,8 @@ For each discovered domain, sequentially with polite 500ms delays:
 
 - Individual retailer failures (network timeout, invalid HTML) are logged and skipped — they don't abort the batch.
 - If the script crashes mid-run, already-saved retailers are preserved (each is saved individually after validation).
-- The batch record is marked `failed` if the script exits abnormally.
+- The batch record is marked `failed` if the script exits abnormally (via a `process.on('exit')` handler).
+- **Failed batch recovery:** Retailers saved from a failed batch remain visible in the admin discovery queue with their batch marked as `failed`. The admin can still review and approve/reject them. The next script run will not re-discover domains already present in `discovered_retailer` regardless of batch status.
 
 ---
 
@@ -155,10 +157,17 @@ Same file path, same export names. `extractDomain` remains a pure synchronous fu
 - TTL: 5 minutes. After TTL expires, next call fetches fresh data from DB.
 - Cache is module-scoped — shared across requests in the same function instance.
 
+**Subdomain matching preserved:**
+- The current `isRetailerWhitelisted()` supports subdomain matching (`shop.ikea.com` matches `ikea.com` via `domain.endsWith("." + retailer.domain)`).
+- The refactored version fetches the full whitelist into the in-memory cache and performs the same subdomain matching logic in application code — NOT via a SQL `WHERE domain = ?` query.
+
 **Migration of call sites:**
 - All 8 importing files need to `await` the now-async functions.
 - API routes and server components already support async — straightforward change.
-- Client components (`AddProductForm.tsx`, `ProductCard.tsx`, `ProductListManager.tsx`) that call these functions will need to move the whitelist check to a server action or API call, since Prisma can't run on the client.
+- **Client components** (`AddProductForm.tsx`, `ProductCard.tsx`, `ProductListManager.tsx`) cannot call Prisma directly. These are handled as follows:
+  - `AddProductForm.tsx` uses `isRetailerWhitelisted()` and `getWhitelistedDomains()` — the parent server component will fetch and pass the whitelist domains as a prop. The whitelist check will use a new dedicated API route or server action.
+  - `ProductCard.tsx` and `ProductListManager.tsx` use `getRetailerName()` — the parent server component will resolve retailer names and pass them as props.
+- **`api/extension/whitelist/route.ts`** imports `RETAILER_WHITELIST` directly (the constant) to serve the full list to the Chrome extension. This must switch to the async `getWhitelistedDomains()` function.
 
 **Backward compatibility:**
 - Seed the existing 15 retailers from the hardcoded array into the DB if they don't already exist (migration script or updated seed).
@@ -184,7 +193,7 @@ Added as a 4th tab alongside "Event Search", "Reports", and "Audit Log".
   - External link to sample product URL (opens in new tab)
   - Approve / Reject toggle
 - Bottom of the batch: "Submit decisions" button.
-- On submit: single API call sends all decisions. Backend writes approved retailers to `retailer_whitelist` and marks rejected ones with `rejectedAt` in one transaction.
+- On submit: single API call sends all decisions. Backend writes approved retailers to `retailer_whitelist` (with `allowedPaths` defaulting to `null`, meaning all paths allowed) and marks rejected ones with `rejectedAt` in one transaction. The admin can later edit `allowedPaths` via the Whitelist Management view for retailers that need path restrictions (e.g., Keter's `/he-il/` restriction).
 
 ### Whitelist Management (sub-view)
 
@@ -213,6 +222,8 @@ Added as a 4th tab alongside "Event Search", "Reports", and "Audit Log".
 
 Both only needed for the discovery script. Not required for the website to run.
 
+**Existing (assumed present):** `ADMIN_SECRET_KEY` — already used by other admin endpoints, reused here.
+
 ---
 
 ## File Changes Summary
@@ -221,7 +232,6 @@ Both only needed for the discovery script. Not required for the website to run.
 | ------------ | ------------------------------------------------ | ---------------------------------------------- |
 | **New**      | `prisma/schema.prisma`                           | Add `DiscoveredRetailer` + `DiscoveryBatch` models |
 | **New**      | `scripts/discover-retailers.ts`                  | The discovery bot script                       |
-| **New**      | `scripts/discovery-state.json`                   | Tracks query rotation state                    |
 | **Refactor** | `src/lib/retailer-whitelist.ts`                  | DB-backed with in-memory cache                 |
 | **Update**   | `src/app/api/metadata/route.ts`                  | Async whitelist calls                          |
 | **Update**   | `src/lib/metadata.ts`                            | Async whitelist calls                          |
