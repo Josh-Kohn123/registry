@@ -2,12 +2,12 @@
 
 import Image from "next/image";
 import { ProductLink } from "@/types/product";
-import { getRetailerName } from "@/lib/retailer-whitelist";
 
 interface ProductCardProps {
   product: ProductLink;
   locale?: string;
   eventId?: string;
+  retailerName?: string;
 }
 
 /** Decode HTML entities that may have been stored in product titles (e.g. &#39; → ', &#x05DB; → כ) */
@@ -28,8 +28,8 @@ function decodeTitle(text: string): string {
     .trim();
 }
 
-export function ProductCard({ product, locale = "en", eventId }: ProductCardProps) {
-  const retailerName = getRetailerName(product.retailerDomain);
+export function ProductCard({ product, locale = "en", eventId, retailerName: retailerNameProp }: ProductCardProps) {
+  const retailerName = retailerNameProp || product.retailerDomain;
   const displayTitle = decodeTitle(product.title);
 
   return (

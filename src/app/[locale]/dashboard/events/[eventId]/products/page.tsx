@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getEventById } from "@/lib/db";
 import { ProductsPageClient } from "@/components/products/ProductsPageClient";
 import { getMessages } from "next-intl/server";
+import { getWhitelistedDomains } from "@/lib/retailer-whitelist";
 
 export default async function ProductsPage({
   params,
@@ -31,7 +32,10 @@ export default async function ProductsPage({
     redirect(`/${locale}/dashboard/events`);
   }
 
-  const messages = await getMessages();
+  const [messages, whitelistedDomains] = await Promise.all([
+    getMessages(),
+    getWhitelistedDomains(),
+  ]);
 
   const isHe = locale === "he";
 
@@ -87,7 +91,7 @@ export default async function ProductsPage({
           </svg>
         </a>
 
-        <ProductsPageClient eventId={eventId} locale={locale} />
+        <ProductsPageClient eventId={eventId} locale={locale} whitelistedDomains={whitelistedDomains} />
       </div>
     </div>
   );

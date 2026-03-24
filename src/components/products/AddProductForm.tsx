@@ -2,19 +2,20 @@
 
 import { useState } from "react";
 import { FetchedMetadata, PRODUCT_CATEGORIES, ProductCategory } from "@/types/product";
-import { isRetailerWhitelisted, getWhitelistedDomains } from "@/lib/retailer-whitelist";
 import { MetadataPreview } from "./MetadataPreview";
 
 interface AddProductFormProps {
   eventId: string;
   onProductAdded?: () => void;
   locale?: string;
+  whitelistedDomains: string[];
 }
 
 export function AddProductForm({
   eventId,
   onProductAdded,
   locale = "en",
+  whitelistedDomains,
 }: AddProductFormProps) {
   const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -74,11 +75,15 @@ export function AddProductForm({
     }
 
     // Client-side whitelist validation
-    if (!isRetailerWhitelisted(url)) {
-      const domains = getWhitelistedDomains();
-      setError(
-        `This retailer is not approved. Approved retailers: ${domains.join(", ")}`
-      );
+    const domain = (() => {
+      try { return new URL(url).hostname.toLowerCase().replace(/^www\./, ""); }
+      catch { return null; }
+    })();
+    const isWhitelisted = domain && whitelistedDomains.some(
+      (d) => d === domain || domain.endsWith("." + d)
+    );
+    if (!isWhitelisted) {
+      setError(`This retailer is not approved. Approved retailers: ${whitelistedDomains.join(", ")}`);
       return;
     }
 
@@ -181,7 +186,7 @@ export function AddProductForm({
           <div>
             <p className="text-xs text-gray-600 mb-2">{text.whitelistedDomains}:</p>
             <div className="flex flex-wrap gap-2">
-              {getWhitelistedDomains().map((domain) => (
+              {whitelistedDomains.map((domain) => (
                 <span
                   key={domain}
                   className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs"

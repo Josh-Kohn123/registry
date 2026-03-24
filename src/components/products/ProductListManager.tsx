@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { ProductLink, PRODUCT_CATEGORIES, ProductCategory } from "@/types/product";
-import { getRetailerName } from "@/lib/retailer-whitelist";
 import Image from "next/image";
 
 /** Decode any HTML entities that may have been stored in product titles */
@@ -303,7 +302,7 @@ export function ProductListManager({
                     {decodeTitle(product.title)}
                   </p>
                   <div className="flex items-center gap-2 mt-1 flex-wrap">
-                    <span className="text-xs text-pebble">{getRetailerName(product.retailerDomain)}</span>
+                    <span className="text-xs text-pebble">{product.retailerDomain}</span>
                     {product.category && (
                       <>
                         <span className="text-mist text-xs">·</span>

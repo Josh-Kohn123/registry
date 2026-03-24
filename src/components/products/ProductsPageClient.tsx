@@ -8,9 +8,10 @@ import { WhitelistRequestForm } from "@/components/dashboard/WhitelistRequestFor
 interface ProductsPageClientProps {
   eventId: string;
   locale: string;
+  whitelistedDomains: string[];
 }
 
-export function ProductsPageClient({ eventId, locale }: ProductsPageClientProps) {
+export function ProductsPageClient({ eventId, locale, whitelistedDomains }: ProductsPageClientProps) {
   const [refreshKey, setRefreshKey] = useState(0);
 
   const handleProductAdded = useCallback(() => {
@@ -34,6 +35,7 @@ export function ProductsPageClient({ eventId, locale }: ProductsPageClientProps)
             eventId={eventId}
             locale={locale}
             onProductAdded={handleProductAdded}
+            whitelistedDomains={whitelistedDomains}
           />
         </div>
 
