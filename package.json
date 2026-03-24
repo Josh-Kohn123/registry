@@ -15,7 +15,8 @@
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f",
-    "logs:errors": "tail -f logs/errors.log | node -e \"process.stdin.on('data',d=>d.toString().split('\\n').filter(Boolean).forEach(l=>{try{const e=JSON.parse(l);console.log('\\x1b[31m'+e.timestamp+'\\x1b[0m',e.message,e.error?.message||'')}catch{console.log(l)}}))\""
+    "logs:errors": "tail -f logs/errors.log | node -e \"process.stdin.on('data',d=>d.toString().split('\\n').filter(Boolean).forEach(l=>{try{const e=JSON.parse(l);console.log('\\x1b[31m'+e.timestamp+'\\x1b[0m',e.message,e.error?.message||'')}catch{console.log(l)}})})\"",
+    "discover": "npx tsx --tsconfig tsconfig.json scripts/discover-retailers.ts"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
