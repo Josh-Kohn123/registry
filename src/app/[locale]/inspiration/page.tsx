@@ -71,10 +71,20 @@ export default function InspirationPage() {
   const [selected, setSelected] = useState<string | null>(null);
   const [images, setImages] = useState<Record<string, string | null | undefined>>({});
 
-  // Batch-fetch product images
+  // Batch-fetch product images (use pre-set imageUrl when available, skip scraper)
   useEffect(() => {
+    // Seed state with any pre-set imageUrl values immediately
+    const seed: Record<string, string | null | undefined> = {};
+    RECOMMENDED_PRODUCTS.forEach((p) => {
+      if (p.imageUrl !== undefined) seed[p.id] = p.imageUrl;
+    });
+    if (Object.keys(seed).length > 0) setImages(seed);
+
+    // Only scrape products that don't have a pre-set imageUrl
     const BATCH = 5;
-    const products = [...RECOMMENDED_PRODUCTS];
+    const products = RECOMMENDED_PRODUCTS.filter((p) => p.imageUrl === undefined);
+    if (products.length === 0) return;
+
     const run = async () => {
       for (let i = 0; i < products.length; i += BATCH) {
         await Promise.all(
@@ -132,11 +142,11 @@ export default function InspirationPage() {
           <div className="w-8 h-px bg-warm-border mx-auto mb-5" />
           <p className="text-pebble font-light text-base leading-relaxed max-w-lg mx-auto mb-8">
             {isRtl
-              ? "בחרנו עבורכם את המוצרים הכי פופולריים מ-IKEA, FOX HOME, ACE ועוד. הוסיפו לרשם שלכם בלחיצה אחת."
-              : "Hand-picked favourites from IKEA, FOX HOME, ACE and more. Create your registry and add any of them in one click."}
+              ? "בחרנו עבורכם את המוצרים הכי פופולריים מ-FOX HOME, ACE ועוד. הוסיפו לרשם שלכם בלחיצה אחת."
+              : "Hand-picked favourites from FOX HOME, ACE and more. Create your registry and add any of them in one click."}
           </p>
           <Link href="/login">
-            <button className="bg-ink text-cream text-[11px] font-medium tracking-[0.08em] uppercase px-8 py-3.5 hover:opacity-80 transition-opacity">
+            <button className="bg-ink text-cream text-[13px] font-medium tracking-[0.08em] uppercase px-8 py-3.5 hover:opacity-80 transition-opacity">
               {isRtl ? "יצירת רשם חינמי" : "Create your registry — free"}
             </button>
           </Link>
@@ -243,7 +253,7 @@ export default function InspirationPage() {
               : "Create a registry in minutes, add what you loved, and share one link with your guests."}
           </p>
           <Link href="/login">
-            <button className="bg-ink text-cream text-[11px] font-medium tracking-[0.08em] uppercase px-8 py-3.5 hover:opacity-80 transition-opacity">
+            <button className="bg-ink text-cream text-[13px] font-medium tracking-[0.08em] uppercase px-8 py-3.5 hover:opacity-80 transition-opacity">
               {isRtl ? "יצירת רשם חינמי" : "Create your registry — free"}
             </button>
           </Link>
@@ -305,8 +315,27 @@ function ProductCard({
             src={imageUrl}
             alt={isRtl ? product.titleHe : product.titleEn}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            onError={(e) => { e.currentTarget.style.display = "none"; }}
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+              // Trigger emoji fallback by marking image as failed
+              const parent = e.currentTarget.parentElement;
+              if (parent) {
+                const fallback = parent.querySelector("[data-fallback]") as HTMLElement | null;
+                if (fallback) fallback.style.display = "flex";
+              }
+            }}
           />
+          {/* Hidden fallback shown via onError above */}
+          <div
+            data-fallback
+            style={{ display: "none" }}
+            className="absolute inset-0 flex flex-col items-center justify-center opacity-25 gap-1"
+          >
+            <span className="text-5xl">{CAT_ICONS[product.category] || "🎁"}</span>
+            <span className="text-xs tracking-widest uppercase font-medium text-ink">
+              {product.retailerName}
+            </span>
+          </div>
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center opacity-25 gap-1">
             <span className="text-5xl">{CAT_ICONS[product.category] || "🎁"}</span>

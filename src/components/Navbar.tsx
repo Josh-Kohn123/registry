@@ -46,7 +46,7 @@ export function Navbar() {
   const isRtl = locale === "he";
 
   const navLink =
-    "text-sm font-medium text-pebble hover:text-ink transition-colors duration-150";
+    "text-[16px] font-medium text-pebble hover:text-ink transition-colors duration-150";
 
   return (
     <nav
@@ -109,13 +109,13 @@ export function Navbar() {
                 {user ? (
                   <button
                     onClick={handleLogout}
-                    className="text-sm font-medium text-pebble hover:text-ink border border-warm-border px-4 py-2 hover:border-ink transition-colors duration-150"
+                    className="text-[16px] font-medium text-pebble hover:text-ink border border-warm-border px-4 py-2 hover:border-ink transition-colors duration-150"
                   >
                     {t("logOut")}
                   </button>
                 ) : (
                   <Link href="/login">
-                    <button className="text-sm font-medium text-ink border border-ink px-5 py-2 hover:bg-ink hover:text-cream transition-colors duration-150">
+                    <button className="text-[16px] font-medium text-ink border border-ink px-5 py-2 hover:bg-ink hover:text-cream transition-colors duration-150">
                       {t("signIn")}
                     </button>
                   </Link>

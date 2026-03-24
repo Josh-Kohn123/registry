@@ -135,16 +135,21 @@ export default function HomePage() {
   const faqs = isRtl ? FAQ_HE : FAQ_EN;
 
   // ── Featured carousel ──────────────────────────────────────────────────
-  // Pick 2 items from each main category for variety
+  // Curated picks: prefer products with verified imageUrls for reliable display
   const FEATURED = (() => {
-    const cats = ["bedroom", "kitchen", "living-room", "bathroom", "decor", "electronics"];
-    const result: typeof RECOMMENDED_PRODUCTS = [];
-    for (const cat of cats) {
-      const matches = RECOMMENDED_PRODUCTS.filter((p) => p.category === cat);
-      result.push(...matches.slice(0, 2));
-      if (result.length >= 10) break;
-    }
-    return result.slice(0, 10);
+    const pick = (cat: string, n: number) =>
+      RECOMMENDED_PRODUCTS
+        .filter((p) => p.category === cat)
+        .sort((a, b) => (b.imageUrl ? 1 : 0) - (a.imageUrl ? 1 : 0))
+        .slice(0, n);
+    return [
+      ...pick("bedroom", 2),
+      ...pick("living-room", 2),
+      ...pick("bathroom", 2),
+      ...pick("decor", 2),
+      ...pick("kitchen", 1),
+      ...pick("electronics", 1),
+    ];
   })();
 
   const [carouselImages, setCarouselImages] = useState<Record<string, string | null | undefined>>({});
@@ -164,6 +169,11 @@ export default function HomePage() {
 
   useEffect(() => {
     FEATURED.forEach(async (p) => {
+      // Use pre-set imageUrl if available — skips scraper for IKEA etc.
+      if (p.imageUrl !== undefined) {
+        setCarouselImages((prev) => ({ ...prev, [p.id]: p.imageUrl ?? null }));
+        return;
+      }
       try {
         const r = await fetch("/api/metadata", {
           method: "POST",
@@ -216,7 +226,7 @@ export default function HomePage() {
           <div className="w-8 h-px bg-warm-border mb-5" />
 
           {/* Body */}
-          <p className="text-pebble font-light text-base leading-relaxed max-w-sm mb-7">
+          <p className="text-pebble font-light text-[17px] leading-relaxed max-w-sm mb-7">
             {isRtl
               ? "הוסיפו מתנות מכל חנות ישראלית, שתפו קישור אחד עם האורחים, וקבלו בדיוק מה שרציתם."
               : "Add gifts from any Israeli retailer, share one link with your guests, and receive exactly what you had in mind."}
@@ -227,19 +237,19 @@ export default function HomePage() {
             <div className={`flex flex-col sm:flex-row items-center gap-6 mb-6 ${isRtl ? "sm:flex-row-reverse" : ""}`}>
               {user ? (
                 <Link href="/dashboard">
-                  <button className="bg-ink text-cream text-[11px] font-medium tracking-[0.08em] uppercase px-8 py-3.5 hover:opacity-80 transition-opacity">
+                  <button className="bg-ink text-cream text-[13px] font-medium tracking-[0.07em] uppercase px-8 py-3.5 hover:opacity-80 transition-opacity">
                     {isRtl ? "← לדשבורד שלי" : "Go to my dashboard →"}
                   </button>
                 </Link>
               ) : (
                 <>
                   <Link href="/login">
-                    <button className="bg-ink text-cream text-[11px] font-medium tracking-[0.08em] uppercase px-8 py-3.5 hover:opacity-80 transition-opacity">
+                    <button className="bg-ink text-cream text-[13px] font-medium tracking-[0.07em] uppercase px-8 py-3.5 hover:opacity-80 transition-opacity">
                       {isRtl ? "יצירת רשם חינמי" : "Create your registry — free"}
                     </button>
                   </Link>
                   <Link href="/inspiration">
-                    <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-pebble hover:text-ink transition-colors">
+                    <span className="text-[13px] font-medium tracking-[0.05em] uppercase text-pebble hover:text-ink transition-colors">
                       {isRtl ? "← גלו מוצרים" : "Browse gift ideas →"}
                     </span>
                   </Link>
@@ -255,7 +265,9 @@ export default function HomePage() {
               : ["No credit card", "All major Israeli retailers", "WhatsApp sharing"]
             ).map((item, i, arr) => (
               <span key={item} className="flex items-center gap-3">
-                <span className="text-[11px] text-mist">{item}</span>
+                <span className={`text-[13px] ${i === 0 ? "text-ink font-semibold" : "text-mist"}`}>
+                  {i === 0 && <span className="mr-1">✓</span>}{item}
+                </span>
                 {i < arr.length - 1 && <span className="w-1 h-1 rounded-full bg-warm-border" />}
               </span>
             ))}
@@ -347,17 +359,15 @@ export default function HomePage() {
 
       {/* ── Social proof strip ────────────────────────────────────────── */}
       <div className={`bg-warm-white border-y border-warm-border py-4 px-5 ${isRtl ? "rtl" : "ltr"}`}>
-        <div className={`max-w-5xl mx-auto flex flex-wrap justify-center gap-6 sm:gap-10 text-xs text-pebble tracking-wide ${isRtl ? "flex-row-reverse" : ""}`}>
+        <div className={`max-w-5xl mx-auto flex flex-wrap justify-center gap-6 sm:gap-10 text-sm text-pebble tracking-wide ${isRtl ? "flex-row-reverse" : ""}`}>
           {(isRtl ? [
             ["IKEA, ACE, FOX HOME ועוד", "·"],
-            ["הגנה מפני כפילויות", "·"],
             ["שיתוף בוואטסאפ", "·"],
-            ["חינמי לחלוטין", ""],
+            ["ללא כרטיס אשראי", ""],
           ] : [
             ["IKEA, ACE, FOX HOME + more", "·"],
-            ["Duplicate-gift protection", "·"],
             ["WhatsApp sharing", "·"],
-            ["Free forever", ""],
+            ["No credit card required", ""],
           ]).map(([label, sep]) => (
             <span key={label} className="flex items-center gap-6">
               <span>{label}</span>
@@ -504,7 +514,7 @@ export default function HomePage() {
                         src={imgSrc}
                         alt={isRtl ? product.titleHe : product.titleEn}
                         className="w-full h-full object-cover"
-                        onError={(e) => { e.currentTarget.style.display = "none"; }}
+                        onError={() => { setCarouselImages((prev) => ({ ...prev, [product.id]: null })); }}
                       />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center opacity-30">
@@ -532,7 +542,7 @@ export default function HomePage() {
                   : <><em>Any gift,</em><br />any Israeli retailer</>}
               </p>
               <Link href="/login">
-                <button className="bg-ink text-cream text-[10px] font-medium tracking-[0.08em] uppercase px-5 py-2.5 hover:opacity-80 transition-opacity">
+                <button className="bg-ink text-cream text-[12px] font-medium tracking-[0.07em] uppercase px-5 py-2.5 hover:opacity-80 transition-opacity">
                   {isRtl ? "יצירת רשם ←" : "Start free →"}
                 </button>
               </Link>
@@ -543,11 +553,11 @@ export default function HomePage() {
           {!user && (
             <div className={`mt-8 flex items-center gap-4 ${isRtl ? "flex-row-reverse justify-end" : ""}`}>
               <Link href="/login">
-                <button className="bg-ink text-cream text-[11px] font-medium tracking-[0.08em] uppercase px-8 py-3.5 hover:opacity-80 transition-opacity">
+                <button className="bg-ink text-cream text-[13px] font-medium tracking-[0.07em] uppercase px-8 py-3.5 hover:opacity-80 transition-opacity">
                   {isRtl ? "יצירת רשם חינמי" : "Create your registry — free"}
                 </button>
               </Link>
-              <span className="text-pebble text-sm font-light">
+              <span className="text-pebble text-[15px] font-light">
                 {isRtl ? "ללא כרטיס אשראי" : "No credit card required"}
               </span>
             </div>
@@ -573,12 +583,12 @@ export default function HomePage() {
           {!user && (
             <div className={`flex flex-col sm:flex-row gap-3 justify-center ${isRtl ? "sm:flex-row-reverse" : ""}`}>
               <Link href="/login">
-                <button className="bg-ink text-cream text-[11px] font-medium tracking-[0.08em] uppercase px-8 py-3.5 hover:opacity-80 transition-opacity">
+                <button className="bg-ink text-cream text-[13px] font-medium tracking-[0.07em] uppercase px-8 py-3.5 hover:opacity-80 transition-opacity">
                   {isRtl ? "יצירת רשם חינמי" : "Create your registry — free"}
                 </button>
               </Link>
               <Link href="/inspiration">
-                <span className="text-[11px] font-medium tracking-[0.06em] uppercase text-pebble hover:text-ink transition-colors">
+                <span className="text-[13px] font-medium tracking-[0.05em] uppercase text-pebble hover:text-ink transition-colors">
                   {isRtl ? "← גלו מוצרים" : "Browse gift ideas →"}
                 </span>
               </Link>
