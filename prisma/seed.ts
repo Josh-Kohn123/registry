@@ -81,58 +81,38 @@ async function main() {
   console.log("Created event owners:", { owner1, owner2 });
 
   // Add retailer whitelist entries
-  await prisma.retailerWhitelist.upsert({
-    where: { domain: "foxhome.co.il" },
-    update: {},
-    create: {
-      domain: "foxhome.co.il",
-      name: "FOX HOME",
-      isActive: true,
-    },
-  });
+  const retailers = [
+    { domain: "foxhome.co.il", name: "FOX HOME" },
+    { domain: "golfco.co.il", name: "Golf & Co" },
+    { domain: "naamanp.co.il", name: "Naaman" },
+    { domain: "ace.co.il", name: "ACE" },
+    { domain: "keter.com", name: "Keter Israel", allowedPaths: "/he-il/" },
+    { domain: "ikea.com", name: "IKEA" },
+    { domain: "terminalx.com", name: "Terminal X" },
+    { domain: "asos.com", name: "ASOS" },
+    { domain: "amazon.com", name: "Amazon" },
+    { domain: "next.co.il", name: "NEXT" },
+    { domain: "zara.com", name: "Zara" },
+    { domain: "hm.com", name: "H&M" },
+    { domain: "castro.com", name: "Castro" },
+    { domain: "renuar.co.il", name: "Renuar" },
+    { domain: "urbanica.co.il", name: "Urbanica" },
+  ];
 
-  await prisma.retailerWhitelist.upsert({
-    where: { domain: "golfco.co.il" },
-    update: {},
-    create: {
-      domain: "golfco.co.il",
-      name: "Golf & Co",
-      isActive: true,
-    },
-  });
+  for (const r of retailers) {
+    await prisma.retailerWhitelist.upsert({
+      where: { domain: r.domain },
+      update: {},
+      create: {
+        domain: r.domain,
+        name: r.name,
+        allowedPaths: (r as any).allowedPaths ?? null,
+        isActive: true,
+      },
+    });
+  }
 
-  await prisma.retailerWhitelist.upsert({
-    where: { domain: "naamanp.co.il" },
-    update: {},
-    create: {
-      domain: "naamanp.co.il",
-      name: "Naaman",
-      isActive: true,
-    },
-  });
-
-  await prisma.retailerWhitelist.upsert({
-    where: { domain: "ace.co.il" },
-    update: {},
-    create: {
-      domain: "ace.co.il",
-      name: "ACE",
-      isActive: true,
-    },
-  });
-
-  await prisma.retailerWhitelist.upsert({
-    where: { domain: "keter.com" },
-    update: {},
-    create: {
-      domain: "keter.com",
-      name: "Keter Israel",
-      allowedPaths: "/he-il/",
-      isActive: true,
-    },
-  });
-
-  console.log("Created retailer whitelist entries");
+  console.log(`Seeded ${retailers.length} retailer whitelist entries`);
 
   // Create sample fund
   const fund = await prisma.fund.create({
