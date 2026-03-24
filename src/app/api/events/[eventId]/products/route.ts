@@ -71,7 +71,7 @@ export async function POST(
     const validatedData = productCreateSchema.parse(body);
 
     // Validate retailer whitelist
-    if (!isRetailerWhitelisted(validatedData.url)) {
+    if (!(await isRetailerWhitelisted(validatedData.url))) {
       return NextResponse.json(
         { error: "Retailer is not whitelisted" },
         { status: 400 }
@@ -87,7 +87,7 @@ export async function POST(
     }
 
     // Use provided title or fallback to domain
-    const title = validatedData.title || getRetailerName(domain);
+    const title = validatedData.title || (await getRetailerName(domain));
 
     const eventId = (await params).eventId;
     const product = await createProduct(eventId, {

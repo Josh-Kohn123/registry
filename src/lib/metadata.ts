@@ -7,7 +7,7 @@ const MAX_RESPONSE_SIZE = 1024 * 1024; // 1MB
 /**
  * Validates that a URL uses HTTPS and is from a whitelisted retailer
  */
-function validateUrl(urlString: string): { valid: boolean; error?: string } {
+async function validateUrl(urlString: string): Promise<{ valid: boolean; error?: string }> {
   try {
     const url = new URL(urlString);
 
@@ -17,7 +17,7 @@ function validateUrl(urlString: string): { valid: boolean; error?: string } {
     }
 
     // Whitelist check
-    if (!isRetailerWhitelisted(urlString)) {
+    if (!(await isRetailerWhitelisted(urlString))) {
       return { valid: false, error: "Retailer is not whitelisted" };
     }
 
@@ -96,7 +96,7 @@ export async function fetchMetadata(
   urlString: string
 ): Promise<{ success: boolean; data?: FetchedMetadata; error?: string }> {
   // Validate URL
-  const validation = validateUrl(urlString);
+  const validation = await validateUrl(urlString);
   if (!validation.valid) {
     return { success: false, error: validation.error };
   }

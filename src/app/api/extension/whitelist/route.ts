@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
-import { RETAILER_WHITELIST } from "@/lib/retailer-whitelist";
+import { getWhitelistedDomains, getRetailerName } from "@/lib/retailer-whitelist";
 
 export async function GET() {
-  return NextResponse.json({
-    domains: RETAILER_WHITELIST,
-  });
+  const domains = await getWhitelistedDomains();
+  const entries = await Promise.all(
+    domains.map(async (domain) => ({
+      domain,
+      name: await getRetailerName(domain),
+    }))
+  );
+  return NextResponse.json({ domains: entries });
 }

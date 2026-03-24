@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     const data = extensionProductSchema.parse(body);
 
     // Validate whitelist
-    if (!isRetailerWhitelisted(data.url)) {
+    if (!(await isRetailerWhitelisted(data.url))) {
       return NextResponse.json(
         { error: "Retailer is not whitelisted" },
         { status: 403 }

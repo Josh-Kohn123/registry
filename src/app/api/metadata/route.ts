@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     const validatedData = metadataFetchSchema.parse(body);
 
     // Validate retailer whitelist
-    if (!isRetailerWhitelisted(validatedData.url)) {
+    if (!(await isRetailerWhitelisted(validatedData.url))) {
       return NextResponse.json(
         {
           success: false,
