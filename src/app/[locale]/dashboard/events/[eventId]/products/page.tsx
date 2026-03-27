@@ -77,8 +77,8 @@ export default async function ProductsPage({
               </p>
               <p className="text-warm-white/60 text-xs mt-0.5">
                 {isHe
-                  ? "מוצרים נבחרים מ-IKEA, FOX HOME, Naaman, ACE ועוד — בלחיצה אחת"
-                  : "Hand-picked items from IKEA, FOX HOME, Naaman, ACE & more — add in one click"}
+                  ? "מוצרים נבחרים מ-FOX HOME, Naaman, ACE ועוד — בלחיצה אחת"
+                  : "Hand-picked items from FOX HOME, Naaman, ACE & more — add in one click"}
               </p>
             </div>
           </div>

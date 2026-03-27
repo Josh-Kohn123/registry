@@ -42,8 +42,12 @@ export default function NewEventPage() {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error?.[0]?.message || "Failed to create event");
+        const err = await response.json();
+        // err.error may be a string (server error) or an object of field arrays (Zod)
+        const message = typeof err.error === "string"
+          ? err.error
+          : Object.values(err.error ?? {}).flat().join(", ") || "Failed to create event";
+        throw new Error(message);
       }
 
       const event = await response.json();

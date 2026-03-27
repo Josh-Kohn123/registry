@@ -44,12 +44,6 @@ const CAT_ICONS: Record<string, string> = {
   other: "🎁",
 };
 
-const RETAILER_PILL: Record<string, string> = {
-  "foxhome.co.il": "bg-orange-50 text-orange-700 ring-1 ring-orange-200",
-  "ikea.com":      "bg-yellow-50 text-yellow-700 ring-1 ring-yellow-200",
-  "ace.co.il":     "bg-red-50   text-red-700   ring-1 ring-red-200",
-};
-
 const CAT_PLACEHOLDER: Record<string, string> = {
   bedroom:     "bg-indigo-50",
   kitchen:     "bg-amber-50",
@@ -301,41 +295,40 @@ function ProductCard({
 }) {
   const imageLoaded = imageUrl !== undefined;
   const placeholder = CAT_PLACEHOLDER[product.category] || "bg-gray-50";
-  const pill =
-    RETAILER_PILL[product.retailerDomain] || "bg-gray-50 text-gray-600 ring-1 ring-gray-200";
 
   return (
     <div className="card flex flex-col overflow-hidden group hover:-translate-y-0.5 transition-transform duration-200">
-      {/* Image */}
+      {/* Image — clicking opens the product page */}
+      <a href={product.url} target="_blank" rel="noopener noreferrer" className="block">
       <div className={`w-full h-44 relative overflow-hidden ${placeholder}`}>
         {!imageLoaded ? (
           <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-warm-border via-cream to-warm-border" />
         ) : imageUrl ? (
-          <img
-            src={imageUrl}
-            alt={isRtl ? product.titleHe : product.titleEn}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-              // Trigger emoji fallback by marking image as failed
-              const parent = e.currentTarget.parentElement;
-              if (parent) {
-                const fallback = parent.querySelector("[data-fallback]") as HTMLElement | null;
-                if (fallback) fallback.style.display = "flex";
-              }
-            }}
-          />
-          {/* Hidden fallback shown via onError above */}
-          <div
-            data-fallback
-            style={{ display: "none" }}
-            className="absolute inset-0 flex flex-col items-center justify-center opacity-25 gap-1"
-          >
-            <span className="text-5xl">{CAT_ICONS[product.category] || "🎁"}</span>
-            <span className="text-xs tracking-widest uppercase font-medium text-ink">
-              {product.retailerName}
-            </span>
-          </div>
+          <>
+            <img
+              src={imageUrl}
+              alt={isRtl ? product.titleHe : product.titleEn}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+                const parent = e.currentTarget.parentElement;
+                if (parent) {
+                  const fallback = parent.querySelector("[data-fallback]") as HTMLElement | null;
+                  if (fallback) fallback.style.display = "flex";
+                }
+              }}
+            />
+            <div
+              data-fallback
+              style={{ display: "none" }}
+              className="absolute inset-0 flex flex-col items-center justify-center opacity-25 gap-1"
+            >
+              <span className="text-5xl">{CAT_ICONS[product.category] || "🎁"}</span>
+              <span className="text-xs tracking-widest uppercase font-medium text-ink">
+                {product.retailerName}
+              </span>
+            </div>
+          </>
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center opacity-25 gap-1">
             <span className="text-5xl">{CAT_ICONS[product.category] || "🎁"}</span>
@@ -345,37 +338,20 @@ function ProductCard({
           </div>
         )}
       </div>
+      </a>
 
       {/* Body */}
       <div className="p-4 flex flex-col gap-3 flex-1">
-        <div className={isRtl ? "text-right" : ""}>
-          <h3 className="font-semibold text-ink text-sm leading-snug mb-1">
+        <a href={product.url} target="_blank" rel="noopener noreferrer" className={`block ${isRtl ? "text-right" : ""}`}>
+          <h3 className="font-semibold text-ink text-sm leading-snug mb-1 hover:text-brand transition-colors">
             {isRtl ? product.titleHe : product.titleEn}
           </h3>
           <p className="text-xs text-pebble line-clamp-2 leading-relaxed">
             {isRtl ? product.descriptionHe : product.descriptionEn}
           </p>
-        </div>
+        </a>
 
-        <div
-          className={`flex items-center justify-between mt-auto ${
-            isRtl ? "flex-row-reverse" : ""
-          }`}
-        >
-          <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${pill}`}>
-            {product.retailerName}
-          </span>
-          <a
-            href={product.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-pebble hover:text-brand transition-colors"
-          >
-            {isRtl ? "צפו במוצר ↗" : "View ↗"}
-          </a>
-        </div>
-
-        <Link href="/login" className="block">
+        <Link href="/login" className="block mt-auto">
           <button className="w-full py-2.5 rounded-lg text-sm font-semibold bg-brand text-white hover:bg-brand-dark transition-colors">
             {isRtl ? "הוסיפו לרשם שלי →" : "Add to my registry →"}
           </button>

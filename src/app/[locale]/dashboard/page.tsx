@@ -1,41 +1,40 @@
 "use client";
 
-import { useTranslations, useLocale } from "next-intl";
+import { useLocale } from "next-intl";
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { User } from "@supabase/supabase-js";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
 import { useRouter } from "@/i18n/navigation";
 import { EventWithOwners } from "@/types/event";
-import { EventCard } from "@/components/events/EventCard";
+import { Link } from "@/i18n/navigation";
 
 export default function DashboardPage() {
-  const t = useTranslations("dashboard");
-  const et = useTranslations("events");
   const locale = useLocale();
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
   const [events, setEvents] = useState<EventWithOwners[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const isRtl = locale === "he";
 
   useEffect(() => {
     const supabase = createClient();
 
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        setUser(session.user);
-        try {
-          const response = await fetch("/api/events");
-          if (response.ok) {
-            const eventsData = await response.json();
-            setEvents(eventsData);
-          }
-        } catch (error) {
-          console.error("Failed to fetch events:", error);
-        }
-      } else {
+      if (!session?.user) {
         router.push("/login");
+        return;
+      }
+      try {
+        const response = await fetch("/api/events");
+        if (response.ok) {
+          const eventsData: EventWithOwners[] = await response.json();
+          setEvents(eventsData);
+          // If they already have an event, go straight to it
+          if (eventsData.length > 0) {
+            router.replace(`/dashboard/events/${eventsData[0].id}`);
+            return;
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch events:", error);
       }
       setIsLoading(false);
     });
@@ -46,131 +45,49 @@ export default function DashboardPage() {
       <div className="flex items-center justify-center min-h-screen bg-cream">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 rounded-full border-2 border-brand border-t-transparent animate-spin" />
-          <p className="text-pebble text-sm">{t("welcome")}</p>
+          <p className="text-pebble text-sm">{locale === "he" ? "טוען..." : "Loading..."}</p>
         </div>
       </div>
     );
   }
 
-  const isRtl = locale === "he";
-  const publishedCount = events.filter((e) => e.isPublished).length;
-  const draftCount = events.length - publishedCount;
-
+  // No events yet — show the "create your registry" welcome screen
   return (
-    <div className={`min-h-screen bg-cream py-10 px-4 ${isRtl ? "rtl" : "ltr"}`}>
-      <div className="max-w-6xl mx-auto">
+    <div className={`min-h-screen bg-cream flex flex-col items-center justify-center px-5 ${isRtl ? "rtl" : "ltr"}`}>
+      <div className="max-w-md w-full text-center">
 
-        {/* ── Header ── */}
-        <div className="mb-10 flex items-start justify-between flex-wrap gap-4">
-          <div>
-            <p className="eyebrow mb-2">
-              {locale === "he" ? "דשבורד" : "Dashboard"}
-            </p>
-            <h1 className="font-display text-4xl font-semibold text-ink mb-1.5">
-              {t("welcome")}
-            </h1>
-            <p className="text-pebble text-sm">
-              {user?.email}
-            </p>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.push("/dashboard/profile")}
-          >
-            {locale === "he" ? "הגדרות פרופיל" : "Profile Settings"}
-          </Button>
-        </div>
+        <p className="eyebrow mb-6">
+          {isRtl ? "רשם המתנות שלכם" : "Your Gift Registry"}
+        </p>
 
-        {/* ── Stats Cards ── */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-          <div className="card p-5 text-center">
-            <div className="font-display text-4xl font-semibold text-ink mb-1">
-              {events.length}
-            </div>
-            <p className="text-pebble text-xs uppercase tracking-wide font-medium">
-              {et("myEvents")}
-            </p>
-          </div>
+        <h1
+          className="font-display font-normal text-ink leading-[1.05] tracking-tight mb-5"
+          style={{ fontSize: "clamp(2.4rem, 5vw, 3.5rem)" }}
+        >
+          {isRtl ? (
+            <>ברוכים הבאים!<br /><em className="text-brand">בואו נתחיל.</em></>
+          ) : (
+            <>Welcome!<br /><em className="text-brand">Let&apos;s build yours.</em></>
+          )}
+        </h1>
 
-          <div className="card p-5 text-center">
-            <div className="font-display text-4xl font-semibold text-brand mb-1">
-              {publishedCount}
-            </div>
-            <p className="text-pebble text-xs uppercase tracking-wide font-medium">
-              {locale === "he" ? "פורסמו" : "Published"}
-            </p>
-          </div>
+        <div className="w-8 h-px bg-warm-border mx-auto mb-6" />
 
-          <div className="card p-5 text-center">
-            <div className="font-display text-4xl font-semibold text-ink-mid mb-1">
-              {draftCount}
-            </div>
-            <p className="text-pebble text-xs uppercase tracking-wide font-medium">
-              {locale === "he" ? "טיוטות" : "Drafts"}
-            </p>
-          </div>
+        <p className="text-pebble font-light text-[17px] leading-relaxed mb-10">
+          {isRtl
+            ? "צרו את רשם המתנות שלכם — הוסיפו מוצרים מכל חנות ישראלית ושתפו עם האורחים בלחיצה אחת."
+            : "Create your registry — add gifts from any Israeli retailer and share one link with your guests."}
+        </p>
 
-          <div className="card p-5 text-center">
-            <div className="font-display text-4xl font-semibold text-gold mb-1">0</div>
-            <p className="text-pebble text-xs uppercase tracking-wide font-medium">
-              {t("gifts")}
-            </p>
-          </div>
-        </div>
+        <Link href="/dashboard/events/new">
+          <button className="bg-ink text-cream text-[13px] font-medium tracking-[0.07em] uppercase px-10 py-4 hover:opacity-80 transition-opacity">
+            {isRtl ? "יצירת רשם חינמי ←" : "Create your registry →"}
+          </button>
+        </Link>
 
-        {/* ── Events Section ── */}
-        <Card>
-          <CardHeader className="flex items-center justify-between flex-wrap gap-3">
-            <CardTitle className="font-display">{et("myEvents")}</CardTitle>
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => router.push("/dashboard/events/new")}
-            >
-              {et("createEvent")}
-            </Button>
-          </CardHeader>
-          <CardContent className="p-6">
-            {events.length === 0 ? (
-              <div className="text-center py-16">
-                <div className="w-16 h-16 rounded-full bg-brand-xlight flex items-center justify-center mx-auto mb-5">
-                  <span className="text-2xl">🎉</span>
-                </div>
-                <h3 className="font-display text-xl font-semibold text-ink mb-2">
-                  {locale === "he" ? "ברוכים הבאים!" : "Welcome!"}
-                </h3>
-                <p className="text-pebble text-sm mb-6 max-w-xs mx-auto">
-                  {locale === "he"
-                    ? "צור את האירוע הראשון שלך כדי להתחיל לבנות את רשימת המתנות"
-                    : "Create your first event to start building your gift registry"}
-                </p>
-                <Button onClick={() => router.push("/dashboard/events/new")}>
-                  {et("createEvent")}
-                </Button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {events.slice(0, 4).map((event) => (
-                  <EventCard key={event.id} event={event} />
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {events.length > 4 && (
-          <div className="mt-5 text-center">
-            <Button
-              variant="outline"
-              onClick={() => router.push("/dashboard/events")}
-            >
-              {locale === "he"
-                ? `צפה בכל ${events.length} האירועים`
-                : `View all ${events.length} events`}
-            </Button>
-          </div>
-        )}
+        <p className="text-mist text-xs mt-5">
+          {isRtl ? "ללא כרטיס אשראי · חינם לחלוטין" : "No credit card · Completely free"}
+        </p>
       </div>
     </div>
   );

@@ -20,7 +20,7 @@ const FAQ_EN = [
   },
   {
     q: "Which stores are supported?",
-    a: "We support all major Israeli retailers including IKEA, FOX HOME, ACE, and more. You can add any product from an approved Israeli retailer using its direct product URL.",
+    a: "We support all major Israeli retailers including FOX HOME, ACE, Golf & Co, Naaman, Keter and more. You can add any product from an approved Israeli retailer using its direct product URL.",
   },
   {
     q: "How do I share my registry with guests?",
@@ -55,7 +55,7 @@ const FAQ_HE = [
   },
   {
     q: "אילו חנויות נתמכות?",
-    a: "אנחנו תומכים בכל החנויות הישראליות הגדולות — IKEA ,FOX HOME ,ACE ועוד. ניתן להוסיף כל מוצר מחנות ישראלית מאושרת בעזרת קישור ישיר לדף המוצר.",
+    a: "אנחנו תומכים בחנויות הישראליות הגדולות — FOX HOME ,ACE ,Golf & Co ,Naaman ,Keter ועוד. ניתן להוסיף כל מוצר מחנות ישראלית מאושרת בעזרת קישור ישיר לדף המוצר.",
   },
   {
     q: "כיצד אני משתף את הרשם עם האורחים?",
@@ -169,7 +169,7 @@ export default function HomePage() {
 
   useEffect(() => {
     FEATURED.forEach(async (p) => {
-      // Use pre-set imageUrl if available — skips scraper for IKEA etc.
+      // Use pre-set imageUrl if available — skips scraper
       if (p.imageUrl !== undefined) {
         setCarouselImages((prev) => ({ ...prev, [p.id]: p.imageUrl ?? null }));
         return;
@@ -199,16 +199,16 @@ export default function HomePage() {
       <section className={`grid grid-cols-1 lg:grid-cols-2 min-h-[calc(100vh-64px)] ${isRtl ? "rtl" : "ltr"}`}>
 
         {/* ── Left: Editorial copy ── */}
-        <div className={`bg-cream flex flex-col justify-center px-8 sm:px-12 lg:px-16 py-16 lg:py-0 ${isRtl ? "text-right items-end" : ""}`}>
+        <div className={`bg-cream flex flex-col justify-center px-8 sm:px-14 lg:px-20 py-20 lg:py-0 ${isRtl ? "text-right items-end" : ""}`}>
 
           {/* Eyebrow */}
-          <p className="eyebrow mb-5">
+          <p className="eyebrow mb-7">
             {isRtl ? "מרשם המתנות הישראלי" : "The Israeli Gift Registry"}
           </p>
 
           {/* Headline — EB Garamond with italic sage accent */}
-          <h1 className="font-display font-normal text-ink leading-[1.0] tracking-tight mb-5"
-              style={{ fontSize: "clamp(2.8rem, 5vw, 4.25rem)" }}>
+          <h1 className="font-display font-normal text-ink leading-[1.0] tracking-tight mb-7"
+              style={{ fontSize: "clamp(3.5rem, 6.5vw, 5.5rem)" }}>
             {isRtl ? (
               <>
                 רשם המתנות שלכם,<br />
@@ -223,10 +223,10 @@ export default function HomePage() {
           </h1>
 
           {/* Rule */}
-          <div className="w-8 h-px bg-warm-border mb-5" />
+          <div className="w-10 h-px bg-warm-border mb-7" />
 
           {/* Body */}
-          <p className="text-pebble font-light text-[17px] leading-relaxed max-w-sm mb-7">
+          <p className="text-pebble font-light text-[18px] leading-relaxed max-w-md mb-9">
             {isRtl
               ? "הוסיפו מתנות מכל חנות ישראלית, שתפו קישור אחד עם האורחים, וקבלו בדיוק מה שרציתם."
               : "Add gifts from any Israeli retailer, share one link with your guests, and receive exactly what you had in mind."}
@@ -234,7 +234,7 @@ export default function HomePage() {
 
           {/* CTAs — square-edged, editorial style */}
           {!isLoading && (
-            <div className={`flex flex-col sm:flex-row items-center gap-6 mb-6 ${isRtl ? "sm:flex-row-reverse" : ""}`}>
+            <div className={`flex flex-col sm:flex-row items-center gap-6 mb-8 ${isRtl ? "sm:flex-row-reverse" : ""}`}>
               {user ? (
                 <Link href="/dashboard">
                   <button className="bg-ink text-cream text-[13px] font-medium tracking-[0.07em] uppercase px-8 py-3.5 hover:opacity-80 transition-opacity">
@@ -284,10 +284,10 @@ export default function HomePage() {
             {/* Floating badge — top */}
             <div className={`absolute -top-5 z-20 ${isRtl ? "-left-5" : "-right-5"}`}>
               <div className="bg-warm-white border border-warm-border rounded-2xl px-3.5 py-2.5 shadow-lg flex items-center gap-2.5">
-                <span className="text-base">🔒</span>
+                <span className="text-base">✓</span>
                 <div>
-                  <p className="text-ink text-xs font-semibold leading-none">{isRtl ? "הגנה מפני כפילויות" : "Duplicate-proof"}</p>
-                  <p className="text-pebble text-[10px] mt-0.5">{isRtl ? "כל מתנה נשמרת בזמן אמת" : "Gifts reserved in real-time"}</p>
+                  <p className="text-ink text-xs font-semibold leading-none">{isRtl ? "ללא כרטיס אשראי" : "No credit card"}</p>
+                  <p className="text-pebble text-[10px] mt-0.5">{isRtl ? "חינם לגמרי להתחיל" : "Free to get started"}</p>
                 </div>
               </div>
             </div>
@@ -308,13 +308,13 @@ export default function HomePage() {
               {/* Gift rows */}
               <div className="divide-y divide-warm-border">
                 {(isRtl ? [
-                  { name: "ספת קטיפה 3 מושבים", retailer: "IKEA", price: "₪2,490", emoji: "🛋️", reserved: false },
+                  { name: "סט כריות ג'יג'י", retailer: "FOX HOME", price: "₪299", emoji: "🛏️", reserved: false },
                   { name: "מיקסר מטבח KitchenAid", retailer: "ACE", price: "₪1,490", emoji: "🍴", reserved: true },
-                  { name: "סט מצעים פרימיום", retailer: "FOX HOME", price: "₪349", emoji: "🛏️", reserved: false },
+                  { name: "סט כלי בישול נעמן", retailer: "נעמן", price: "₪890", emoji: "🍳", reserved: false },
                 ] : [
-                  { name: "IKEA HEMNES Bed Frame", retailer: "IKEA", price: "₪1,699", emoji: "🛏️", reserved: false },
+                  { name: "Gigi Pillow Pair", retailer: "FOX HOME", price: "₪299", emoji: "🛏️", reserved: false },
                   { name: "KitchenAid Stand Mixer", retailer: "ACE", price: "₪1,490", emoji: "🍴", reserved: true },
-                  { name: "Velvet Cushion Set ×4", retailer: "FOX HOME", price: "₪249", emoji: "🛋️", reserved: false },
+                  { name: "Cookware Set", retailer: "Naaman", price: "₪890", emoji: "🍳", reserved: false },
                 ]).map((item, i) => (
                   <div key={i} className={`flex items-center gap-3.5 px-5 py-3.5 ${item.reserved ? "opacity-45" : ""}`}>
                     <div className="w-11 h-11 rounded-xl bg-brand-xlight flex-shrink-0 flex items-center justify-center text-lg">
@@ -361,11 +361,11 @@ export default function HomePage() {
       <div className={`bg-warm-white border-y border-warm-border py-4 px-5 ${isRtl ? "rtl" : "ltr"}`}>
         <div className={`max-w-5xl mx-auto flex flex-wrap justify-center gap-6 sm:gap-10 text-sm text-pebble tracking-wide ${isRtl ? "flex-row-reverse" : ""}`}>
           {(isRtl ? [
-            ["IKEA, ACE, FOX HOME ועוד", "·"],
+            ["ACE, FOX HOME, Golf & Co ועוד", "·"],
             ["שיתוף בוואטסאפ", "·"],
             ["ללא כרטיס אשראי", ""],
           ] : [
-            ["IKEA, ACE, FOX HOME + more", "·"],
+            ["ACE, FOX HOME, Golf & Co + more", "·"],
             ["WhatsApp sharing", "·"],
             ["No credit card required", ""],
           ]).map(([label, sep]) => (
@@ -580,20 +580,28 @@ export default function HomePage() {
               ? "צרו רשם מתנות חינמי, הוסיפו מוצרים מחנויות ישראליות, ושתפו עם האורחים."
               : "Free to create, no credit card needed. Add gifts from any Israeli retailer and share one link."}
           </p>
-          {!user && (
-            <div className={`flex flex-col sm:flex-row gap-3 justify-center ${isRtl ? "sm:flex-row-reverse" : ""}`}>
-              <Link href="/login">
+          <div className={`flex flex-col sm:flex-row gap-3 justify-center ${isRtl ? "sm:flex-row-reverse" : ""}`}>
+            {user ? (
+              <Link href="/dashboard">
                 <button className="bg-ink text-cream text-[13px] font-medium tracking-[0.07em] uppercase px-8 py-3.5 hover:opacity-80 transition-opacity">
-                  {isRtl ? "יצירת רשם חינמי" : "Create your registry — free"}
+                  {isRtl ? "← לדשבורד שלי" : "Go to my dashboard →"}
                 </button>
               </Link>
-              <Link href="/inspiration">
-                <span className="text-[13px] font-medium tracking-[0.05em] uppercase text-pebble hover:text-ink transition-colors">
-                  {isRtl ? "← גלו מוצרים" : "Browse gift ideas →"}
-                </span>
-              </Link>
-            </div>
-          )}
+            ) : (
+              <>
+                <Link href="/login">
+                  <button className="bg-ink text-cream text-[13px] font-medium tracking-[0.07em] uppercase px-8 py-3.5 hover:opacity-80 transition-opacity">
+                    {isRtl ? "יצירת רשם חינמי" : "Create your registry — free"}
+                  </button>
+                </Link>
+                <Link href="/inspiration">
+                  <span className="text-[13px] font-medium tracking-[0.05em] uppercase text-pebble hover:text-ink transition-colors">
+                    {isRtl ? "← גלו מוצרים" : "Browse gift ideas →"}
+                  </span>
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </section>
 

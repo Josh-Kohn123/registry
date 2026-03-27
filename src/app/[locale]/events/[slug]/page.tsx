@@ -294,7 +294,24 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
     <div className={`min-h-screen bg-cream ${isRtl ? "rtl" : "ltr"}`}>
       <PublicEventHeader event={event} />
 
+      {/* Sticky section nav — only shown if both funds and gifts exist */}
+      {funds.length > 0 && hasGifts && (
+        <div className="sticky top-0 z-30 bg-cream/95 backdrop-blur-sm border-b border-warm-border shadow-sm">
+          <div className={`max-w-6xl mx-auto px-4 sm:px-6 flex gap-0 ${isRtl ? "flex-row-reverse" : ""}`}>
+            <a href="#cash-gifts"
+              className="px-5 py-3.5 text-sm font-medium text-pebble hover:text-ink border-b-2 border-transparent hover:border-ink transition-colors">
+              {locale === "he" ? "💰 מתנות כספיות" : "💰 Cash Gifts"}
+            </a>
+            <a href="#gift-list"
+              className="px-5 py-3.5 text-sm font-medium text-pebble hover:text-ink border-b-2 border-transparent hover:border-ink transition-colors">
+              {locale === "he" ? "🎁 מוצרים" : "🎁 Gift List"}
+            </a>
+          </div>
+        </div>
+      )}
+
       {/* Section 1: Funds (Cash-first per F00/F02) */}
+      <div id="cash-gifts">
       <GiftSection
         title={locale === "he" ? "מתנות כספיות" : "Cash Gifts"}
         description={locale === "he" ? "עזרו לנו עם מתנה כספית" : "Help with a cash gift"}
@@ -334,16 +351,13 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
           </div>
         )}
       </GiftSection>
-
-      {/* Subtle divider between sections */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <div className="divider" />
-      </div>
+      </div>{/* end #cash-gifts */}
 
       {/* Section 2: Gifts — grouped by category */}
+      <div id="gift-list">
       <GiftSection
-        title={locale === "he" ? "מוצרים" : "Products"}
-        description={locale === "he" ? "מוצרים מחנויות שלנו" : "Products from our retailers"}
+        title={locale === "he" ? "רשימת מתנות" : "Gift List"}
+        description={locale === "he" ? "בחרו מוצר ושמרו אותו עבורנו" : "Pick something and reserve it for us"}
         isEmpty={!hasGifts}
         emptyMessage={locale === "he" ? "עדיין לא הוסיפו מוצרים" : "No products added yet"}
       >
@@ -397,6 +411,7 @@ export default function PublicEventPage({ params }: PublicEventPageProps) {
           </>
         )}
       </GiftSection>
+      </div>{/* end #gift-list */}
 
       {/* Footer Disclaimer */}
       <footer className={`border-t border-warm-border py-10 px-4 bg-warm-white ${isRtl ? "rtl" : "ltr"}`}>

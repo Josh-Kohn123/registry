@@ -64,8 +64,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.flatten().fieldErrors }, { status: 400 });
     }
     console.error("Event creation error:", error);
+    const message = error instanceof Error ? error.message : "Internal server error";
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: message },
       { status: 500 }
     );
   }

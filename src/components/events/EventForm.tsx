@@ -184,56 +184,8 @@ export function EventForm({
           rows={4}
         />
       </div>
-      <div>
-        <label className="text-sm font-medium text-gray-700 block mb-2">
-          {locale === "he" ? "תמונת כיסוי (אופציונלי)" : "Cover Photo (optional)"}
-        </label>
-        {/* Hidden registered input so react-hook-form always tracks coverImageUrl */}
-        <input type="hidden" {...register("coverImageUrl")} />
-        <div
-          className={`relative border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${
-            coverPreview ? "border-blue-400 bg-blue-50" : "border-gray-300 hover:border-blue-400 hover:bg-gray-50"
-          }`}
-          onClick={() => fileInputRef.current?.click()}
-        >
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/gif"
-            onChange={handleCoverUpload}
-            className="hidden"
-          />
-          {coverPreview ? (
-            <div className="space-y-2">
-              <img
-                src={coverPreview}
-                alt="Cover preview"
-                className="mx-auto max-h-48 rounded-lg object-cover"
-              />
-              <p className="text-sm text-blue-600">
-                {isUploading
-                  ? (locale === "he" ? "מעלה..." : "Uploading...")
-                  : (locale === "he" ? "לחץ להחלפת תמונה" : "Click to change photo")}
-              </p>
-            </div>
-          ) : (
-            <div className="py-6 space-y-2">
-              <svg className="mx-auto h-10 w-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-              </svg>
-              <p className="text-sm text-gray-600">
-                {locale === "he" ? "לחץ להעלאת תמונת כיסוי" : "Click to upload a cover photo"}
-              </p>
-              <p className="text-xs text-gray-400">
-                JPEG, PNG, WebP, GIF — {locale === "he" ? "עד 5MB" : "up to 5MB"}
-              </p>
-            </div>
-          )}
-        </div>
-        {uploadError && (
-          <p className="text-sm text-red-600 mt-1">{uploadError}</p>
-        )}
-      </div>
+      {/* Cover image removed — avatar/profile photo only */}
+      <input type="hidden" {...register("coverImageUrl")} />
     </div>
   );
 

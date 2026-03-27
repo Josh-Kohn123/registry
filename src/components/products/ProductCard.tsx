@@ -1,6 +1,4 @@
 "use client";
-
-import Image from "next/image";
 import { ProductLink } from "@/types/product";
 import { getRetailerName } from "@/lib/retailer-whitelist";
 
@@ -37,11 +35,10 @@ export function ProductCard({ product, locale = "en", eventId }: ProductCardProp
       {/* Product Image */}
       {product.imageUrl ? (
         <div className="relative h-48 w-full bg-cream overflow-hidden">
-          <Image
+          <img
             src={product.imageUrl}
             alt={displayTitle}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             onError={(e) => {
               e.currentTarget.style.display = "none";
             }}

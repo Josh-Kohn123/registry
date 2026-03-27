@@ -40,7 +40,6 @@ const CATEGORY_LABELS_HE: Record<string, string> = {
 
 const RETAILER_COLORS: Record<string, string> = {
   "foxhome.co.il": "bg-orange-100 text-orange-800",
-  "ikea.com": "bg-yellow-100 text-yellow-800",
   "ace.co.il": "bg-red-100 text-red-800",
   "naamanp.co.il": "bg-purple-100 text-purple-800",
   "terminalx.com": "bg-gray-100 text-gray-800",

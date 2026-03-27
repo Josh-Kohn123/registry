@@ -89,6 +89,12 @@ export async function POST(
     // Use provided title or fallback to domain
     const title = validatedData.title || getRetailerName(domain);
 
+    // Rewrite imageUrl through our proxy so hotlink-protected CDNs always work
+    const rawImageUrl = validatedData.imageUrl;
+    const proxiedImageUrl = rawImageUrl
+      ? `/api/image-proxy?url=${encodeURIComponent(rawImageUrl)}`
+      : undefined;
+
     const eventId = (await params).eventId;
     const product = await createProduct(eventId, {
       eventId,
@@ -97,7 +103,7 @@ export async function POST(
       url: validatedData.url,
       retailerDomain: domain,
       category: validatedData.category,
-      imageUrl: validatedData.imageUrl,
+      imageUrl: proxiedImageUrl,
       estimatedPrice: validatedData.estimatedPrice,
       isVisible: true,
     });

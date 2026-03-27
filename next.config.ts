@@ -8,6 +8,12 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: false,
   },
   images: {
+    localPatterns: [
+      {
+        pathname: "/api/image-proxy",
+        search: "**",
+      },
+    ],
     remotePatterns: [
       {
         protocol: "http",
